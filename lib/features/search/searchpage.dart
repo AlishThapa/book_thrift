@@ -35,15 +35,13 @@ class _SearchViewState extends State<_SearchView> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final categories = ['Engineering', 'School', 'Medical', 'Business', 'Arts', 'Science'];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Search Books'),
-        elevation: 0,
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        centerTitle: true,
       ),
       body: BlocBuilder<SearchBloc, SearchState>(
         builder: (context, state) {
@@ -55,47 +53,53 @@ class _SearchViewState extends State<_SearchView> {
 
           return Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                child: Column(
-                  children: [
-                    const SizedBox(height: AppSpacing.xs),
-                    AppSearchBar(
-                      controller: _searchController,
-                      hintText: 'Title, author, course, institution...',
-                      showFilterIcon: false,
-                      onChanged: (v) => context.read<SearchBloc>().add(QueryChanged(v)),
-                      onClear: () {
-                        _searchController.clear();
-                        context.read<SearchBloc>().add(QueryChanged(''));
-                      },
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    SizedBox(
-                      height: 40,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: categories.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.xs),
-                        itemBuilder: (context, index) {
-                          final cat = categories[index];
-                          final isSelected = state.selectedCategory == cat;
-                          return AppFilterChip(
-                            label: cat,
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              context.read<SearchBloc>().add(
-                                    CategoryFilterChanged(selected ? cat : null),
-                                  );
-                            },
-                          );
+              Container(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).appBarTheme.backgroundColor,
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  child: Column(
+                    children: [
+                      AppSearchBar(
+                        controller: _searchController,
+                        hintText: 'Title, author, course...',
+                        showFilterIcon: true,
+                        onChanged: (v) => context.read<SearchBloc>().add(QueryChanged(v)),
+                        onClear: () {
+                          _searchController.clear();
+                          context.read<SearchBloc>().add(QueryChanged(''));
                         },
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: AppSpacing.md),
+                      SizedBox(
+                        height: 38,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: categories.length,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.xs),
+                          itemBuilder: (context, index) {
+                            final cat = categories[index];
+                            final isSelected = state.selectedCategory == cat;
+                            return AppFilterChip(
+                              label: cat,
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                context.read<SearchBloc>().add(
+                                      CategoryFilterChanged(selected ? cat : null),
+                                    );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: AppSpacing.md),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -105,7 +109,7 @@ class _SearchViewState extends State<_SearchView> {
                           ? const _EmptySearchResults()
                           : ListView.separated(
                               itemCount: results.length,
-                              padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                               separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                               itemBuilder: (_, i) => BookCard(
                                 listing: results[i],
@@ -132,6 +136,7 @@ class _InitialSearchState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -139,7 +144,7 @@ class _InitialSearchState extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.05),
+              color: AppColors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -153,7 +158,7 @@ class _InitialSearchState extends StatelessWidget {
             'Discover Your Next Read',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -161,7 +166,7 @@ class _InitialSearchState extends StatelessWidget {
             'Search for books by title, author, course,\nor institution to find exactly what you need.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: isDark ? Colors.white60 : AppColors.textSecondary,
                 ),
           ),
         ],
@@ -175,6 +180,7 @@ class _EmptySearchResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -182,7 +188,7 @@ class _EmptySearchResults extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.05),
+              color: AppColors.error.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -196,7 +202,7 @@ class _EmptySearchResults extends StatelessWidget {
             'No matching books found',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: isDark ? Colors.white : AppColors.textPrimary,
                 ),
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -204,7 +210,7 @@ class _EmptySearchResults extends StatelessWidget {
             'Try adjusting your search or filters to\nfind what you are looking for.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: isDark ? Colors.white60 : AppColors.textSecondary,
                 ),
           ),
         ],

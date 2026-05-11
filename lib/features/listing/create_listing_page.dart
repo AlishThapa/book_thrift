@@ -167,7 +167,15 @@ class _CreateListingViewState extends State<_CreateListingView> {
                   );
                 }
                 if (state.published) {
-                  Navigator.pop(context);
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    // If in the main tab, just clear the form for the next listing
+                    for (final controller in _controllers.values) {
+                      controller.clear();
+                    }
+                    _controllers['quantity']?.text = '1';
+                  }
                 }
               },
               builder: (context, state) {

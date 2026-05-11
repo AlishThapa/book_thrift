@@ -36,14 +36,16 @@ class _ListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: isDark ? Border.all(color: AppColors.borderDark.withOpacity(0.5)) : null,
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.06),
+            color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.06),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -71,9 +73,10 @@ class _ListCard extends StatelessWidget {
                               listing.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.cardTitle,
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ),
+                          const SizedBox(width: 8),
                           _ConditionBadge(condition: listing.condition),
                         ],
                       ),
@@ -82,7 +85,7 @@ class _ListCard extends StatelessWidget {
                         listing.author,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.subtitle,
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Row(
@@ -90,9 +93,19 @@ class _ListCard extends StatelessWidget {
                         children: [
                           Text(
                             '₹${listing.sellingPrice.toStringAsFixed(0)}',
-                            style: AppTextStyles.price.copyWith(fontSize: 18),
+                            style: AppTextStyles.price.copyWith(
+                              fontSize: 18,
+                              color: isDark ? AppColors.primaryLight : AppColors.primary,
+                            ),
                           ),
-                          if (trailing != null) trailing! else const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.neutral),
+                          if (trailing != null)
+                            trailing!
+                          else
+                            Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: isDark ? Colors.white38 : AppColors.neutral,
+                            ),
                         ],
                       ),
                     ],
@@ -114,13 +127,15 @@ class _GridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: isDark ? Border.all(color: AppColors.borderDark.withOpacity(0.5)) : null,
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.06),
+            color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -156,14 +171,14 @@ class _GridCard extends StatelessWidget {
                         listing.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.cardTitle,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         listing.author,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.caption,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Row(
@@ -171,7 +186,9 @@ class _GridCard extends StatelessWidget {
                         children: [
                           Text(
                             '₹${listing.sellingPrice.toStringAsFixed(0)}',
-                            style: AppTextStyles.price,
+                            style: AppTextStyles.price.copyWith(
+                              color: isDark ? AppColors.primaryLight : AppColors.primary,
+                            ),
                           ),
                           if (listing.negotiable)
                             const Icon(Icons.handshake_outlined, size: 16, color: AppColors.accent),
