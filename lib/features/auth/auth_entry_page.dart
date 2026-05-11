@@ -7,6 +7,8 @@ import "package:book_thrift/core/di/injection.dart";
 import "package:book_thrift/features/auth/models/user_profile.dart";
 import "package:book_thrift/features/home/homepage.dart";
 
+import "../../constants/app_colors.dart";
+
 class AuthEntryPage extends StatefulWidget {
   const AuthEntryPage({super.key});
 
@@ -25,7 +27,6 @@ class _AuthEntryPageState extends State<AuthEntryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -52,7 +53,13 @@ class _AuthEntryPageState extends State<AuthEntryPage> {
                 Center(
                   child: TextButton(
                     onPressed: _enter,
-                    child: Text("Continue as guest", style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                    child: Text(
+                      "Continue as guest",
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white60 : Colors.grey.shade500,
+                        fontSize: 13,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -157,19 +164,16 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
         leading: Padding(
           padding: const EdgeInsets.only(left: 12),
           child: Center(
             child: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1A1D2E), size: 18),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).iconTheme.color, size: 18),
               style: IconButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: Theme.of(context).cardTheme.color,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: EdgeInsets.zero,
                 fixedSize: const Size(40, 40),
@@ -191,17 +195,10 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     Text(
                       "Let's build your profile",
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1D2E),
-                          ),
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      "Fill in your details to get started",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-                    ),
+                    Text("Fill in your details to get started", textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
                     const SizedBox(height: 32),
                     _SectionLabel(label: "Account"),
                     _Card(
@@ -228,11 +225,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     const SizedBox(height: 16),
                     _SectionLabel(label: "Academic"),
                     _Card(
-                      child: Column(children: [
-                        _field(_institution, "Institution"),
-                        _field(_course, "Class / Course"),
-                        _field(_semester, "Semester / Year")
-                      ]),
+                      child: Column(children: [_field(_institution, "Institution"), _field(_course, "Class / Course"), _field(_semester, "Semester / Year")]),
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -242,11 +235,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                 padding: const EdgeInsets.all(24),
                 child: SizedBox(
                   width: double.infinity,
-                  child: _PrimaryBtn(
-                    label: "Sign up & Continue",
-                    icon: Icons.check_rounded,
-                    onTap: _save,
-                  ),
+                  child: _PrimaryBtn(label: "Sign up & Continue", icon: Icons.check_rounded, onTap: _save),
                 ),
               ),
             ],
@@ -272,16 +261,13 @@ class _BrandHeader extends StatelessWidget {
         Container(
           width: 56,
           height: 56,
-          decoration: BoxDecoration(color: const Color(0xFF4F8EF7).withOpacity(0.12), borderRadius: BorderRadius.circular(16)),
-          child: const Icon(Icons.auto_stories_rounded, color: Color(0xFF4F8EF7), size: 28),
+          decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(16)),
+          child: const Icon(Icons.auto_stories_rounded, color: AppColors.primary, size: 28),
         ),
         const SizedBox(height: 20),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: Color(0xFF1A1D2E), height: 1.2),
-        ),
+        Text(title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700, fontSize: 28)),
         const SizedBox(height: 8),
-        Text(subtitle, style: TextStyle(fontSize: 15, color: Colors.grey.shade600, height: 1.5)),
+        Text(subtitle, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
       ],
     );
   }
@@ -293,11 +279,13 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12, offset: const Offset(0, 2))],
+        border: isDark ? Border.all(color: AppColors.borderDark) : null,
+        boxShadow: isDark ? null : [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: child,
@@ -336,7 +324,8 @@ class _PrimaryBtn extends StatelessWidget {
         icon: Icon(icon, size: 18),
         label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
         style: FilledButton.styleFrom(
-          backgroundColor: const Color(0xFF4F8EF7),
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
@@ -351,14 +340,16 @@ class _OutlineBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isDark ? Colors.white : AppColors.primary;
     return SizedBox(
       height: 52,
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Color(0xFF4F8EF7), width: 1.5),
+          side: BorderSide(color: color, width: 1.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          foregroundColor: const Color(0xFF4F8EF7),
+          foregroundColor: color,
         ),
         child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
       ),

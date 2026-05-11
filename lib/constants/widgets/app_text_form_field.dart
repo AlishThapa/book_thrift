@@ -41,7 +41,7 @@ class AppTextFormField extends StatelessWidget {
           RichText(
             text: TextSpan(
               text: label.replaceAll('*', '').trim(),
-              style: AppTextStyles.subtitle.copyWith(fontWeight: FontWeight.w600, color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87),
+              style: AppTextStyles.subtitle.copyWith(fontWeight: FontWeight.w600, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87),
               children: required ? const [TextSpan(text: ' *', style: TextStyle(color: Colors.red))] : null,
             ),
           ),

@@ -82,7 +82,6 @@ class _OnboardingPageState extends State<OnboardingPage>
   Widget build(BuildContext context) {
     final color = _pages[_index].color;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
       body: SafeArea(
         child: Column(
           children: [
@@ -95,7 +94,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                   child: Text(
                     "Skip",
                     style: TextStyle(
-                      color: Colors.grey.shade500,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -154,22 +153,16 @@ class _OnboardingSlide extends StatelessWidget {
             Text(
               data.title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                height: 1.25,
-                color: Color(0xFF1A1D2E),
-              ),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 28,
+                  ),
             ),
             const SizedBox(height: 16),
             Text(
               data.subtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey.shade600,
-                height: 1.6,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),
@@ -209,7 +202,7 @@ class _BottomBar extends StatelessWidget {
                 width: active ? 24 : 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: active ? color : Colors.grey.shade300,
+                  color: active ? color : (Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(4),
                 ),
               );

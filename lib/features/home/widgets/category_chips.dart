@@ -51,14 +51,19 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary : AppColors.surface,
+        color: isSelected
+            ? AppColors.primary
+            : (isDark ? const Color(0xFF1E293B) : AppColors.surface),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: isSelected ? AppColors.primary : AppColors.border,
+          color: isSelected
+              ? AppColors.primary
+              : (isDark ? AppColors.borderDark : AppColors.border),
           width: 1.5,
         ),
       ),
@@ -73,21 +78,21 @@ class _CategoryChip extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (isSelected) ...[
-                  Icon(
+                  const Icon(
                     Icons.check_rounded,
                     size: 14,
-                    color: AppColors.surface,
+                    color: Colors.white,
                   ),
                   const SizedBox(width: 5),
                 ],
                 Text(
                   label,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: isSelected
-                        ? AppColors.surface
-                        : AppColors.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: isSelected
+                            ? Colors.white
+                            : (isDark ? Colors.white70 : AppColors.textSecondary),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ],
             ),

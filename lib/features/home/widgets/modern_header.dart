@@ -13,6 +13,7 @@ class ModernHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Expanded(
@@ -22,27 +23,27 @@ class ModernHeader extends StatelessWidget {
               Text(
                 'Hello, $name 👋',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : AppColors.textPrimary,
+                    ),
               ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.1),
+                  color: isDark ? AppColors.primary.withOpacity(0.15) : AppColors.secondary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppColors.secondary.withOpacity(0.2),
+                    color: isDark ? AppColors.primary.withOpacity(0.3) : AppColors.secondary.withOpacity(0.2),
                     width: 1,
                   ),
                 ),
                 child: Text(
                   '✨ Find your next thrift read',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: isDark ? AppColors.primaryLight : AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ),
             ],
@@ -50,11 +51,11 @@ class ModernHeader extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.neutralLight,
+            color: isDark ? const Color(0xFF1E293B) : AppColors.neutralLight,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.15),
+                color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -64,7 +65,7 @@ class ModernHeader extends StatelessWidget {
             onPressed: onNotifications,
             icon: Icon(
               Icons.notifications_none_rounded,
-              color: AppColors.primary,
+              color: isDark ? Colors.white : AppColors.primary,
               size: 26,
             ),
           ),

@@ -24,27 +24,38 @@ class AppSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return TextField(
       controller: controller,
       readOnly: readOnly,
       onTap: onTap,
       onChanged: onChanged,
-      style: const TextStyle(fontSize: 14),
+      style: TextStyle(
+        fontSize: 14,
+        color: isDark ? Colors.white : AppColors.textPrimary,
+      ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: AppColors.textLight, fontSize: 14),
+        hintStyle: TextStyle(
+          color: isDark ? Colors.white38 : AppColors.textLight,
+          fontSize: 14,
+        ),
         prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary, size: 22),
         suffixIcon: _buildSuffix(),
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: isDark ? const Color(0xFF1E293B) : AppColors.surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(999),
-          borderSide: BorderSide(color: AppColors.primary.withOpacity(0.1)),
+          borderSide: BorderSide(
+            color: isDark ? AppColors.borderDark : AppColors.primary.withOpacity(0.1),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(999),
-          borderSide: BorderSide(color: AppColors.primary.withOpacity(0.1)),
+          borderSide: BorderSide(
+            color: isDark ? AppColors.borderDark : AppColors.primary.withOpacity(0.1),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(999),

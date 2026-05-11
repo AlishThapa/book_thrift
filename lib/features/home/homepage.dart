@@ -43,7 +43,6 @@ class _MainShellPageState extends State<MainShellPage> {
     final pages = [Homepage(onNavigate: _onNavigate), const SearchPage(), CreateListingPage(initialDraft: widget.initialDraft), const ChatListPage(), const ProfilePage()];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: _BottomNav(currentIndex: _index, onTap: _onNavigate),
     );
@@ -58,23 +57,31 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SafeArea(
       top: false,
       bottom: true,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, 0),
-        padding: const EdgeInsets.fromLTRB(AppSpacing.xs, AppSpacing.xs, AppSpacing.xs, AppSpacing.xs),
+        margin: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.xs),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).navigationBarTheme.backgroundColor,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 8))],
+          border: isDark ? Border.all(color: AppColors.borderDark.withOpacity(0.5)) : null,
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            )
+          ],
         ),
         child: NavigationBar(
-          height: 68,
+          height: 64,
           backgroundColor: Colors.transparent,
           selectedIndex: currentIndex,
           onDestinationSelected: onTap,
-          indicatorColor: AppColors.primary.withOpacity(0.1),
+          indicatorColor: AppColors.primary.withOpacity(0.12),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: [
             _navItem(Icons.home_outlined, Icons.home_rounded, 'Home'),
@@ -90,7 +97,7 @@ class _BottomNav extends StatelessWidget {
 
   NavigationDestination _navItem(IconData icon, IconData selectedIcon, String label) {
     return NavigationDestination(
-      icon: Icon(icon, color: AppColors.neutral),
+      icon: Icon(icon),
       selectedIcon: Icon(selectedIcon, color: AppColors.primary),
       label: label,
     );
@@ -108,15 +115,14 @@ class Homepage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<HomepageBloc, HomepageState>(
       builder: (context, state) {
-        return Container(
-          color: AppColors.background,
-          child: SafeArea(
+        return Scaffold(
+          body: SafeArea(
             child: RefreshIndicator(
               onRefresh: () async => context.read<HomepageBloc>().add(LoadHomepage()),
               color: AppColors.primary,
-              backgroundColor: AppColors.surface,
+              backgroundColor: Theme.of(context).cardTheme.color,
               child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 slivers: [
                   SliverToBoxAdapter(
                     child: _SectionPadding(
@@ -131,12 +137,16 @@ class Homepage extends StatelessWidget {
 
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      child: AppSearchBar(readOnly: true, hintText: 'Search books, courses, institutions 🔍', onTap: () => onNavigate(1)),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                      child: AppSearchBar(
+                        readOnly: true,
+                        hintText: 'Search books, courses...',
+                        onTap: () => onNavigate(1),
+                      ),
                     ),
                   ),
 
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
 
                   SliverToBoxAdapter(
                     child: Padding(
@@ -144,9 +154,13 @@ class Homepage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _SectionTitle(icon: Icons.tune_rounded, title: 'Filters'),
+                          _SectionTitle(icon: Icons.tune_rounded, title: 'Categories'),
                           const SizedBox(height: AppSpacing.sm),
-                          CategoryChips(categories: _kCategories, selected: state.selectedCategory, onSelected: (cat) => context.read<HomepageBloc>().add(SelectCategory(cat))),
+                          CategoryChips(
+                            categories: _kCategories,
+                            selected: state.selectedCategory,
+                            onSelected: (cat) => context.read<HomepageBloc>().add(SelectCategory(cat)),
+                          ),
                         ],
                       ),
                     ),
@@ -159,12 +173,15 @@ class Homepage extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                       child: _SectionTitle(
                         icon: Icons.auto_stories_rounded,
-                        title: 'Recommended Books',
+                        title: 'Recommended for You',
                         trailing: GestureDetector(
                           onTap: () => onNavigate(1),
                           child: Text(
                             'See all',
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w700,
+                                ),
                           ),
                         ),
                       ),
@@ -175,15 +192,18 @@ class Homepage extends StatelessWidget {
 
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 260,
+                      height: 280,
                       child: state.loading
                           ? _SkeletonList()
                           : state.listings.isEmpty
-                          ? _EmptyState()
-                          : _BookList(
-                              state: state,
-                              onBookTap: (listing) => Navigator.push(context, MaterialPageRoute(builder: (_) => BookDetailPage(listing: listing))),
-                            ),
+                              ? _EmptyState()
+                              : _BookList(
+                                  state: state,
+                                  onBookTap: (listing) => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => BookDetailPage(listing: listing)),
+                                  ),
+                                ),
                     ),
                   ),
 
@@ -196,7 +216,7 @@ class Homepage extends StatelessWidget {
                     ),
                   ),
 
-                  const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
                 ],
               ),
             ),
@@ -264,12 +284,20 @@ class _SurfaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.06), blurRadius: 12, offset: const Offset(0, 4))],
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(24),
+        border: isDark ? Border.all(color: AppColors.borderDark.withOpacity(0.5)) : null,
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          )
+        ],
       ),
       child: child,
     );
@@ -299,18 +327,29 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(7),
-          decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
-          child: Icon(icon, color: AppColors.surface, size: 18),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.primary.withOpacity(0.2) : AppColors.primary,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: isDark ? AppColors.primaryLight : AppColors.surface,
+            size: 18,
+          ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
             title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
           ),
         ),
         if (trailing != null) trailing!,
