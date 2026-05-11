@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/chat/bloc/chat_bloc.dart';
 import 'package:book_thrift/features/chat/models/chat_models.dart';
@@ -18,31 +17,34 @@ class ChatInfoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     // Extract images from messages (logic placeholder - assuming text might contain URLs or we add an image field later)
     final mediaMessages = thread.messages.where((m) => m.text.startsWith('http') && (m.text.endsWith('.jpg') || m.text.endsWith('.png'))).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.surfaceContainerLowest,
       appBar: AppBar(
         title: const Text('Contact Info'),
         elevation: 0,
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: AppSpacing.lg),
             // ── Seller Profile Section ───────────────────────────────────
-            _buildProfileHeader(),
+            _buildProfileHeader(colorScheme, textTheme),
             const SizedBox(height: AppSpacing.xl),
 
             // ── Action Buttons ───────────────────────────────────────────
-            _buildActionButtons(context),
+            _buildActionButtons(context, colorScheme, textTheme),
             const SizedBox(height: AppSpacing.lg),
 
             // ── Media Section ────────────────────────────────────────────
-            _buildMediaSection(mediaMessages),
+            _buildMediaSection(mediaMessages, colorScheme, textTheme),
             const SizedBox(height: AppSpacing.xl),
 
             // ── Delete Chat Button ───────────────────────────────────────
@@ -51,7 +53,7 @@ class ChatInfoPage extends StatelessWidget {
               child: SecondaryButton(
                 label: 'Delete Chat',
                 icon: Icons.delete_outline_rounded,
-                onPressed: () => _confirmDelete(context),
+                onPressed: () => _confirmDelete(context, colorScheme),
               ),
             ),
           ],
@@ -60,7 +62,7 @@ class ChatInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(ColorScheme colorScheme, TextTheme textTheme) {
     return Column(
       children: [
         Container(
@@ -69,7 +71,7 @@ class ChatInfoPage extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [AppColors.primary.withOpacity(0.2), AppColors.primary.withOpacity(0.1)],
+              colors: [colorScheme.primary.withValues(alpha: 0.2), colorScheme.primary.withValues(alpha: 0.1)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -77,8 +79,8 @@ class ChatInfoPage extends StatelessWidget {
           child: Center(
             child: Text(
               thread.peerName[0].toUpperCase(),
-              style: const TextStyle(
-                color: AppColors.primary,
+              style: TextStyle(
+                color: colorScheme.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 40,
               ),
@@ -88,17 +90,17 @@ class ChatInfoPage extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         Text(
           thread.peerName,
-          style: AppTextStyles.sectionTitle.copyWith(fontSize: 22),
+          style: textTheme.titleLarge?.copyWith(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         Text(
           'Seller',
-          style: AppTextStyles.subtitle,
+          style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
       ],
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -121,7 +123,7 @@ class ChatInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMediaSection(List<ChatMessage> mediaMessages) {
+  Widget _buildMediaSection(List<ChatMessage> mediaMessages, ColorScheme colorScheme, TextTheme textTheme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -130,19 +132,19 @@ class ChatInfoPage extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Media, Links and Docs', style: AppTextStyles.cardTitle),
+              Text('Media, Links and Docs', style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
               Text(
                 '${mediaMessages.length}',
-                style: AppTextStyles.caption,
+                style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
         if (mediaMessages.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: Text('No media shared yet', style: TextStyle(color: AppColors.textLight, fontStyle: FontStyle.italic)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Text('No media shared yet', style: TextStyle(color: colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic)),
           )
         else
           SizedBox(
@@ -156,8 +158,9 @@ class ChatInfoPage extends StatelessWidget {
                   width: 100,
                   margin: const EdgeInsets.only(right: AppSpacing.sm),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(color: colorScheme.outlineVariant, width: 1),
                     image: DecorationImage(
                       image: NetworkImage(mediaMessages[index].text),
                       fit: BoxFit.cover,
@@ -171,14 +174,15 @@ class ChatInfoPage extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context) {
+  void _confirmDelete(BuildContext context, ColorScheme colorScheme) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: colorScheme.surface,
         title: const Text('Delete Chat?'),
         content: const Text('Are you sure you want to delete this conversation? This action cannot be undone.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel', style: TextStyle(color: colorScheme.onSurfaceVariant))),
           TextButton(
             onPressed: () {
               chatBloc.add(DeleteThread(thread.id));
@@ -186,7 +190,7 @@ class ChatInfoPage extends StatelessWidget {
               Navigator.pop(context); // Close Info Page
               Navigator.pop(context); // Close Chat Detail Page
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: Text('Delete', style: TextStyle(color: colorScheme.error)),
           ),
         ],
       ),
@@ -207,6 +211,9 @@ class _CircleActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return InkWell(
       onTap: onTap,
       child: Column(
@@ -214,16 +221,17 @@ class _CircleActionButton extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: colorScheme.surface,
               shape: BoxShape.circle,
+              border: Border.all(color: colorScheme.outlineVariant, width: 1),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2)),
+                BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2)),
               ],
             ),
-            child: Icon(icon, color: AppColors.primary),
+            child: Icon(icon, color: colorScheme.primary),
           ),
           const SizedBox(height: 8),
-          Text(label, style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600)),
+          Text(label, style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
         ],
       ),
     );

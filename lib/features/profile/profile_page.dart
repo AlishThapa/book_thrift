@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/my_listings/my_listings_page.dart';
 import 'package:book_thrift/features/notifications/notifications_page.dart';
@@ -17,8 +16,11 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.surfaceContainerLowest,
       body: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
           final p = state.profile;
@@ -42,7 +44,7 @@ class ProfilePage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    _sectionTitle('Store Management'),
+                    _sectionTitle(context, 'Store Management'),
                     _tile(
                       context,
                       Icons.inventory_2_outlined,
@@ -60,7 +62,7 @@ class ProfilePage extends StatelessWidget {
                       color: Colors.orangeAccent,
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    _sectionTitle('Preferences'),
+                    _sectionTitle(context, 'Preferences'),
                     _tile(
                       context,
                       Icons.favorite_rounded,
@@ -86,7 +88,6 @@ class ProfilePage extends StatelessWidget {
                       color: Colors.blueGrey,
                     ),
                     const SizedBox(height: AppSpacing.xl),
-                  
                   ]),
                 ),
               ),
@@ -97,30 +98,35 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _sectionTitle(String title) {
+  Widget _sectionTitle(BuildContext context, String title) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.xs, AppSpacing.sm, 0, AppSpacing.sm),
       child: Text(
         title,
-        style: AppTextStyles.sectionTitle.copyWith(
+        style: theme.textTheme.titleLarge?.copyWith(
           fontSize: 14,
           fontWeight: FontWeight.w800,
-          color: AppColors.textPrimary.withValues(alpha: 0.8),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
         ),
       ),
     );
   }
 
   Widget _tile(BuildContext context, IconData icon, String title, String subtitle, VoidCallback onTap, {Color? color}) {
-    final themeColor = color ?? AppColors.primary;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final themeColor = color ?? colorScheme.primary;
+
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppRadius.md),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: colorScheme.shadow.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -150,17 +156,17 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: AppTextStyles.cardTitle.copyWith(
+                        style: textTheme.titleMedium?.copyWith(
                           fontSize: 15,
-                          color: AppColors.textPrimary,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: AppTextStyles.caption.copyWith(
+                        style: textTheme.bodySmall?.copyWith(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -169,7 +175,7 @@ class ProfilePage extends StatelessWidget {
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14,
-                  color: AppColors.textLight.withValues(alpha: 0.5),
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                 ),
               ],
             ),
@@ -178,5 +184,4 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
-
 }

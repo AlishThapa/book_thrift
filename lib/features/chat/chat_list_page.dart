@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/features/chat/bloc/chat_bloc.dart';
 import 'package:book_thrift/features/chat/chat_detail_page.dart';
 import 'package:book_thrift/features/chat/widgets/chat_thread_card.dart';
@@ -12,13 +11,19 @@ class ChatListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.surfaceContainerLowest,
       appBar: AppBar(
-        title: const Text('Messages'),
+        title: Text(
+          'Messages',
+          style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: colorScheme.surfaceContainerLowest,
+        surfaceTintColor: Colors.transparent,
       ),
       body: BlocBuilder<ChatBloc, ChatState>(
         builder: (context, state) {
@@ -32,7 +37,7 @@ class ChatListPage extends StatelessWidget {
               vertical: AppSpacing.sm,
             ),
             itemCount: state.threads.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 4),
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, i) {
               final t = state.threads[i];
               return ChatThreadCard(
@@ -67,6 +72,9 @@ class _EmptyChatsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -74,30 +82,29 @@ class _EmptyChatsState extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.05),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.chat_bubble_outline_rounded,
               size: 64,
-              color: AppColors.primary,
+              color: colorScheme.primary,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
             'No Messages Yet',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Your conversations with sellers\nwill appear here.',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

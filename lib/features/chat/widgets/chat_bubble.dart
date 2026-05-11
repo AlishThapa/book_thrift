@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/chat/models/chat_models.dart';
 
@@ -12,6 +11,8 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final isMe = message.isMe;
     final timeStr = DateFormat('jm').format(message.sentAt);
 
@@ -24,7 +25,7 @@ class ChatBubble extends StatelessWidget {
         ),
         padding: _getPadding(),
         decoration: BoxDecoration(
-          color: isMe ? AppColors.primary : AppColors.surface,
+          color: isMe ? colorScheme.primary : colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(AppRadius.lg),
             topRight: const Radius.circular(AppRadius.lg),
@@ -34,7 +35,7 @@ class ChatBubble extends StatelessWidget {
           boxShadow: [
             if (!isMe)
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: colorScheme.shadow.withValues(alpha: 0.05),
                 blurRadius: 5,
                 offset: const Offset(0, 2),
               ),
@@ -44,12 +45,12 @@ class ChatBubble extends StatelessWidget {
           crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildContent(context),
+            _buildContent(context, colorScheme, textTheme),
             const SizedBox(height: 4),
             Text(
               timeStr,
-              style: TextStyle(
-                color: isMe ? Colors.white70 : AppColors.textLight,
+              style: textTheme.bodySmall?.copyWith(
+                color: isMe ? colorScheme.onPrimary.withValues(alpha: 0.7) : colorScheme.onSurfaceVariant,
                 fontSize: 10,
               ),
             ),
@@ -66,13 +67,13 @@ class ChatBubble extends StatelessWidget {
     return const EdgeInsets.symmetric(horizontal: 14, vertical: 10);
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(BuildContext context, ColorScheme colorScheme, TextTheme textTheme) {
     switch (message.type) {
       case ChatMessageType.text:
         return Text(
           message.text,
-          style: TextStyle(
-            color: message.isMe ? Colors.white : AppColors.textPrimary,
+          style: textTheme.bodyMedium?.copyWith(
+            color: message.isMe ? colorScheme.onPrimary : colorScheme.onSurface,
             fontSize: 15,
             height: 1.4,
           ),
@@ -80,7 +81,7 @@ class ChatBubble extends StatelessWidget {
       case ChatMessageType.image:
         return _buildImageContent();
       case ChatMessageType.document:
-        return _buildDocumentContent();
+        return _buildDocumentContent(colorScheme, textTheme);
     }
   }
 
@@ -114,13 +115,13 @@ class ChatBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildDocumentContent() {
+  Widget _buildDocumentContent(ColorScheme colorScheme, TextTheme textTheme) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           Icons.description_rounded,
-          color: message.isMe ? Colors.white70 : AppColors.primary,
+          color: message.isMe ? colorScheme.onPrimary.withValues(alpha: 0.7) : colorScheme.primary,
         ),
         const SizedBox(width: 8),
         Flexible(
@@ -128,8 +129,8 @@ class ChatBubble extends StatelessWidget {
             message.fileName ?? 'Document',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: message.isMe ? Colors.white : AppColors.textPrimary,
+            style: textTheme.bodyMedium?.copyWith(
+              color: message.isMe ? colorScheme.onPrimary : colorScheme.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),

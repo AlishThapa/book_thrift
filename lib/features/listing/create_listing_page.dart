@@ -36,13 +36,14 @@ class _CreateListingViewState extends State<_CreateListingView> {
 
   final Map<String, TextEditingController> _controllers = {
     'title': TextEditingController(),
-    'condition': TextEditingController(),
     'sellingPrice': TextEditingController(),
     'publisher': TextEditingController(),
     'quantity': TextEditingController(text: '1'),
     'description': TextEditingController(),
     'location': TextEditingController(),
   };
+
+  final List<String> _conditions = ['New', 'Like New', 'Used', 'Old'];
 
   @override
   void dispose() {
@@ -54,11 +55,13 @@ class _CreateListingViewState extends State<_CreateListingView> {
   }
 
   void _showImageSourceSelection() {
-    final bloc = context.read<CreateListingBloc>(); // capture before sheet opens
+    final bloc = context.read<CreateListingBloc>();
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: colorScheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -68,12 +71,12 @@ class _CreateListingViewState extends State<_CreateListingView> {
             Container(
               width: 40,
               height: 4,
-              decoration: BoxDecoration(color: AppColors.neutral, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(color: colorScheme.outline, borderRadius: BorderRadius.circular(2)),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
               'Add Photos',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppSpacing.md),
             _buildImageSourceOption(
@@ -111,8 +114,11 @@ class _CreateListingViewState extends State<_CreateListingView> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Material(
-      color: AppColors.neutralLight,
+      color: colorScheme.surfaceContainerLow,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -123,8 +129,8 @@ class _CreateListingViewState extends State<_CreateListingView> {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(12)),
-                child: Icon(icon, color: AppColors.surface, size: 24),
+                decoration: BoxDecoration(color: colorScheme.primary, borderRadius: BorderRadius.circular(12)),
+                child: Icon(icon, color: colorScheme.onPrimary, size: 24),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -133,13 +139,13 @@ class _CreateListingViewState extends State<_CreateListingView> {
                   children: [
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                     ),
-                    Text(subtitle, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+                    Text(subtitle, style: textTheme.bodySmall),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: AppColors.neutral, size: 16),
+              Icon(Icons.arrow_forward_ios, color: colorScheme.outline, size: 16),
             ],
           ),
         ),
@@ -149,8 +155,10 @@ class _CreateListingViewState extends State<_CreateListingView> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.surfaceContainerLowest,
       appBar: _buildModernAppBar(),
       body: Column(
         children: [
@@ -170,7 +178,6 @@ class _CreateListingViewState extends State<_CreateListingView> {
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   } else {
-                    // If in the main tab, just clear the form for the next listing
                     for (final controller in _controllers.values) {
                       controller.clear();
                     }
@@ -179,7 +186,6 @@ class _CreateListingViewState extends State<_CreateListingView> {
                 }
               },
               builder: (context, state) {
-                // Populate controllers from state form
                 if (_controllers['title']!.text.isEmpty && state.form.isNotEmpty) {
                   for (final entry in _controllers.entries) {
                     final value = state.form[entry.key]?.toString();
@@ -202,7 +208,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
                         _buildImageSection(state),
                         const SizedBox(height: AppSpacing.lg),
                         _buildFormSection(),
-                        const SizedBox(height: 100), // Space for floating buttons
+                        const SizedBox(height: 100),
                       ],
                     ),
                   ),
@@ -218,19 +224,21 @@ class _CreateListingViewState extends State<_CreateListingView> {
   }
 
   PreferredSizeWidget _buildModernAppBar() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return AppBar(
       elevation: 0,
-      backgroundColor: AppColors.surface,
+      backgroundColor: colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Sell Your Book',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
-          Text('Create a listing in minutes ✨', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          Text('Create a listing in minutes ✨', style: textTheme.bodySmall),
         ],
       ),
       actions: [
@@ -238,18 +246,18 @@ class _CreateListingViewState extends State<_CreateListingView> {
           margin: const EdgeInsets.only(right: 16),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [AppColors.accent.withValues(alpha: 0.1), AppColors.accent.withValues(alpha: 0.2)]),
+            gradient: LinearGradient(colors: [colorScheme.tertiary.withValues(alpha: 0.1), colorScheme.tertiary.withValues(alpha: 0.2)]),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+            border: Border.all(color: colorScheme.tertiary.withValues(alpha: 0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.auto_awesome, color: AppColors.accent, size: 16),
+              Icon(Icons.auto_awesome, color: colorScheme.tertiary, size: 16),
               const SizedBox(width: 4),
               Text(
                 'Quick List',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.accent, fontWeight: FontWeight.w600),
+                style: textTheme.labelSmall?.copyWith(color: colorScheme.tertiary, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -259,19 +267,22 @@ class _CreateListingViewState extends State<_CreateListingView> {
   }
 
   Widget _buildHeaderSection() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.primary.withValues(alpha: 0.1), AppColors.secondary.withValues(alpha: 0.1)]),
+        gradient: LinearGradient(colors: [colorScheme.primary.withValues(alpha: 0.1), colorScheme.secondary.withValues(alpha: 0.1)]),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(16)),
-            child: Icon(Icons.sell_rounded, color: AppColors.surface, size: 24),
+            decoration: BoxDecoration(color: colorScheme.primary, borderRadius: BorderRadius.circular(16)),
+            child: Icon(Icons.sell_rounded, color: colorScheme.onPrimary, size: 24),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -280,10 +291,10 @@ class _CreateListingViewState extends State<_CreateListingView> {
               children: [
                 Text(
                   'Quick Listing Form',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text('Fill in the essentials to publish quickly', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+                Text('Fill in the essentials to publish quickly', style: textTheme.bodySmall),
               ],
             ),
           ),
@@ -293,12 +304,15 @@ class _CreateListingViewState extends State<_CreateListingView> {
   }
 
   Widget _buildImageSection(CreateListingState state) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,8 +321,8 @@ class _CreateListingViewState extends State<_CreateListingView> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: AppColors.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                child: Icon(Icons.camera_alt_rounded, color: AppColors.accent, size: 20),
+                decoration: BoxDecoration(color: colorScheme.tertiary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                child: Icon(Icons.camera_alt_rounded, color: colorScheme.tertiary, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -317,16 +331,16 @@ class _CreateListingViewState extends State<_CreateListingView> {
                   children: [
                     Text(
                       'Book Photos',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       'Add up to 5 photos • Better photos = faster sales',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                      style: textTheme.bodySmall,
                     ),
                   ],
                 ),
               ),
-              if (state.isPickingImages) SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary)),
+              if (state.isPickingImages) SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.primary)),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -357,12 +371,14 @@ class _CreateListingViewState extends State<_CreateListingView> {
   }
 
   Widget _buildImagePreview(int index, String imagePath) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: 120,
       height: 120,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: Stack(
         children: [
@@ -374,8 +390,8 @@ class _CreateListingViewState extends State<_CreateListingView> {
               height: 120,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
-                color: AppColors.neutralLight,
-                child: Icon(Icons.error, color: AppColors.error, size: 32),
+                color: colorScheme.surfaceContainerLow,
+                child: Icon(Icons.error, color: colorScheme.error, size: 32),
               ),
             ),
           ),
@@ -386,8 +402,8 @@ class _CreateListingViewState extends State<_CreateListingView> {
               onTap: () => context.read<CreateListingBloc>().add(RemoveImage(index)),
               child: Container(
                 padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(12)),
-                child: Icon(Icons.close, color: AppColors.surface, size: 16),
+                decoration: BoxDecoration(color: colorScheme.error, borderRadius: BorderRadius.circular(12)),
+                child: Icon(Icons.close, color: colorScheme.onError, size: 16),
               ),
             ),
           ),
@@ -398,6 +414,8 @@ class _CreateListingViewState extends State<_CreateListingView> {
 
   Widget _buildAddImageButton(CreateListingState state) {
     final canAddMore = state.selectedImages.length < 5;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Material(
       color: Colors.transparent,
@@ -407,7 +425,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
         child: Container(
           height: 80,
           decoration: BoxDecoration(
-            border: Border.all(color: canAddMore ? AppColors.primary.withValues(alpha: 0.3) : AppColors.neutral.withValues(alpha: 0.3), width: 2, style: BorderStyle.solid),
+            border: Border.all(color: canAddMore ? colorScheme.primary.withValues(alpha: 0.3) : colorScheme.outline, width: 2, style: BorderStyle.solid),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(
@@ -416,10 +434,10 @@ class _CreateListingViewState extends State<_CreateListingView> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: canAddMore ? AppColors.primary.withValues(alpha: 0.1) : AppColors.neutral.withValues(alpha: 0.1),
+                  color: canAddMore ? colorScheme.primary.withValues(alpha: 0.1) : colorScheme.outline.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(Icons.add_a_photo_rounded, color: canAddMore ? AppColors.primary : AppColors.neutral, size: 24),
+                child: Icon(Icons.add_a_photo_rounded, color: canAddMore ? colorScheme.primary : colorScheme.outline, size: 24),
               ),
               const SizedBox(width: AppSpacing.sm),
               Column(
@@ -428,13 +446,11 @@ class _CreateListingViewState extends State<_CreateListingView> {
                 children: [
                   Text(
                     canAddMore ? 'Add Photos' : 'Maximum 5 photos',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600, color: canAddMore ? AppColors.primary : AppColors.neutral),
+                    style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600, color: canAddMore ? colorScheme.primary : colorScheme.outline),
                   ),
                   Text(
                     canAddMore ? 'Tap to upload images' : '${state.selectedImages.length}/5 photos added',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                    style: textTheme.bodySmall,
                   ),
                 ],
               ),
@@ -446,12 +462,15 @@ class _CreateListingViewState extends State<_CreateListingView> {
   }
 
   Widget _buildFormSection() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -460,26 +479,75 @@ class _CreateListingViewState extends State<_CreateListingView> {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: AppColors.secondary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                child: Icon(Icons.edit_note_rounded, color: AppColors.secondary, size: 20),
+                decoration: BoxDecoration(color: colorScheme.secondary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                child: Icon(Icons.edit_note_rounded, color: colorScheme.secondary, size: 20),
               ),
               const SizedBox(width: 12),
               Text(
                 'Book Details',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
           _buildFormField('title', 'Book Title *', hint: 'Enter the book name'),
-          _buildFormField('condition', 'Condition *', hint: 'New / Like New / Good / Fair'),
-          _buildFormField('sellingPrice', 'Selling Price *', type: TextInputType.number, hint: '₹ Enter price'),
+          _buildConditionDropdown(),
+          _buildFormField('sellingPrice', 'Selling Price *', type: TextInputType.number, hint: 'NPR Enter price'),
           _buildFormField('publisher', 'Publisher', required: false, hint: 'Book publisher (optional)'),
           _buildFormField('quantity', 'Quantity', type: TextInputType.number, hint: 'Number of copies'),
           _buildFormField('description', 'Description', required: false, maxLines: 4, hint: 'Additional details about the book'),
           _buildFormField('location', 'Location *', hint: 'Your city/area'),
         ],
       ),
+    );
+  }
+
+  Widget _buildConditionDropdown() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return BlocBuilder<CreateListingBloc, CreateListingState>(
+      buildWhen: (p, c) => p.form['condition'] != c.form['condition'],
+      builder: (context, state) {
+        final currentValue = state.form['condition']?.toString();
+        // Ensure the value exists in our list, otherwise null
+        final selectedValue = _conditions.contains(currentValue) ? currentValue : null;
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Condition *',
+                style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500, color: colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: selectedValue,
+                hint: Text('Select Condition', style: textTheme.bodyMedium?.copyWith(color: colorScheme.outline)),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  filled: true,
+                  fillColor: colorScheme.surfaceContainerLow,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1)),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.primary, width: 1.5)),
+                ),
+                items: _conditions.map((condition) {
+                  return DropdownMenuItem(value: condition, child: Text(condition));
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    context.read<CreateListingBloc>().add(UpdateListingField('condition', value));
+                  }
+                },
+                validator: (value) => (value == null || value.isEmpty) ? 'Condition is required' : null,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -499,6 +567,9 @@ class _CreateListingViewState extends State<_CreateListingView> {
   }
 
   Widget _buildFloatingActionButtons() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return BlocBuilder<CreateListingBloc, CreateListingState>(
       builder: (context, state) {
         final isEdit = state.form['id'] != null;
@@ -510,10 +581,10 @@ class _CreateListingViewState extends State<_CreateListingView> {
                 child: Container(
                   height: 56,
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border, width: 1.5),
-                    boxShadow: [BoxShadow(color: AppColors.neutral.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 4))],
+                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.5), width: 1.5),
+                    boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
                   ),
                   child: Material(
                     color: Colors.transparent,
@@ -524,11 +595,11 @@ class _CreateListingViewState extends State<_CreateListingView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.bookmark_border_rounded, color: AppColors.textSecondary, size: 20),
+                            Icon(Icons.bookmark_border_rounded, color: colorScheme.primary, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               'Save Draft',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.primary),
                             ),
                           ],
                         ),
@@ -537,15 +608,14 @@ class _CreateListingViewState extends State<_CreateListingView> {
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
-                flex: 2,
                 child: Container(
                   height: 56,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [AppColors.accent, AppColors.accentDark]),
+                    gradient: LinearGradient(colors: [colorScheme.primary, colorScheme.primary.withValues(alpha: 0.8)]),
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: AppColors.accent.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
+                    boxShadow: [BoxShadow(color: colorScheme.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
                   ),
                   child: Material(
                     color: Colors.transparent,
@@ -553,7 +623,6 @@ class _CreateListingViewState extends State<_CreateListingView> {
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
                         if (!formKey.currentState!.validate()) {
-                          // Scroll to the first error field
                           _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                           return;
                         }
@@ -563,11 +632,11 @@ class _CreateListingViewState extends State<_CreateListingView> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(isEdit ? Icons.check_circle_outline_rounded : Icons.publish_rounded, color: AppColors.surface, size: 20),
+                            Icon(isEdit ? Icons.check_circle_outline_rounded : Icons.publish_rounded, color: colorScheme.onPrimary, size: 20),
                             const SizedBox(width: 8),
                             Text(
-                              isEdit ? 'Publish Changes' : 'Publish Listing',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: AppColors.surface),
+                              isEdit ? 'Publish' : 'Publish',
+                              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onPrimary),
                             ),
                           ],
                         ),

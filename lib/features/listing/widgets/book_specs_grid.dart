@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
 
@@ -66,17 +65,21 @@ class _SpecTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     final isEmpty = value.trim().isEmpty;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.primary.withOpacity(0.05)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.primary),
+          Icon(icon, size: 20, color: colorScheme.primary),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
@@ -85,15 +88,15 @@ class _SpecTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: AppTextStyles.caption.copyWith(fontSize: 10),
+                  style: textTheme.bodySmall?.copyWith(fontSize: 10),
                 ),
                 Text(
                   isEmpty ? 'N/A' : value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.subtitle.copyWith(
+                  style: textTheme.bodyMedium?.copyWith(
                     fontWeight: isEmpty ? FontWeight.normal : FontWeight.bold,
-                    color: isEmpty ? AppColors.textLight : AppColors.textPrimary,
+                    color: isEmpty ? colorScheme.onSurfaceVariant : colorScheme.onSurface,
                     fontStyle: isEmpty ? FontStyle.italic : FontStyle.normal,
                   ),
                 ),

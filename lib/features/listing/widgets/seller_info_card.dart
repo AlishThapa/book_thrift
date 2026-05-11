@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 
 class SellerInfoCard extends StatelessWidget {
@@ -18,14 +17,18 @@ class SellerInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.04),
+            color: colorScheme.shadow,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -35,11 +38,11 @@ class SellerInfoCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
+            backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
             child: Text(
               sellerName[0],
-              style: const TextStyle(
-                color: AppColors.primary,
+              style: TextStyle(
+                color: colorScheme.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -52,16 +55,16 @@ class SellerInfoCard extends StatelessWidget {
               children: [
                 Text(
                   sellerName,
-                  style: AppTextStyles.cardTitle,
+                  style: textTheme.titleMedium,
                 ),
                 const SizedBox(height: 2),
                 Row(
                   children: [
-                    const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
+                    Icon(Icons.star_rounded, size: 16, color: colorScheme.tertiary),
                     const SizedBox(width: 4),
                     Text(
                       '$rating ($reviewsCount reviews)',
-                      style: AppTextStyles.caption,
+                      style: textTheme.bodySmall,
                     ),
                   ],
                 ),
@@ -70,7 +73,7 @@ class SellerInfoCard extends StatelessWidget {
           ),
           IconButton(
             onPressed: onTap,
-            icon: const Icon(Icons.chevron_right_rounded, color: AppColors.neutral),
+            icon: Icon(Icons.chevron_right_rounded, color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),

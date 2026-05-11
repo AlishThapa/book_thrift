@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/constants/widgets/app_surface.dart';
 import 'package:book_thrift/core/data/app_repository.dart';
@@ -21,8 +20,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.surfaceContainerLowest,
       body: CustomScrollView(
         key: _refreshKey,
         slivers: [
@@ -38,7 +40,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
               final items = snapshot.data ?? [];
               if (items.isEmpty) {
-                return SliverFillRemaining(child: _buildEmptyState());
+                return SliverFillRemaining(child: _buildEmptyState(context));
               }
 
               // Sort by date newest first
@@ -47,7 +49,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               return SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                 sliver: SliverList(
-                  delegate: SliverChildListDelegate(_groupNotifications(items)),
+                  delegate: SliverChildListDelegate(_groupNotifications(context, items)),
                 ),
               );
             },
@@ -58,15 +60,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SliverToBoxAdapter(
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppColors.primary, AppColors.secondary],
+            colors: [colorScheme.primary, colorScheme.secondary],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(32),
             bottomRight: Radius.circular(32),
           ),
@@ -111,7 +114,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  List<Widget> _groupNotifications(List<AppNotification> items) {
+  List<Widget> _groupNotifications(BuildContext context, List<AppNotification> items) {
     final List<Widget> widgets = [];
     final now = DateTime.now();
 
@@ -120,32 +123,33 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final older = items.where((i) => !today.contains(i) && !yesterday.contains(i)).toList();
 
     if (today.isNotEmpty) {
-      widgets.add(_sectionTitle('Today'));
+      widgets.add(_sectionTitle(context, 'Today'));
       widgets.addAll(today.map((i) => _NotificationTile(notification: i, onDismissed: _refresh)));
     }
 
     if (yesterday.isNotEmpty) {
-      widgets.add(_sectionTitle('Yesterday'));
+      widgets.add(_sectionTitle(context, 'Yesterday'));
       widgets.addAll(yesterday.map((i) => _NotificationTile(notification: i, onDismissed: _refresh)));
     }
 
     if (older.isNotEmpty) {
-      widgets.add(_sectionTitle('Earlier'));
+      widgets.add(_sectionTitle(context, 'Earlier'));
       widgets.addAll(older.map((i) => _NotificationTile(notification: i, onDismissed: _refresh)));
     }
 
     return widgets;
   }
 
-  Widget _sectionTitle(String title) {
+  Widget _sectionTitle(BuildContext context, String title) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.md, bottom: AppSpacing.sm, left: 4),
       child: Text(
         title.toUpperCase(),
-        style: AppTextStyles.caption.copyWith(
+        style: theme.textTheme.bodySmall?.copyWith(
           fontWeight: FontWeight.w800,
           letterSpacing: 1.1,
-          color: AppColors.textSecondary,
+          color: theme.colorScheme.onSurfaceVariant,
         ),
       ),
     );
@@ -155,7 +159,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
     return d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -163,25 +171,25 @@ class _NotificationsPageState extends State<NotificationsPage> {
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.05),
+              color: colorScheme.primary.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
               size: 80,
-              color: AppColors.primary.withOpacity(0.15),
+              color: colorScheme.primary.withValues(alpha: 0.15),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          const Text(
+          Text(
             'All caught up!',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Text(
+          Text(
             'Your notifications will live here.',
             textAlign: TextAlign.center,
-            style: AppTextStyles.subtitle,
+            style: textTheme.bodyMedium,
           ),
         ],
       ),
@@ -197,6 +205,9 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     final timeFormat = DateFormat('h:mm a');
 
     return Dismissible(
@@ -207,7 +218,7 @@ class _NotificationTile extends StatelessWidget {
         padding: const EdgeInsets.only(right: 24),
         margin: const EdgeInsets.only(bottom: AppSpacing.sm),
         decoration: BoxDecoration(
-          color: AppColors.error,
+          color: colorScheme.error,
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: const Icon(Icons.delete_sweep_rounded, color: Colors.white, size: 28),
@@ -222,7 +233,7 @@ class _NotificationTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildLeadingIcon(),
+            _buildLeadingIcon(context),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
@@ -234,9 +245,9 @@ class _NotificationTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           notification.title,
-                          style: AppTextStyles.cardTitle.copyWith(
+                          style: textTheme.titleMedium?.copyWith(
                             fontSize: 15,
-                            color: notification.isRead ? AppColors.textSecondary : AppColors.textPrimary,
+                            color: notification.isRead ? colorScheme.onSurfaceVariant : colorScheme.onSurface,
                             fontWeight: notification.isRead ? FontWeight.w600 : FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -245,16 +256,15 @@ class _NotificationTile extends StatelessWidget {
                       ),
                       Text(
                         timeFormat.format(notification.createdAt),
-                        style: AppTextStyles.caption.copyWith(fontSize: 10, color: AppColors.textLight),
+                        style: textTheme.bodySmall?.copyWith(fontSize: 10),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
                     notification.body,
-                    style: AppTextStyles.subtitle.copyWith(
+                    style: textTheme.bodyMedium?.copyWith(
                       fontSize: 13,
-                      color: AppColors.textSecondary,
                       height: 1.3,
                     ),
                     maxLines: 2,
@@ -268,8 +278,8 @@ class _NotificationTile extends StatelessWidget {
                 margin: const EdgeInsets.only(left: AppSpacing.sm, top: 4),
                 width: 6,
                 height: 6,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -279,9 +289,10 @@ class _NotificationTile extends StatelessWidget {
     );
   }
 
-  Widget _buildLeadingIcon() {
+  Widget _buildLeadingIcon(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     IconData icon = Icons.notifications_none_rounded;
-    Color color = AppColors.primary;
+    Color color = colorScheme.primary;
 
     final t = notification.title.toLowerCase();
     if (t.contains('order') || t.contains('bought') || t.contains('sold')) {
@@ -295,13 +306,13 @@ class _NotificationTile extends StatelessWidget {
       color = Colors.pink;
     } else if (t.contains('alert') || t.contains('security')) {
       icon = Icons.security_outlined;
-      color = AppColors.error;
+      color = colorScheme.error;
     }
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.xs),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(icon, color: color, size: 22),

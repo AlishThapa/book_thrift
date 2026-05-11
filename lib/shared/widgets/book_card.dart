@@ -36,16 +36,17 @@ class _ListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: isDark ? Border.all(color: AppColors.borderDark.withOpacity(0.5)) : null,
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.06),
+            color: colorScheme.shadow.withValues(alpha: 0.06),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -73,7 +74,7 @@ class _ListCard extends StatelessWidget {
                               listing.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium,
+                              style: theme.textTheme.titleMedium,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -85,7 +86,7 @@ class _ListCard extends StatelessWidget {
                         listing.author,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: theme.textTheme.bodyMedium,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Row(
@@ -95,7 +96,9 @@ class _ListCard extends StatelessWidget {
                             '₹${listing.sellingPrice.toStringAsFixed(0)}',
                             style: AppTextStyles.price.copyWith(
                               fontSize: 18,
-                              color: isDark ? AppColors.primaryLight : AppColors.primary,
+                              color: theme.brightness == Brightness.dark 
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.primary,
                             ),
                           ),
                           if (trailing != null)
@@ -104,7 +107,7 @@ class _ListCard extends StatelessWidget {
                             Icon(
                               Icons.arrow_forward_ios_rounded,
                               size: 14,
-                              color: isDark ? Colors.white38 : AppColors.neutral,
+                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                             ),
                         ],
                       ),
@@ -127,15 +130,16 @@ class _GridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
+        color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: isDark ? Border.all(color: AppColors.borderDark.withOpacity(0.5)) : null,
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.06),
+            color: colorScheme.shadow.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -171,14 +175,14 @@ class _GridCard extends StatelessWidget {
                         listing.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: theme.textTheme.titleMedium,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         listing.author,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: theme.textTheme.bodySmall,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Row(
@@ -187,7 +191,9 @@ class _GridCard extends StatelessWidget {
                           Text(
                             '₹${listing.sellingPrice.toStringAsFixed(0)}',
                             style: AppTextStyles.price.copyWith(
-                              color: isDark ? AppColors.primaryLight : AppColors.primary,
+                              color: theme.brightness == Brightness.dark 
+                                ? colorScheme.onPrimaryContainer 
+                                : colorScheme.primary,
                             ),
                           ),
                           if (listing.negotiable)
@@ -214,6 +220,7 @@ class _BookImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Hero(
       tag: 'book_image_${listing.id}',
       child: Container(
@@ -225,29 +232,29 @@ class _BookImage extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColors.primary.withOpacity(0.1),
-              AppColors.primary.withOpacity(0.05),
+              colorScheme.primary.withValues(alpha: 0.1),
+              colorScheme.primary.withValues(alpha: 0.05),
             ],
           ),
         ),
         child: listing.imagePaths.isNotEmpty
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(AppRadius.md),
-                child: _buildImage(listing.imagePaths.first),
+                child: _buildImage(listing.imagePaths.first, colorScheme),
               )
             : const _BookPlaceholder(),
       ),
     );
   }
 
-  Widget _buildImage(String path) {
+  Widget _buildImage(String path, ColorScheme colorScheme) {
     final isNetwork = path.startsWith('http');
     if (isNetwork) {
       return CachedNetworkImage(
         imageUrl: path,
         fit: BoxFit.cover,
         placeholder: (context, url) => Container(
-          color: AppColors.primary.withOpacity(0.05),
+          color: colorScheme.primary.withValues(alpha: 0.05),
           child: const Center(
             child: SizedBox(
               width: 20,
@@ -277,7 +284,7 @@ class _BookPlaceholder extends StatelessWidget {
       child: Icon(
         Icons.auto_stories_rounded,
         size: 32,
-        color: AppColors.primary.withOpacity(0.3),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
       ),
     );
   }
@@ -307,7 +314,7 @@ class _ConditionBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.1),
+        color: badgeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
       child: Text(

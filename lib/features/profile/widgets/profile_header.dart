@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/auth/models/user_profile.dart';
 
@@ -15,17 +14,20 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Stack(
       children: [
         Container(
           height: 190,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [AppColors.primary, AppColors.secondaryDark],
+              colors: [colorScheme.primary, colorScheme.secondary],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(32),
               bottomRight: Radius.circular(32),
             ),
@@ -34,11 +36,11 @@ class ProfileHeader extends StatelessWidget {
         SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
                 child: Row(
                   children: [
-                    const Text(
+                    Text(
                       'Account',
                       style: TextStyle(
                         color: Colors.white,
@@ -57,10 +59,10 @@ class ProfileHeader extends StatelessWidget {
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white.withOpacity(0.5), width: 2),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
                       ),
                       child: CircleAvatar(
-                        radius: 35, // Shorter avatar
+                        radius: 35,
                         backgroundColor: Colors.white24,
                         backgroundImage: (profile?.imagePath != null && profile!.imagePath.isNotEmpty)
                             ? NetworkImage(profile!.imagePath)
@@ -94,7 +96,7 @@ class ProfileHeader extends StatelessWidget {
                           Text(
                             profile?.institutionName ?? 'Join a Campus',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -104,7 +106,7 @@ class ProfileHeader extends StatelessWidget {
                           Text(
                             profile?.location ?? 'Add location',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
+                              color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 12,
                             ),
                           ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 
 class AppSearchBar extends StatelessWidget {
   const AppSearchBar({
@@ -24,66 +23,68 @@ class AppSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return TextField(
       controller: controller,
       readOnly: readOnly,
       onTap: onTap,
       onChanged: onChanged,
-      style: TextStyle(
+      style: textTheme.bodyMedium?.copyWith(
         fontSize: 14,
-        color: isDark ? Colors.white : AppColors.textPrimary,
+        color: colorScheme.onSurface,
       ),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
-          color: isDark ? Colors.white38 : AppColors.textLight,
+        hintStyle: textTheme.bodyMedium?.copyWith(
+          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
           fontSize: 14,
         ),
-        prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary, size: 22),
-        suffixIcon: _buildSuffix(),
+        prefixIcon: Icon(Icons.search_rounded, color: colorScheme.primary, size: 22),
+        suffixIcon: _buildSuffix(colorScheme),
         filled: true,
-        fillColor: isDark ? const Color(0xFF1E293B) : AppColors.surface,
+        fillColor: colorScheme.surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(999),
           borderSide: BorderSide(
-            color: isDark ? AppColors.borderDark : AppColors.primary.withOpacity(0.1),
+            color: colorScheme.outline.withValues(alpha: 0.5),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(999),
           borderSide: BorderSide(
-            color: isDark ? AppColors.borderDark : AppColors.primary.withOpacity(0.1),
+            color: colorScheme.outline.withValues(alpha: 0.5),
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(999),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
       ),
     );
   }
 
-  Widget? _buildSuffix() {
+  Widget? _buildSuffix(ColorScheme colorScheme) {
     if (onClear != null && controller != null) {
       return ValueListenableBuilder(
         valueListenable: controller!,
         builder: (context, value, _) {
           if (value.text.isEmpty) {
             return showFilterIcon 
-                ? const Icon(Icons.tune_rounded, size: 20, color: AppColors.neutral) 
+                ? Icon(Icons.tune_rounded, size: 20, color: colorScheme.onSurfaceVariant) 
                 : const SizedBox.shrink();
           }
           return IconButton(
-            icon: const Icon(Icons.clear_rounded, size: 20, color: AppColors.neutral),
+            icon: Icon(Icons.clear_rounded, size: 20, color: colorScheme.onSurfaceVariant),
             onPressed: onClear,
           );
         },
       );
     }
     if (showFilterIcon) {
-      return const Icon(Icons.tune_rounded, size: 20, color: AppColors.neutral);
+      return Icon(Icons.tune_rounded, size: 20, color: colorScheme.onSurfaceVariant);
     }
     return null;
   }

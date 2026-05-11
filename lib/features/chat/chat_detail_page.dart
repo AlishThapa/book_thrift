@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/features/chat/bloc/chat_bloc.dart';
 import 'package:book_thrift/features/chat/chat_info_page.dart';
 import 'package:book_thrift/features/chat/models/chat_models.dart';
@@ -41,20 +40,26 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   }
 
   void _onAttach() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
         ),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Share Media', style: AppTextStyles.sectionTitle),
+              Text(
+                'Share Media',
+                style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: AppSpacing.md),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -111,6 +116,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return BlocConsumer<ChatBloc, ChatState>(
       listener: (context, state) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
@@ -120,24 +128,31 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         final messages = (thread?.messages ?? []).reversed.toList();
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: colorScheme.surfaceContainerLowest,
           appBar: AppBar(
             elevation: 0,
-            backgroundColor: AppColors.surface,
-            foregroundColor: AppColors.textPrimary,
+            backgroundColor: colorScheme.surface,
+            foregroundColor: colorScheme.onSurface,
             titleSpacing: 0,
             title: Row(
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundColor: AppColors.primary.withOpacity(0.1),
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                   child: Text(
                     (thread?.peerName ?? 'S')[0].toUpperCase(),
-                    style: const TextStyle(fontSize: 14, color: AppColors.primary, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(thread?.peerName ?? 'Seller', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  thread?.peerName ?? 'Seller',
+                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
               ],
             ),
             actions: [
@@ -214,6 +229,8 @@ class _AttachmentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.md),
@@ -223,13 +240,16 @@ class _AttachmentItem extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color),
           ),
           const SizedBox(height: 8),
-          Text(label, style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -242,6 +262,7 @@ class _QuickActionsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final actions = ['Is this available?', 'Final price?', 'Meetup location?'];
 
     return SingleChildScrollView(
@@ -252,9 +273,12 @@ class _QuickActionsRow extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: AppSpacing.xs),
             child: ActionChip(
-              label: Text(text, style: const TextStyle(fontSize: 12, color: AppColors.primary)),
-              backgroundColor: AppColors.primary.withOpacity(0.05),
-              side: BorderSide(color: AppColors.primary.withOpacity(0.1)),
+              label: Text(
+                text,
+                style: TextStyle(fontSize: 12, color: colorScheme.primary),
+              ),
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.05),
+              side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.1)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               onPressed: () => onAction(text),
             ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 
 class PrimaryButton extends StatelessWidget {
@@ -18,6 +17,9 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return SizedBox(
       height: 54,
       width: fullWidth ? double.infinity : null,
@@ -25,7 +27,7 @@ class PrimaryButton extends StatelessWidget {
         onPressed: onPressed,
         icon: icon == null
             ? const SizedBox.shrink()
-            : Icon(icon, size: 20, color: Colors.white),
+            : Icon(icon, size: 20, color: colorScheme.onPrimary),
         label: Text(
           label,
           style: const TextStyle(
@@ -35,13 +37,13 @@ class PrimaryButton extends StatelessWidget {
           ),
         ),
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           elevation: 2,
-          shadowColor: AppColors.primary.withOpacity(0.4),
+          shadowColor: colorScheme.primary.withValues(alpha: 0.4),
         ),
       ),
     );
@@ -64,6 +66,9 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return SizedBox(
       height: 54,
       width: fullWidth ? double.infinity : null,
@@ -71,17 +76,17 @@ class SecondaryButton extends StatelessWidget {
         onPressed: onPressed,
         icon: icon == null
             ? const SizedBox.shrink()
-            : Icon(icon, size: 20, color: AppColors.primary),
+            : Icon(icon, size: 20, color: colorScheme.primary),
         label: Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppColors.primary,
+            color: colorScheme.primary,
           ),
         ),
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: AppColors.primary, width: 1.5),
+          side: BorderSide(color: colorScheme.primary, width: 1.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),

@@ -23,16 +23,20 @@ class BookDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.surfaceContainerLowest,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 350,
             pinned: true,
             elevation: 0,
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
             flexibleSpace: FlexibleSpaceBar(
               background: BookDetailImageCarousel(imagePaths: listing.imagePaths, listingId: listing.id),
             ),
@@ -42,13 +46,13 @@ class BookDetailPage extends StatelessWidget {
                   final selected = state.ids.contains(listing.id);
                   return IconButton(
                     onPressed: () => context.read<WishlistBloc>().add(ToggleWishlist(listing.id)),
-                    icon: Icon(selected ? Icons.favorite : Icons.favorite_border, color: selected ? AppColors.error : Colors.white),
+                    icon: Icon(selected ? Icons.favorite : Icons.favorite_border, color: selected ? colorScheme.error : colorScheme.onPrimary),
                   );
                 },
               ),
               IconButton(
                 onPressed: _onShare,
-                icon: const Icon(Icons.share_rounded, color: Colors.white),
+                icon: Icon(Icons.share_rounded, color: colorScheme.onPrimary),
               ),
               const SizedBox(width: 8),
             ],
@@ -56,9 +60,9 @@ class BookDetailPage extends StatelessWidget {
 
           SliverToBoxAdapter(
             child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(AppRadius.lg), topRight: Radius.circular(AppRadius.lg)),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerLowest,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(AppRadius.lg), topRight: Radius.circular(AppRadius.lg)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
@@ -73,20 +77,36 @@ class BookDetailPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(listing.title.isEmpty ? 'Untitled Book' : listing.title, style: AppTextStyles.largeHeading),
+                              Text(
+                                listing.title.isEmpty ? 'Untitled Book' : listing.title,
+                                style: textTheme.headlineSmall,
+                              ),
                               const SizedBox(height: 4),
-                              Text(listing.author.isEmpty ? 'Unknown Author' : 'by ${listing.author}', style: AppTextStyles.subtitle),
+                              Text(
+                                listing.author.isEmpty ? 'Unknown Author' : 'by ${listing.author}',
+                                style: textTheme.bodyMedium,
+                              ),
                             ],
                           ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('₹${listing.sellingPrice.toStringAsFixed(0)}', style: AppTextStyles.price.copyWith(fontSize: 28, color: AppColors.primary)),
+                            Text(
+                              '₹${listing.sellingPrice.toStringAsFixed(0)}',
+                              style: textTheme.headlineSmall?.copyWith(
+                                fontSize: 28,
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             if (listing.negotiable)
                               Text(
                                 'Negotiable',
-                                style: AppTextStyles.caption.copyWith(color: AppColors.accent, fontWeight: FontWeight.bold),
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.tertiary,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                           ],
                         ),
@@ -94,18 +114,19 @@ class BookDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.lg),
 
-                    const Text('Book Details', style: AppTextStyles.sectionTitle),
+                    Text('Book Details', style: textTheme.titleLarge),
                     const SizedBox(height: AppSpacing.sm),
                     BookSpecsGrid(listing: listing),
 
-                    const SizedBox(height: AppSpacing.lg), const Text('About this book', style: AppTextStyles.sectionTitle),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text('About this book', style: textTheme.titleLarge),
                     const SizedBox(height: AppSpacing.sm),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: colorScheme.surface,
                         borderRadius: BorderRadius.circular(AppRadius.md),
-                        border: Border.all(color: AppColors.primary.withOpacity(0.05)),
+                        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.05)),
                       ),
                       child: SizedBox(
                         width: double.infinity,
@@ -115,7 +136,11 @@ class BookDetailPage extends StatelessWidget {
                           children: [
                             Text(
                               listing.description.trim().isEmpty ? 'No details provided' : listing.description,
-                              style: AppTextStyles.subtitle.copyWith(color: AppColors.textPrimary, height: 1.5, fontStyle: listing.description.trim().isEmpty ? FontStyle.italic : FontStyle.normal),
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface,
+                                height: 1.5,
+                                fontStyle: listing.description.trim().isEmpty ? FontStyle.italic : FontStyle.normal,
+                              ),
                             ),
                           ],
                         ),
@@ -123,7 +148,7 @@ class BookDetailPage extends StatelessWidget {
                     ),
 
                     const SizedBox(height: AppSpacing.xl),
-                    const Text('Seller Information', style: AppTextStyles.sectionTitle),
+                    Text('Seller Information', style: textTheme.titleLarge),
                     const SizedBox(height: AppSpacing.sm),
                     const SellerInfoCard(sellerName: 'Local Student', rating: 4.8, reviewsCount: 24),
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 
 class BottomCtaBar extends StatelessWidget {
@@ -9,6 +8,7 @@ class BottomCtaBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -17,14 +17,14 @@ class BottomCtaBar extends StatelessWidget {
         AppSpacing.xl,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: theme.colorScheme.surface,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(AppRadius.lg),
           topRight: Radius.circular(AppRadius.lg),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: theme.colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),

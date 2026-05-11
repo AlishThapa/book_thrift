@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 
 class ChatInputField extends StatelessWidget {
@@ -16,16 +15,19 @@ class ChatInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -36,7 +38,7 @@ class ChatInputField extends StatelessWidget {
           children: [
             IconButton(
               onPressed: onAttach,
-              icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 28),
+              icon: Icon(Icons.add_circle_outline_rounded, color: colorScheme.primary, size: 28),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
@@ -44,20 +46,24 @@ class ChatInputField extends StatelessWidget {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.neutralLight.withOpacity(0.5),
+                  color: colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: colorScheme.outlineVariant, width: 1),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TextField(
                   controller: controller,
                   maxLines: 4,
                   minLines: 1,
-                  style: const TextStyle(fontSize: 15),
-                  decoration: const InputDecoration(
+                  style: textTheme.bodyMedium,
+                  decoration: InputDecoration(
                     hintText: 'Type a message...',
                     border: InputBorder.none,
-                    hintStyle: TextStyle(color: AppColors.textLight, fontSize: 14),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintStyle: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    fillColor: Colors.transparent,
                   ),
                 ),
               ),
@@ -74,12 +80,12 @@ class ChatInputField extends StatelessWidget {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: isEmpty ? AppColors.neutralLight : AppColors.primary,
+                      color: isEmpty ? colorScheme.surfaceContainerHigh : colorScheme.primary,
                       shape: BoxShape.circle,
                       boxShadow: [
                         if (!isEmpty)
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: colorScheme.primary.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -87,7 +93,7 @@ class ChatInputField extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.send_rounded,
-                      color: isEmpty ? AppColors.neutral : Colors.white,
+                      color: isEmpty ? colorScheme.onSurfaceVariant : colorScheme.onPrimary,
                       size: 20,
                     ),
                   ),

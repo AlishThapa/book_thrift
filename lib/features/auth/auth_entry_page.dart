@@ -26,6 +26,7 @@ class _AuthEntryPageState extends State<AuthEntryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -56,7 +57,7 @@ class _AuthEntryPageState extends State<AuthEntryPage> {
                     child: Text(
                       "Continue as guest",
                       style: TextStyle(
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white60 : Colors.grey.shade500,
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                         fontSize: 13,
                       ),
                     ),
@@ -163,6 +164,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -171,9 +175,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           child: Center(
             child: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).iconTheme.color, size: 18),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.onSurface, size: 18),
               style: IconButton.styleFrom(
-                backgroundColor: Theme.of(context).cardTheme.color,
+                backgroundColor: colorScheme.surfaceContainer,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: EdgeInsets.zero,
                 fixedSize: const Size(40, 40),
@@ -188,18 +192,28 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
           key: _formKey,
           child: Column(
             children: [
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Column(
                   children: [
                     Text(
                       "Let's build your profile",
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                      style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 8),
-                    Text("Fill in your details to get started", textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
-                    const SizedBox(height: 32),
+                    Text(
+                      "Fill in your details to get started",
+                      textAlign: TextAlign.center,
+                      style: textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  children: [
                     _SectionLabel(label: "Account"),
                     _Card(
                       child: Column(
@@ -279,15 +293,21 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: isDark ? Border.all(color: AppColors.borderDark) : null,
-        boxShadow: isDark ? null : [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, 2))],
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          )
+        ],
       ),
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: child,
     );
   }
@@ -340,16 +360,15 @@ class _OutlineBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final color = isDark ? Colors.white : AppColors.primary;
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       height: 52,
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: color, width: 1.5),
+          side: BorderSide(color: colorScheme.primary, width: 1.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          foregroundColor: color,
+          foregroundColor: colorScheme.primary,
         ),
         child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
       ),

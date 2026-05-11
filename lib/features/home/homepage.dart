@@ -57,7 +57,7 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return SafeArea(
       top: false,
       bottom: true,
@@ -65,12 +65,12 @@ class _BottomNav extends StatelessWidget {
         margin: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
         padding: const EdgeInsets.all(AppSpacing.xs),
         decoration: BoxDecoration(
-          color: Theme.of(context).navigationBarTheme.backgroundColor,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
-          border: isDark ? Border.all(color: AppColors.borderDark.withOpacity(0.5)) : null,
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.08),
+              color: colorScheme.shadow.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(0, 8),
             )
@@ -81,7 +81,7 @@ class _BottomNav extends StatelessWidget {
           backgroundColor: Colors.transparent,
           selectedIndex: currentIndex,
           onDestinationSelected: onTap,
-          indicatorColor: AppColors.primary.withOpacity(0.12),
+          indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: [
             _navItem(Icons.home_outlined, Icons.home_rounded, 'Home'),
@@ -113,14 +113,16 @@ class Homepage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return BlocBuilder<HomepageBloc, HomepageState>(
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: colorScheme.surfaceContainerLowest,
           body: SafeArea(
             child: RefreshIndicator(
               onRefresh: () async => context.read<HomepageBloc>().add(LoadHomepage()),
-              color: AppColors.primary,
-              backgroundColor: Theme.of(context).cardTheme.color,
+              color: colorScheme.primary,
+              backgroundColor: colorScheme.surface,
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 slivers: [
@@ -179,7 +181,7 @@ class Homepage extends StatelessWidget {
                           child: Text(
                             'See all',
                             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                  color: AppColors.primary,
+                                  color: colorScheme.primary,
                                   fontWeight: FontWeight.w700,
                                 ),
                           ),
@@ -264,13 +266,16 @@ class _SkeletonList extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off_rounded, size: 40, color: AppColors.neutral.withOpacity(0.5)),
+          Icon(Icons.search_off_rounded, size: 40, color: colorScheme.outline.withValues(alpha: 0.5)),
           const SizedBox(height: 8),
-          Text('No books found', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+          Text('No books found', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
         ],
       ),
     );
@@ -284,16 +289,16 @@ class _SurfaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardTheme.color,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: isDark ? Border.all(color: AppColors.borderDark.withOpacity(0.5)) : null,
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.06),
+            color: colorScheme.shadow.withValues(alpha: 0.06),
             blurRadius: 16,
             offset: const Offset(0, 4),
           )
@@ -327,18 +332,20 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: isDark ? AppColors.primary.withOpacity(0.2) : AppColors.primary,
+            color: colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             icon,
-            color: isDark ? AppColors.primaryLight : AppColors.surface,
+            color: colorScheme.onPrimaryContainer,
             size: 18,
           ),
         ),
@@ -346,7 +353,7 @@ class _SectionTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            style: textTheme.titleLarge?.copyWith(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                 ),

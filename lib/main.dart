@@ -19,7 +19,7 @@ import 'package:book_thrift/features/settings/bloc/settings_bloc.dart';
 import 'package:book_thrift/features/splash/splash_page.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 import 'package:book_thrift/features/wishlist/models/wishlist_item.dart';
-import 'package:book_thrift/utils/app_theme.dart';
+import 'package:book_thrift/core/utils/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

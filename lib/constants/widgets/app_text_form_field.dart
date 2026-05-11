@@ -32,7 +32,10 @@ class AppTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final required = label.contains('*');
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
@@ -41,14 +44,18 @@ class AppTextFormField extends StatelessWidget {
           RichText(
             text: TextSpan(
               text: label.replaceAll('*', '').trim(),
-              style: AppTextStyles.subtitle.copyWith(fontWeight: FontWeight.w600, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87),
-              children: required ? const [TextSpan(text: ' *', style: TextStyle(color: Colors.red))] : null,
+              style: AppTextStyles.subtitle.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface.withValues(alpha: 0.8),
+              ),
+              children: required ? [const TextSpan(text: ' *', style: TextStyle(color: Colors.red))] : null,
             ),
           ),
           const SizedBox(height: 6),
           TextFormField(
             controller: controller,
             initialValue: controller == null ? initialValue : null,
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
             keyboardType: keyboardType,
             obscureText: obscureText,
             readOnly: readOnly,
@@ -56,7 +63,10 @@ class AppTextFormField extends StatelessWidget {
             validator: validator,
             inputFormatters: inputFormatters,
             maxLines: maxLines,
-            decoration: InputDecoration(hintText: hint),
+            decoration: InputDecoration(
+              hintText: hint,
+              fillColor: colorScheme.surfaceContainerHigh,
+            ),
           ),
         ],
       ),

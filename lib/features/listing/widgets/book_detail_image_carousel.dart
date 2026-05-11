@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 
 class BookDetailImageCarousel extends StatefulWidget {
@@ -27,18 +26,20 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
     return Hero(
       tag: 'book_image_${widget.listingId}',
       child: Material(
-        color: AppColors.transparentColor,
+        color: Colors.transparent,
         child: _buildContent(),
       ),
     );
   }
 
   Widget _buildContent() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (widget.imagePaths.isEmpty) {
       return Container(
-        color: AppColors.primary.withValues(alpha: 0.05),
-        child: const Center(
-          child: Icon(Icons.auto_stories_rounded, size: 80, color: AppColors.primary),
+        color: colorScheme.primary.withValues(alpha: 0.05),
+        child: Center(
+          child: Icon(Icons.auto_stories_rounded, size: 80, color: colorScheme.primary),
         ),
       );
     }
@@ -57,14 +58,14 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
                 imageUrl: path,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
-                  color: AppColors.cardBackgroundDark,
+                  color: colorScheme.surfaceContainerHigh,
                   child: const Center(
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ),
                 errorWidget: (context, url, error) => Container(
-                  color: AppColors.cardBackgroundDark,
-                  child: const Icon(Icons.error_outline_rounded, color: AppColors.error),
+                  color: colorScheme.surfaceContainerHigh,
+                  child: Icon(Icons.error_outline_rounded, color: colorScheme.error),
                 ),
               );
             } else {
@@ -72,8 +73,8 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
                 File(path),
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  color: AppColors.cardBackgroundDark,
-                  child: const Icon(Icons.error_outline_rounded, color: AppColors.error),
+                  color: colorScheme.surfaceContainerHigh,
+                  child: Icon(Icons.error_outline_rounded, color: colorScheme.error),
                 ),
               );
             }
@@ -96,8 +97,8 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
                     color: _currentIndex == index
-                        ? AppColors.primary
-                        : Colors.white.withOpacity(0.5),
+                        ? colorScheme.primary
+                        : Colors.white.withValues(alpha: 0.5),
                   ),
                 ),
               ),

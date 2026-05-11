@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/constants/widgets/app_surface.dart';
 import 'package:book_thrift/constants/widgets/app_text_form_field.dart';
@@ -40,8 +39,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colorScheme.surfaceContainerLowest,
       appBar: AppBar(
         title: const Text(
           'Edit Profile',
@@ -52,33 +54,47 @@ class _EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: Colors.transparent,
         iconTheme: const IconThemeData(color: Colors.white),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(colors: [AppColors.primary, AppColors.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [colorScheme.primary, colorScheme.secondary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(context),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('Personal Information', Icons.person_outline_rounded),
+                  _buildSectionTitle(context, 'Personal Information', Icons.person_outline_rounded),
                   AppSurface(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: Column(
                       children: [
                         AppTextFormField(label: 'Full Name*', controller: name, hint: 'Enter your full name'),
-                        AppTextFormField(label: 'Email Address*', controller: email, hint: 'Enter your email', keyboardType: TextInputType.emailAddress),
-                        AppTextFormField(label: 'Phone Number', controller: phone, hint: 'Enter your phone number', keyboardType: TextInputType.phone),
+                        AppTextFormField(
+                          label: 'Email Address*',
+                          controller: email,
+                          hint: 'Enter your email',
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        AppTextFormField(
+                          label: 'Phone Number',
+                          controller: phone,
+                          hint: 'Enter your phone number',
+                          keyboardType: TextInputType.phone,
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  _buildSectionTitle('Campus & Education', Icons.school_outlined),
+                  _buildSectionTitle(context, 'Campus & Education', Icons.school_outlined),
                   AppSurface(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: Column(
@@ -90,7 +106,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  _buildSectionTitle('Location Info', Icons.location_on_outlined),
+                  _buildSectionTitle(context, 'Location Info', Icons.location_on_outlined),
                   AppSurface(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: AppTextFormField(label: 'Location / Area', controller: location, hint: 'e.g. Hostels, Near North Gate'),
@@ -102,16 +118,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomAction(),
+      bottomNavigationBar: _buildBottomAction(context),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.primary, AppColors.secondary], begin: Alignment.topLeft, end: Alignment.bottomRight),
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [colorScheme.primary, colorScheme.secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
       ),
       padding: const EdgeInsets.fromLTRB(AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.xl),
       child: Column(
@@ -123,7 +148,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 4),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: ValueListenableBuilder<TextEditingValue>(
                   valueListenable: imagePath,
@@ -131,7 +162,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     final hasImage = value.text.trim().isNotEmpty;
                     return CircleAvatar(
                       radius: 55,
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
                       backgroundImage: hasImage ? NetworkImage(value.text.trim()) : null,
                       child: !hasImage ? const Icon(Icons.person_rounded, size: 60, color: Colors.white) : null,
                     );
@@ -142,7 +173,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 margin: const EdgeInsets.all(4),
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.accent,
+                  color: colorScheme.tertiary,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
@@ -155,28 +186,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildSectionTitle(String title, IconData icon) {
+  Widget _buildSectionTitle(BuildContext context, String title, IconData icon) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: AppSpacing.sm),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.primary),
+          Icon(icon, size: 20, color: theme.colorScheme.primary),
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBottomAction() {
+  Widget _buildBottomAction(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+        color: colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Container(
@@ -184,11 +226,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
           height: 54,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            gradient: const LinearGradient(colors: [AppColors.primary, AppColors.secondary]),
+            gradient: LinearGradient(colors: [colorScheme.primary, colorScheme.secondary]),
           ),
           child: ElevatedButton(
             onPressed: () async {
-              // Basic validation check
               if (name.text.isEmpty || email.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Name and Email are required')));
                 return;

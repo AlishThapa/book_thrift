@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/listing/book_detail_page.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
@@ -10,14 +9,18 @@ class ChatBookHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: colorScheme.outlineVariant, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: colorScheme.shadow.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -25,7 +28,7 @@ class ChatBookHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildThumbnail(),
+          _buildThumbnail(colorScheme),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
@@ -34,37 +37,41 @@ class ChatBookHeader extends StatelessWidget {
               children: [
                 Text(
                   listing.title,
-                  style: AppTextStyles.cardTitle.copyWith(fontSize: 14),
+                  style: textTheme.titleSmall?.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '₹${listing.sellingPrice.toStringAsFixed(0)}',
-                  style: AppTextStyles.price.copyWith(fontSize: 14),
+                  'NPR ${listing.sellingPrice.toStringAsFixed(0)}',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          _buildViewButton(context),
+          _buildViewButton(context, colorScheme),
         ],
       ),
     );
   }
 
-  Widget _buildThumbnail() {
+  Widget _buildThumbnail(ColorScheme colorScheme) {
     return Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
+        color: colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
-      child: const Icon(Icons.book_rounded, color: AppColors.primary, size: 20),
+      child: Icon(Icons.book_rounded, color: colorScheme.primary, size: 20),
     );
   }
 
-  Widget _buildViewButton(BuildContext context) {
+  Widget _buildViewButton(BuildContext context, ColorScheme colorScheme) {
     return TextButton(
       onPressed: () {
         Navigator.push(
@@ -76,7 +83,7 @@ class ChatBookHeader extends StatelessWidget {
       },
       style: TextButton.styleFrom(
         visualDensity: VisualDensity.compact,
-        foregroundColor: AppColors.primary,
+        foregroundColor: colorScheme.primary,
         textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       ),
       child: const Text('VIEW'),
