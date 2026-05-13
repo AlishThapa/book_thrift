@@ -12,6 +12,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<LoadThreads>(_load);
     on<SendMessage>(_send);
     on<DeleteThread>(_delete);
+    on<ChangeFilter>(_onChangeFilter);
+    on<SearchThreads>(_onSearchThreads);
   }
   
   final AppRepository repo;
@@ -19,6 +21,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Future<void> _load(LoadThreads e, Emitter<ChatState> emit) async {
     final threads = await repo.threads();
     emit(state.copyWith(threads: threads));
+  }
+
+  void _onChangeFilter(ChangeFilter e, Emitter<ChatState> emit) {
+    emit(state.copyWith(selectedFilter: e.filter));
+  }
+
+  void _onSearchThreads(SearchThreads e, Emitter<ChatState> emit) {
+    emit(state.copyWith(searchQuery: e.query));
   }
 
   Future<void> _delete(DeleteThread e, Emitter<ChatState> emit) async {
@@ -42,17 +52,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
 
     if (i < 0) {
-      // Create new thread if it doesn't exist
-      // We assume e.listing is provided for new threads
       if (e.listing == null) return;
       
       final newThread = ChatThread(
         id: e.threadId,
         bookId: e.listing!.id,
         bookTitle: e.listing!.title,
-        peerName: 'Seller', // Should ideally come from listing.sellerName
+        peerName: 'Seller', 
         messages: [newMessage],
         updatedAt: DateTime.now(),
+        unreadCount: 0,
       );
       list.add(newThread);
       await repo.saveThread(newThread);

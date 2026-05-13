@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
@@ -6,6 +7,7 @@ import 'package:book_thrift/core/data/app_repository.dart';
 import 'package:book_thrift/core/di/injection.dart';
 import 'package:book_thrift/features/notifications/models/app_notification.dart';
 
+@RoutePage()
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
 

@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/constants/widgets/app_surface.dart';
@@ -6,6 +7,7 @@ import 'package:book_thrift/core/data/app_repository.dart';
 import 'package:book_thrift/core/di/injection.dart';
 import 'package:book_thrift/features/auth/models/user_profile.dart';
 
+@RoutePage()
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key, this.profile});
   final UserProfile? profile;

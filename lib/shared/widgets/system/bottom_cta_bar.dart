@@ -11,13 +11,13 @@ class BottomCtaBar extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
         AppSpacing.md,
-        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.md,
         AppSpacing.xl,
       ),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: theme.colorScheme.surfaceContainer,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(AppRadius.lg),
           topRight: Radius.circular(AppRadius.lg),

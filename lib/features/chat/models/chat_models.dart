@@ -23,16 +23,37 @@ class ChatMessage {
 }
 
 class ChatThread {
-  ChatThread({required this.id, required this.bookId, required this.bookTitle, required this.peerName, required this.messages, required this.updatedAt});
+  ChatThread({
+    required this.id,
+    required this.bookId,
+    required this.bookTitle,
+    required this.peerName,
+    required this.messages,
+    required this.updatedAt,
+    this.unreadCount = 0,
+  });
+
   final String id;
   final String bookId;
   final String bookTitle;
   final String peerName;
   final List<ChatMessage> messages;
   final DateTime updatedAt;
+  final int unreadCount;
 
-  ChatThread copyWith({List<ChatMessage>? messages, DateTime? updatedAt}) => ChatThread(
-        id: id, bookId: bookId, bookTitle: bookTitle, peerName: peerName, messages: messages ?? this.messages, updatedAt: updatedAt ?? this.updatedAt,
+  ChatThread copyWith({
+    List<ChatMessage>? messages,
+    DateTime? updatedAt,
+    int? unreadCount,
+  }) =>
+      ChatThread(
+        id: id,
+        bookId: bookId,
+        bookTitle: bookTitle,
+        peerName: peerName,
+        messages: messages ?? this.messages,
+        updatedAt: updatedAt ?? this.updatedAt,
+        unreadCount: unreadCount ?? this.unreadCount,
       );
 
   static ChatThread sample() => ChatThread(
@@ -41,10 +62,21 @@ class ChatThread {
         bookTitle: 'Calculus for Engineers',
         peerName: 'Aditi',
         messages: [
-          ChatMessage(id: 'm1', text: 'Is this available?', isMe: true, sentAt: DateTime.now().subtract(const Duration(hours: 2))),
-          ChatMessage(id: 'm2', text: 'Yes, available near campus gate.', isMe: false, sentAt: DateTime.now().subtract(const Duration(hours: 1))),
+          ChatMessage(
+            id: 'm1',
+            text: 'Is this available?',
+            isMe: true,
+            sentAt: DateTime.now().subtract(const Duration(hours: 2)),
+          ),
+          ChatMessage(
+            id: 'm2',
+            text: 'Yes, available near campus gate.',
+            isMe: false,
+            sentAt: DateTime.now().subtract(const Duration(hours: 1)),
+          ),
         ],
         updatedAt: DateTime.now(),
+        unreadCount: 1,
       );
 }
 
@@ -79,27 +111,42 @@ class ChatMessageAdapter extends TypeAdapter<ChatMessage> {
 class ChatThreadAdapter extends TypeAdapter<ChatThread> {
   @override
   final int typeId = HiveTypeIds.chatThread;
+
   @override
   ChatThread read(BinaryReader r) {
-    final id = r.readString();
-    final bookId = r.readString();
-    final bookTitle = r.readString();
-    final peerName = r.readString();
-    
-    // Handle list reading with safety
+    // Safely read strings, providing fallbacks for potentially corrupted or old data
+    String safeReadString() {
+      try {
+        return r.readString();
+      } catch (_) {
+        return '';
+      }
+    }
+
+    final id = safeReadString();
+    final bookId = safeReadString();
+    final bookTitle = safeReadString();
+    final peerName = safeReadString();
+
     List<ChatMessage> messages = [];
     try {
       messages = (r.readList()).cast<ChatMessage>();
     } catch (_) {
       messages = [];
     }
-    
-    // Safety check for schema misalignment on updatedAt
+
     int millis = DateTime.now().millisecondsSinceEpoch;
     try {
       final readMillis = r.readInt();
       if (readMillis.abs() <= 8640000000000000) {
         millis = readMillis;
+      }
+    } catch (_) {}
+
+    int unreadCount = 0;
+    try {
+      if (r.availableBytes > 0) {
+        unreadCount = r.readInt();
       }
     } catch (_) {}
 
@@ -110,8 +157,17 @@ class ChatThreadAdapter extends TypeAdapter<ChatThread> {
       peerName: peerName,
       messages: messages,
       updatedAt: DateTime.fromMillisecondsSinceEpoch(millis),
+      unreadCount: unreadCount,
     );
   }
+
   @override
-  void write(BinaryWriter w, ChatThread o) => w..writeString(o.id)..writeString(o.bookId)..writeString(o.bookTitle)..writeString(o.peerName)..writeList(o.messages)..writeInt(o.updatedAt.millisecondsSinceEpoch);
+  void write(BinaryWriter w, ChatThread o) => w
+    ..writeString(o.id)
+    ..writeString(o.bookId)
+    ..writeString(o.bookTitle)
+    ..writeString(o.peerName)
+    ..writeList(o.messages)
+    ..writeInt(o.updatedAt.millisecondsSinceEpoch)
+    ..writeInt(o.unreadCount);
 }

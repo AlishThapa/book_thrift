@@ -1,3 +1,4 @@
+import "package:auto_route/auto_route.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:book_thrift/constants/design_tokens.dart";
@@ -5,10 +6,11 @@ import "package:book_thrift/constants/widgets/app_text_form_field.dart";
 import "package:book_thrift/core/data/app_repository.dart";
 import "package:book_thrift/core/di/injection.dart";
 import "package:book_thrift/features/auth/models/user_profile.dart";
-import "package:book_thrift/features/home/homepage.dart";
+import "package:book_thrift/core/router/app_router.gr.dart";
 
 import "../../constants/app_colors.dart";
 
+@RoutePage()
 class AuthEntryPage extends StatefulWidget {
   const AuthEntryPage({super.key});
 
@@ -20,9 +22,9 @@ class _AuthEntryPageState extends State<AuthEntryPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
 
-  void _enter() => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainShellPage()), (_) => false);
+  void _enter() => context.router.replaceAll([MainShellRoute()]);
 
-  void _showSignup() => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileSetupPage()));
+  void _showSignup() => context.router.push(const ProfileSetupRoute());
 
   @override
   Widget build(BuildContext context) {
@@ -54,13 +56,7 @@ class _AuthEntryPageState extends State<AuthEntryPage> {
                 Center(
                   child: TextButton(
                     onPressed: _enter,
-                    child: Text(
-                      "Continue as guest",
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                        fontSize: 13,
-                      ),
-                    ),
+                    child: Text("Continue as guest", style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 13)),
                   ),
                 ),
               ],
@@ -72,6 +68,7 @@ class _AuthEntryPageState extends State<AuthEntryPage> {
   }
 }
 
+@RoutePage()
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});
 
@@ -159,7 +156,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
     );
     if (!mounted) return;
     Navigator.pop(context);
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainShellPage()), (_) => false);
+    context.router.replaceAll([MainShellRoute()]);
   }
 
   @override
@@ -202,11 +199,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      "Fill in your details to get started",
-                      textAlign: TextAlign.center,
-                      style: textTheme.bodyMedium,
-                    ),
+                    Text("Fill in your details to get started", textAlign: TextAlign.center, style: textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -299,13 +292,7 @@ class _Card extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
-          )
-        ],
+        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, 2))],
       ),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: child,

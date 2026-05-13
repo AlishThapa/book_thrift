@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
@@ -7,7 +8,9 @@ import 'package:book_thrift/features/search/bloc/search_bloc.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
 import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
 import 'package:book_thrift/shared/widgets/system/app_filter_chip.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
 
+@RoutePage()
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
 
@@ -113,11 +116,8 @@ class _SearchViewState extends State<_SearchView> {
                               separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                               itemBuilder: (_, i) => BookCard(
                                 listing: results[i],
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => BookDetailPage(listing: results[i]),
-                                  ),
+                                onTap: () => context.router.push(
+                                  BookDetailRoute(listing: results[i]),
                                 ),
                               ),
                             ),

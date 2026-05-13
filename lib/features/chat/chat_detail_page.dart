@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
@@ -9,6 +10,7 @@ import 'package:book_thrift/features/chat/widgets/chat_bubble.dart';
 import 'package:book_thrift/features/chat/widgets/chat_input_field.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
 
+@RoutePage()
 class ChatDetailPage extends StatefulWidget {
   const ChatDetailPage({super.key, required this.threadId, required this.listing});
   final String threadId;

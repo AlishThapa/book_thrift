@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/app_colors.dart';
@@ -6,12 +7,13 @@ import 'package:book_thrift/constants/size_constants.dart';
 import 'package:book_thrift/core/data/app_repository.dart';
 import 'package:book_thrift/core/data/seed_data.dart';
 import 'package:book_thrift/core/di/injection.dart';
-import 'package:book_thrift/features/auth/auth_entry_page.dart';
 import 'package:book_thrift/features/auth/models/user_profile.dart';
 import 'package:book_thrift/features/profile/bloc/profile_bloc.dart';
 import 'package:book_thrift/features/settings/bloc/settings_bloc.dart';
 import 'package:book_thrift/features/settings/widgets/settings_group.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
 
+@RoutePage()
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -52,11 +54,13 @@ class SettingsPage extends StatelessWidget {
               SettingsGroup(
                 title: 'General',
                 children: [
-                  const AboutListTile(
-                    applicationName: 'BookLoop',
-                    applicationVersion: '1.0.0',
-                    icon: const Icon(Icons.info_rounded),
-                    child: Text('About BookLoop'),
+                  ListTile(
+                    leading: const Icon(Icons.info_rounded),
+                    title: const Text('About KitabSathi'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () {
+                      context.router.push(const AboutRoute());
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.restart_alt_rounded, color: AppColors.warning),
@@ -74,11 +78,7 @@ class SettingsPage extends StatelessWidget {
                     title: const Text('Logout'),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AuthEntryPage()),
-                        (_) => false,
-                      );
+                      context.router.replaceAll([const AuthEntryRoute()]);
                     },
                   ),
                   ListTile(

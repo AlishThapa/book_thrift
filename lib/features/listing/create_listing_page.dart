@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
@@ -9,6 +10,7 @@ import 'package:book_thrift/core/di/injection.dart';
 import 'package:book_thrift/features/listing/bloc/create_listing_bloc.dart';
 import 'package:book_thrift/features/listing/models/listing_draft.dart';
 
+@RoutePage()
 class CreateListingPage extends StatelessWidget {
   const CreateListingPage({super.key, this.initialDraft});
 
@@ -74,10 +76,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
               decoration: BoxDecoration(color: colorScheme.outline, borderRadius: BorderRadius.circular(2)),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Add Photos',
-              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text('Add Photos', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: AppSpacing.md),
             _buildImageSourceOption(
               context: context,
@@ -137,10 +136,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                    ),
+                    Text(title, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     Text(subtitle, style: textTheme.bodySmall),
                   ],
                 ),
@@ -167,12 +163,9 @@ class _CreateListingViewState extends State<_CreateListingView> {
               listenWhen: (p, c) => p.message != c.message && c.message.isNotEmpty,
               listener: (context, state) {
                 if (state.message.isNotEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: state.published ? AppColors.success : AppColors.error,
-                    ),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: state.published ? AppColors.success : AppColors.error));
                 }
                 if (state.published) {
                   if (Navigator.canPop(context)) {
@@ -234,10 +227,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Sell Your Book',
-            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('Sell Your Book', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
           Text('Create a listing in minutes ✨', style: textTheme.bodySmall),
         ],
       ),
@@ -289,10 +279,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Quick Listing Form',
-                  style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
+                Text('Quick Listing Form', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text('Fill in the essentials to publish quickly', style: textTheme.bodySmall),
               ],
@@ -329,14 +316,8 @@ class _CreateListingViewState extends State<_CreateListingView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Book Photos',
-                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Add up to 5 photos • Better photos = faster sales',
-                      style: textTheme.bodySmall,
-                    ),
+                    Text('Book Photos', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('Add up to 5 photos • Better photos = faster sales', style: textTheme.bodySmall),
                   ],
                 ),
               ),
@@ -448,10 +429,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
                     canAddMore ? 'Add Photos' : 'Maximum 5 photos',
                     style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600, color: canAddMore ? colorScheme.primary : colorScheme.outline),
                   ),
-                  Text(
-                    canAddMore ? 'Tap to upload images' : '${state.selectedImages.length}/5 photos added',
-                    style: textTheme.bodySmall,
-                  ),
+                  Text(canAddMore ? 'Tap to upload images' : '${state.selectedImages.length}/5 photos added', style: textTheme.bodySmall),
                 ],
               ),
             ],
@@ -483,10 +461,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
                 child: Icon(Icons.edit_note_rounded, color: colorScheme.secondary, size: 20),
               ),
               const SizedBox(width: 12),
-              Text(
-                'Book Details',
-                style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
+              Text('Book Details', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -518,24 +493,43 @@ class _CreateListingViewState extends State<_CreateListingView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Condition *',
-                style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500, color: colorScheme.onSurfaceVariant),
+              Row(
+                children: [
+                  Text(
+                    'Condition',
+                    style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500, color: colorScheme.onSurfaceVariant),
+                  ),
+                  Text(
+                    ' *',
+                    style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500, color: Colors.red),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: selectedValue,
+                style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
                 hint: Text('Select Condition', style: textTheme.bodyMedium?.copyWith(color: colorScheme.outline)),
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: colorScheme.outline),
                 decoration: InputDecoration(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   filled: true,
                   fillColor: colorScheme.surfaceContainerLow,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1)),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.primary, width: 1.5)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                  ),
                 ),
                 items: _conditions.map((condition) {
-                  return DropdownMenuItem(value: condition, child: Text(condition));
+                  return DropdownMenuItem(
+                    value: condition,
+                    child: Text(condition, style: textTheme.bodyMedium),
+                  );
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {

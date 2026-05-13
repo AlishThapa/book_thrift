@@ -1,6 +1,8 @@
+import "package:auto_route/auto_route.dart";
 import "package:flutter/material.dart";
-import "package:book_thrift/features/auth/auth_entry_page.dart";
+import "package:book_thrift/core/router/app_router.gr.dart";
 
+@RoutePage()
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -61,10 +63,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   }
 
   void _navigate() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const AuthEntryPage()),
-    );
+    context.router.replace(const AuthEntryRoute());
   }
 
   void _next() {
@@ -94,7 +93,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                   child: Text(
                     "Skip",
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -144,7 +143,7 @@ class _OnboardingSlide extends StatelessWidget {
               width: 160,
               height: 160,
               decoration: BoxDecoration(
-                color: data.color.withOpacity(0.12),
+                color: data.color.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(data.icon, size: 72, color: data.color),

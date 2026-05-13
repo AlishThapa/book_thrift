@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:book_thrift/constants/font_sizes.dart';
-import 'package:book_thrift/features/onboarding/onboarding_page.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
 
+@RoutePage()
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
@@ -17,7 +19,7 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     Timer(const Duration(seconds: 2), () {
       if (!mounted) return;
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const OnboardingPage()));
+      context.router.replace(const OnboardingRoute());
     });
   }
 
@@ -30,7 +32,7 @@ class _SplashPageState extends State<SplashPage> {
           children: [
             Icon(Icons.menu_book_rounded, size: 72),
             SizedBox(height: 12),
-            Text('BookLoop', style: TextStyle(fontSize: FontSizes.xxl, fontWeight: FontWeight.w700)),
+            Text('KitabSathi', style: TextStyle(fontSize: FontSizes.xxl, fontWeight: FontWeight.w700)),
             SizedBox(height: 8),
             Text('Buy. Sell. Learn Locally.'),
           ],

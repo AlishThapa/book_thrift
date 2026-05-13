@@ -8,6 +8,20 @@ sealed class ChatEvent extends Equatable {
 
 class LoadThreads extends ChatEvent {}
 
+class ChangeFilter extends ChatEvent {
+  const ChangeFilter(this.filter);
+  final String filter;
+  @override
+  List<Object?> get props => [filter];
+}
+
+class SearchThreads extends ChatEvent {
+  const SearchThreads(this.query);
+  final String query;
+  @override
+  List<Object?> get props => [query];
+}
+
 class SendMessage extends ChatEvent {
   const SendMessage(
     this.threadId,

@@ -1,17 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:book_thrift/constants/design_tokens.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:book_thrift/constants/app_colors.dart';
+import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/core/data/app_repository.dart';
 import 'package:book_thrift/core/di/injection.dart';
-import 'package:book_thrift/features/home/homepage.dart';
-import 'package:book_thrift/features/listing/book_detail_page.dart';
-import 'package:book_thrift/features/listing/create_listing_page.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
 import 'package:book_thrift/features/listing/models/listing_draft.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
+import 'package:flutter/material.dart';
 
-import '../../constants/widgets/app_surface.dart';
-
+@RoutePage()
 class MyListingsPage extends StatefulWidget {
   const MyListingsPage({super.key});
 
@@ -90,35 +88,6 @@ class _MyListingsPageState extends State<MyListingsPage> {
     );
   }
 }
-
-class _StatTile extends StatelessWidget {
-  const _StatTile({required this.label, required this.value, required this.color});
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return AppSurface(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: colorScheme.onSurface),
-          ),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ListingsList extends StatelessWidget {
   const _ListingsList({required this.listings, required this.type, required this.onRefresh});
   final List<BookListing> listings;
@@ -133,7 +102,7 @@ class _ListingsList extends StatelessWidget {
         title: 'No $type listings',
         subtitle: type == 'active' ? 'You haven\'t listed any books for sale yet.' : 'Your sold books will appear here.',
         actionLabel: type == 'active' ? 'Start Selling' : null,
-        onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateListingPage())).then((_) => onRefresh()),
+        onAction: () => context.router.push( CreateListingRoute()).then((_) => onRefresh()),
       );
     }
     return ListView.builder(
@@ -160,7 +129,7 @@ class _ListingsList extends StatelessWidget {
           },
           child: BookCard(
             listing: item,
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BookDetailPage(listing: item, isOwner: true))).then((_) => onRefresh()),
+            onTap: () => context.router.push(BookDetailRoute(listing: item, isOwner: true)).then((_) => onRefresh()),
             trailing: type == 'active'
                 ? IconButton(
                     onPressed: () async {
@@ -181,7 +150,7 @@ class _ListingsList extends StatelessWidget {
                         },
                         updatedAt: item.updatedAt,
                       );
-                      await Navigator.push(context, MaterialPageRoute(builder: (_) => CreateListingPage(initialDraft: draft)));
+                      await context.router.push(CreateListingRoute(initialDraft: draft));
                       onRefresh();
                     },
                     icon: const Icon(Icons.edit_note_rounded, color: AppColors.primary),
@@ -207,7 +176,7 @@ class _DraftsList extends StatelessWidget {
         title: 'No drafts',
         subtitle: 'Saved drafts will appear here so you can finish them later.',
         actionLabel: 'Create Draft',
-        onAction: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateListingPage())).then((_) => onRefresh()),
+        onAction: () => context.router.push( CreateListingRoute()).then((_) => onRefresh()),
       );
     }
     return ListView.builder(
@@ -264,12 +233,12 @@ class _DraftsList extends StatelessWidget {
           child: BookCard(
             listing: dummy,
             onTap: () async {
-              await Navigator.push(context, MaterialPageRoute(builder: (_) => CreateListingPage(initialDraft: draft)));
+              await context.router.push(CreateListingRoute(initialDraft: draft));
               onRefresh();
             },
             trailing: IconButton(
               onPressed: () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (_) => CreateListingPage(initialDraft: draft)));
+                await context.router.push(CreateListingRoute(initialDraft: draft));
                 onRefresh();
               },
               icon: const Icon(Icons.edit_note_rounded, color: AppColors.primary),

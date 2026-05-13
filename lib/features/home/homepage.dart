@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/app_colors.dart';
@@ -16,7 +17,9 @@ import 'package:book_thrift/features/notifications/notifications_page.dart';
 import 'package:book_thrift/features/profile/profile_page.dart';
 import 'package:book_thrift/features/search/searchpage.dart';
 import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
 
+@RoutePage()
 class MainShellPage extends StatefulWidget {
   const MainShellPage({super.key, this.initialIndex = 0, this.initialDraft});
 
@@ -131,7 +134,7 @@ class Homepage extends StatelessWidget {
                       child: _SurfaceCard(
                         child: ModernHeader(
                           name: 'Reader',
-                          onNotifications: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage())),
+                          onNotifications: () => context.router.push(const NotificationsRoute()),
                         ),
                       ),
                     ),
@@ -201,10 +204,7 @@ class Homepage extends StatelessWidget {
                               ? _EmptyState()
                               : _BookList(
                                   state: state,
-                                  onBookTap: (listing) => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => BookDetailPage(listing: listing)),
-                                  ),
+                                  onBookTap: (listing) => context.router.push(BookDetailRoute(listing: listing)),
                                 ),
                     ),
                   ),

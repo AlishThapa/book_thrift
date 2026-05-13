@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
@@ -6,7 +7,9 @@ import 'package:book_thrift/core/di/injection.dart';
 import 'package:book_thrift/features/listing/book_detail_page.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
 
+@RoutePage()
 class WishlistPage extends StatelessWidget {
   const WishlistPage({super.key});
 
@@ -45,7 +48,7 @@ class WishlistPage extends StatelessWidget {
                 onDismissed: (_) => context.read<WishlistBloc>().add(ToggleWishlist(list[i].id)),
                 child: BookCard(
                   listing: list[i],
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => BookDetailPage(listing: list[i]))),
+                  onTap: () => context.router.push(BookDetailRoute(listing: list[i])),
                   trailing: IconButton(
                     icon: const Icon(Icons.favorite, color: Colors.red),
                     onPressed: () => context.read<WishlistBloc>().add(ToggleWishlist(list[i].id)),

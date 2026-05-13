@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
@@ -10,7 +11,9 @@ import 'package:book_thrift/features/profile/widgets/profile_header.dart';
 import 'package:book_thrift/features/profile/widgets/profile_stats.dart';
 import 'package:book_thrift/features/settings/settings_page.dart';
 import 'package:book_thrift/features/wishlist/wishlist_page.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
 
+@RoutePage()
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -21,79 +24,77 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorScheme.surfaceContainerLowest,
-      body: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) {
-          final p = state.profile;
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: ProfileHeader(
-                  profile: p,
-                  onEdit: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => EditProfilePage(profile: p)),
-                    );
-                    if (!context.mounted) return;
-                    context.read<ProfileBloc>().add(LoadProfile());
-                  },
+      body: SafeArea(
+        child: BlocBuilder<ProfileBloc, ProfileState>(
+          builder: (context, state) {
+            final p = state.profile;
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: ProfileHeader(
+                    profile: p,
+                    onEdit: () async {
+                      await Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfilePage(profile: p)));
+                      if (!context.mounted) return;
+                      context.read<ProfileBloc>().add(LoadProfile());
+                    },
+                  ),
                 ),
-              ),
-              const SliverToBoxAdapter(child: ProfileStats()),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _sectionTitle(context, 'Store Management'),
-                    _tile(
-                      context,
-                      Icons.inventory_2_outlined,
-                      'My Listings',
-                      'Manage your listed books',
-                      () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyListingsPage())),
-                      color: Colors.blueAccent,
-                    ),
-                    _tile(
-                      context,
-                      Icons.storefront_outlined,
-                      'Public Profile',
-                      'View your store as others see it',
-                      () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PublicSellerProfilePage())),
-                      color: Colors.orangeAccent,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    _sectionTitle(context, 'Preferences'),
-                    _tile(
-                      context,
-                      Icons.favorite_rounded,
-                      'Wishlist',
-                      'Books you\'ve saved for later',
-                      () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistPage())),
-                      color: Colors.pinkAccent,
-                    ),
-                    _tile(
-                      context,
-                      Icons.notifications_active_outlined,
-                      'Notifications',
-                      'Alerts, messages, and updates',
-                      () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage())),
-                      color: Colors.teal,
-                    ),
-                    _tile(
-                      context,
-                      Icons.settings_suggest_outlined,
-                      'Settings',
-                      'App preferences and account security',
-                      () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage())),
-                      color: Colors.blueGrey,
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                  ]),
+                const SliverToBoxAdapter(child: ProfileStats()),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _sectionTitle(context, 'Store Management'),
+                      _tile(
+                        context,
+                        Icons.inventory_2_outlined,
+                        'My Listings',
+                        'Manage your listed books',
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyListingsPage())),
+                        color: Colors.blueAccent,
+                      ),
+                      _tile(
+                        context,
+                        Icons.storefront_outlined,
+                        'Public Profile',
+                        'View your store as others see it',
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PublicSellerProfilePage())),
+                        color: Colors.orangeAccent,
+                      ),
+                      _sectionTitle(context, 'Preferences'),
+                      _tile(
+                        context,
+                        Icons.favorite_rounded,
+                        'Wishlist',
+                        'Books you\'ve saved for later',
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistPage())),
+                        color: Colors.pinkAccent,
+                      ),
+                      _tile(
+                        context,
+                        Icons.notifications_active_outlined,
+                        'Notifications',
+                        'Alerts, messages, and updates',
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage())),
+                        color: Colors.teal,
+                      ),
+                      _tile(
+                        context,
+                        Icons.settings_suggest_outlined,
+                        'Settings',
+                        'App preferences and account security',
+                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage())),
+                        color: Colors.blueGrey,
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                    ]),
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -101,14 +102,10 @@ class ProfilePage extends StatelessWidget {
   Widget _sectionTitle(BuildContext context, String title) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xs, AppSpacing.sm, 0, AppSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.xs, 0, 0, AppSpacing.sm),
       child: Text(
         title,
-        style: theme.textTheme.titleLarge?.copyWith(
-          fontSize: 14,
-          fontWeight: FontWeight.w800,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-        ),
+        style: theme.textTheme.titleLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.w800, color: theme.colorScheme.onSurface.withValues(alpha: 0.8)),
       ),
     );
   }
@@ -124,13 +121,7 @@ class ProfilePage extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -143,10 +134,7 @@ class ProfilePage extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.sm),
-                  decoration: BoxDecoration(
-                    color: themeColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  decoration: BoxDecoration(color: themeColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
                   child: Icon(icon, color: themeColor, size: 22),
                 ),
                 const SizedBox(width: AppSpacing.md),
@@ -154,29 +142,13 @@ class ProfilePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: textTheme.titleMedium?.copyWith(
-                          fontSize: 15,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
+                      Text(title, style: textTheme.titleMedium?.copyWith(fontSize: 15, color: colorScheme.onSurface)),
                       const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
+                      Text(subtitle, style: textTheme.bodySmall?.copyWith(fontSize: 12, color: colorScheme.onSurfaceVariant)),
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 14,
-                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                ),
+                Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               ],
             ),
           ),

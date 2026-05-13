@@ -1,6 +1,6 @@
-# book_thrift
+# KitabSathi
 
-A new Flutter project.
+A student-focused thrift book marketplace.
 
 ## Getting Started
 
