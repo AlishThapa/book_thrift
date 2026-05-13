@@ -46,9 +46,11 @@ class _MainShellPageState extends State<MainShellPage> {
 
     return Scaffold(
       extendBody: true,
+      extendBodyBehindAppBar: true,
       backgroundColor: Colors.white,
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: _BottomNav(currentIndex: _index, onTap: _onNavigate),
+      resizeToAvoidBottomInset: true,
     );
   }
 }
@@ -66,18 +68,13 @@ class _BottomNav extends StatelessWidget {
       top: false,
       child: Container(
         margin: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
-        padding: const EdgeInsets.all(AppSpacing.xs),
+        padding: const EdgeInsets.all(AppSpacing.xxs),
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.94),
           borderRadius: BorderRadius.circular(32),
           border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.25),
-              blurRadius: 12,
-              offset: const Offset(0, 8),
-            )
-          ],
+          boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(5, 5))],
+          // boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 8))],
         ),
         child: NavigationBar(
           height: 60,
@@ -121,8 +118,9 @@ class Homepage extends StatelessWidget {
     return BlocBuilder<HomepageBloc, HomepageState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           body: SafeArea(
+            bottom: false,
             child: RefreshIndicator(
               onRefresh: () async => context.read<HomepageBloc>().add(LoadHomepage()),
               color: colorScheme.primary,
@@ -224,7 +222,7 @@ class Homepage extends StatelessWidget {
                     ),
                   ),
 
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                  const SliverToBoxAdapter(child: SizedBox(height: 120)),
                 ],
               ),
             ),

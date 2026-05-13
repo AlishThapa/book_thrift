@@ -112,7 +112,7 @@ class _SearchViewState extends State<_SearchView> {
                           ? const _EmptySearchResults()
                           : ListView.separated(
                               itemCount: results.length,
-                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                              padding: const EdgeInsets.fromLTRB(0, AppSpacing.md, 0, 100),
                               separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                               itemBuilder: (_, i) => BookCard(
                                 listing: results[i],
@@ -136,7 +136,7 @@ class _InitialSearchState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -144,13 +144,13 @@ class _InitialSearchState extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.explore_rounded,
               size: 64,
-              color: AppColors.primary,
+              color: colorScheme.primary,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -158,7 +158,7 @@ class _InitialSearchState extends StatelessWidget {
             'Discover Your Next Read',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : AppColors.textPrimary,
+                  color: colorScheme.onSurface,
                 ),
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -166,7 +166,7 @@ class _InitialSearchState extends StatelessWidget {
             'Search for books by title, author, course,\nor institution to find exactly what you need.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: isDark ? Colors.white60 : AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
           ),
         ],

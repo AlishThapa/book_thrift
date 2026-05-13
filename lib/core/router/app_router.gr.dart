@@ -9,12 +9,12 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i19;
-import 'package:book_thrift/checkout/checkout_page.dart' as _i7;
 import 'package:book_thrift/features/auth/auth_entry_page.dart' as _i2;
 import 'package:book_thrift/features/auth/models/user_profile.dart' as _i22;
 import 'package:book_thrift/features/cart/cart_page.dart' as _i4;
 import 'package:book_thrift/features/chat/chat_detail_page.dart' as _i5;
 import 'package:book_thrift/features/chat/chat_list_page.dart' as _i6;
+import 'package:book_thrift/features/checkout/checkout_page.dart' as _i7;
 import 'package:book_thrift/features/home/homepage.dart' as _i10;
 import 'package:book_thrift/features/listing/book_detail_page.dart' as _i3;
 import 'package:book_thrift/features/listing/create_listing_page.dart' as _i8;

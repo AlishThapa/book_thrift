@@ -19,11 +19,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
-      backgroundColor: colorScheme.surfaceContainerLowest,
+      backgroundColor: Colors.transparent,
+      extendBody: true,
       body: SafeArea(
         child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
@@ -41,6 +39,7 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
                 const SliverToBoxAdapter(child: ProfileStats()),
+                const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                   sliver: SliverList(
@@ -87,7 +86,7 @@ class ProfilePage extends StatelessWidget {
                         () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage())),
                         color: Colors.blueGrey,
                       ),
-                      const SizedBox(height: AppSpacing.xl),
+                      const SizedBox(height: 120),
                     ]),
                   ),
                 ),
@@ -119,9 +118,10 @@ class ProfilePage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHigh,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(5, 5))],
       ),
       child: Material(
         color: Colors.transparent,

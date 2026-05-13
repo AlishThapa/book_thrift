@@ -17,13 +17,7 @@ class ProfileStats extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          boxShadow: [
-            BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.08),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(5, 5))],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -39,11 +33,7 @@ class ProfileStats extends StatelessWidget {
     );
   }
 
-  Widget _divider(BuildContext context) => Container(
-        height: 24,
-        width: 1,
-        color: Theme.of(context).colorScheme.outline,
-      );
+  Widget _divider(BuildContext context) => Container(height: 24, width: 1, color: Theme.of(context).colorScheme.outline);
 
   Widget _statItem(BuildContext context, String value, String label, IconData icon) {
     final theme = Theme.of(context);
@@ -59,18 +49,11 @@ class ProfileStats extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               value,
-              style: textTheme.titleMedium?.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
+              style: textTheme.titleMedium?.copyWith(fontSize: 18, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
             ),
           ],
         ),
-        Text(
-          label,
-          style: textTheme.bodySmall?.copyWith(fontSize: 11),
-        ),
+        Text(label, style: textTheme.bodySmall?.copyWith(fontSize: 11)),
       ],
     );
   }

@@ -9,6 +9,7 @@ class AppRadius {
 }
 
 class AppSpacing {
+  static const double xxs = 6;
   static const double xs = 8;
   static const double sm = 12;
   static const double md = 16;
