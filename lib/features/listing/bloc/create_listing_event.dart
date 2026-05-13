@@ -28,8 +28,6 @@ class NextStep extends CreateListingEvent {}
 
 class PreviousStep extends CreateListingEvent {}
 
-class SaveDraft extends CreateListingEvent {}
-
 class PublishListing extends CreateListingEvent {}
 
 // Image management events

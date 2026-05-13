@@ -39,7 +39,7 @@ class _ListCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      // margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -93,10 +93,10 @@ class _ListCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '₹${listing.sellingPrice.toStringAsFixed(0)}',
+                            'NPR ${listing.sellingPrice.toStringAsFixed(0)}',
                             style: AppTextStyles.price.copyWith(
                               fontSize: 18,
-                              color: theme.brightness == Brightness.dark 
+                              color: theme.brightness == Brightness.dark
                                 ? colorScheme.onPrimaryContainer
                                 : colorScheme.primary,
                             ),
@@ -189,7 +189,7 @@ class _GridCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '₹${listing.sellingPrice.toStringAsFixed(0)}',
+                            'NPR ${listing.sellingPrice.toStringAsFixed(0)}',
                             style: AppTextStyles.price.copyWith(
                               color: theme.brightness == Brightness.dark 
                                 ? colorScheme.onPrimaryContainer 

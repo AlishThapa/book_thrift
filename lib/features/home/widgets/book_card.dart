@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
+import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 
 /// Vertical book card used in the horizontal recommended list.
 /// Shows title, condition, price (with original crossed out), and a wishlist toggle.
-class BookCard extends StatefulWidget {
+class BookCard extends StatelessWidget {
   const BookCard({
     super.key,
     required this.listing,
@@ -15,18 +17,9 @@ class BookCard extends StatefulWidget {
   final VoidCallback onTap;
 
   @override
-  State<BookCard> createState() => _BookCardState();
-}
-
-class _BookCardState extends State<BookCard> {
-  bool _wishlisted = false;
-
-  void _toggleWishlist() => setState(() => _wishlisted = !_wishlisted);
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Container(
         width: 170,
         decoration: BoxDecoration(
@@ -35,7 +28,7 @@ class _BookCardState extends State<BookCard> {
           border: Border.all(color: AppColors.border, width: 0.8),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.07),
+              color: AppColors.primary.withValues(alpha: 0.07),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -53,7 +46,7 @@ class _BookCardState extends State<BookCard> {
 
               // Title
               Text(
-                widget.listing.title,
+                listing.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -66,7 +59,7 @@ class _BookCardState extends State<BookCard> {
               const SizedBox(height: 6),
 
               // Condition badge
-              _ConditionBadge(condition: widget.listing.condition),
+              _ConditionBadge(condition: listing.condition),
 
               const Spacer(),
 
@@ -74,11 +67,16 @@ class _BookCardState extends State<BookCard> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _PriceBadge(price: widget.listing.sellingPrice),
+                  _PriceBadge(price: listing.sellingPrice),
                   const Spacer(),
-                  _WishlistButton(
-                    wishlisted: _wishlisted,
-                    onTap: _toggleWishlist,
+                  BlocBuilder<WishlistBloc, WishlistState>(
+                    builder: (context, state) {
+                      final isWishlisted = state.ids.contains(listing.id);
+                      return _WishlistButton(
+                        wishlisted: isWishlisted,
+                        onTap: () => context.read<WishlistBloc>().add(ToggleWishlist(listing.id)),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -98,14 +96,14 @@ class _BookCoverPlaceholder extends StatelessWidget {
       height: 110,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.07),
+        color: AppColors.primary.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Center(
         child: Icon(
           Icons.menu_book_rounded,
           size: 44,
-          color: AppColors.primary.withOpacity(0.5),
+          color: AppColors.primary.withValues(alpha: 0.5),
         ),
       ),
     );
@@ -124,7 +122,7 @@ class _ConditionBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppColors.success.withOpacity(0.1),
+        color: AppColors.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -152,7 +150,7 @@ class _PriceBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
-        '₹${price.toStringAsFixed(0)}',
+        'NPR ${price.toStringAsFixed(0)}',
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: AppColors.surface,
           fontWeight: FontWeight.w700,

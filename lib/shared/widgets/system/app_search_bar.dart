@@ -31,6 +31,7 @@ class AppSearchBar extends StatelessWidget {
       readOnly: readOnly,
       onTap: onTap,
       onChanged: onChanged,
+      textAlignVertical: TextAlignVertical.center,
       style: textTheme.bodyMedium?.copyWith(
         fontSize: 14,
         color: colorScheme.onSurface,
@@ -41,25 +42,22 @@ class AppSearchBar extends StatelessWidget {
           color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
           fontSize: 14,
         ),
-        prefixIcon: Icon(Icons.search_rounded, color: colorScheme.primary, size: 22),
+        prefixIcon: Icon(Icons.search_rounded, color: colorScheme.primary, size: 20),
         suffixIcon: _buildSuffix(colorScheme),
         filled: true,
-        fillColor: colorScheme.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        fillColor: colorScheme.surfaceContainerLow,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 0),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(999),
-          borderSide: BorderSide(
-            color: colorScheme.outline.withValues(alpha: 0.5),
-          ),
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(999),
-          borderSide: BorderSide(
-            color: colorScheme.outline.withValues(alpha: 0.5),
-          ),
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
       ),

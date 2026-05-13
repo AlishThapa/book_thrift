@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:book_thrift/core/data/app_repository.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
-import 'package:book_thrift/features/listing/models/listing_draft.dart';
 
 part 'create_listing_event.dart';
 part 'create_listing_state.dart';
@@ -12,7 +11,6 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
   CreateListingBloc(this.repo) : super(const CreateListingState()) {
     on<UpdateListingField>(_updateField);
     on<SeedForm>(_seedForm);
-    on<SaveDraft>(_saveDraft);
     on<PublishListing>(_publish);
     on<AddImages>(_addImages);
     on<RemoveImage>(_removeImage);
@@ -101,22 +99,6 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
     emit(state.copyWith(selectedImages: []));
   }
 
-  Future<void> _saveDraft(SaveDraft event, Emitter<CreateListingState> emit) async {
-    final id = state.form['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
-    final formWithImages = {
-      ...state.form,
-      'imagePaths': state.selectedImages,
-    };
-
-    await repo.saveDraft(ListingDraft(
-      id: id,
-      data: formWithImages,
-      updatedAt: DateTime.now(),
-    ));
-
-    emit(state.copyWith(message: 'Draft saved'));
-  }
-
   Future<void> _publish(PublishListing event, Emitter<CreateListingState> emit) async {
     final f = state.form;
     if ((f['title'] ?? '').toString().trim().isEmpty ||
@@ -156,9 +138,6 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     ));
-
-    // Remove from drafts if it was a draft
-    await repo.deleteDraft(id);
 
     emit(state.copyWith(
       published: true,

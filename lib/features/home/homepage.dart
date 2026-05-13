@@ -1,30 +1,23 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
-import 'package:book_thrift/features/chat/chat_list_page.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
+import 'package:book_thrift/features/cart/cart_page.dart';
 import 'package:book_thrift/features/home/bloc/homepage_bloc.dart';
 import 'package:book_thrift/features/home/widgets/book_card.dart';
 import 'package:book_thrift/features/home/widgets/book_card_skeleton.dart';
 import 'package:book_thrift/features/home/widgets/category_chips.dart';
-import 'package:book_thrift/features/home/widgets/modern_header.dart';
-import 'package:book_thrift/features/home/widgets/sell_banner.dart';
-import 'package:book_thrift/features/listing/book_detail_page.dart';
-import 'package:book_thrift/features/listing/create_listing_page.dart';
-import 'package:book_thrift/features/listing/models/listing_draft.dart';
-import 'package:book_thrift/features/notifications/notifications_page.dart';
 import 'package:book_thrift/features/profile/profile_page.dart';
 import 'package:book_thrift/features/search/searchpage.dart';
 import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
-import 'package:book_thrift/core/router/app_router.gr.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
 class MainShellPage extends StatefulWidget {
-  const MainShellPage({super.key, this.initialIndex = 0, this.initialDraft});
+  const MainShellPage({super.key, this.initialIndex = 0});
 
   final int initialIndex;
-  final ListingDraft? initialDraft;
 
   @override
   State<MainShellPage> createState() => _MainShellPageState();
@@ -39,13 +32,21 @@ class _MainShellPageState extends State<MainShellPage> {
     _index = widget.initialIndex;
   }
 
-  void _onNavigate(int i) => setState(() => _index = i);
+  void _onNavigate(int i) {
+    if (i == 2) {
+      context.router.push(CreateListingRoute());
+      return;
+    }
+    setState(() => _index = i);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [Homepage(onNavigate: _onNavigate), const SearchPage(), CreateListingPage(initialDraft: widget.initialDraft), const ChatListPage(), const ProfilePage()];
+    final pages = [Homepage(onNavigate: _onNavigate), const SearchPage(), const SizedBox.shrink(), const CartPage(), const ProfilePage()];
 
     return Scaffold(
+      extendBody: true,
+      backgroundColor: Colors.white,
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: _BottomNav(currentIndex: _index, onTap: _onNavigate),
     );
@@ -63,34 +64,34 @@ class _BottomNav extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return SafeArea(
       top: false,
-      bottom: true,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.md),
+        margin: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
         padding: const EdgeInsets.all(AppSpacing.xs),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.94),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.shadow.withValues(alpha: 0.08),
-              blurRadius: 20,
+              color: colorScheme.shadow.withValues(alpha: 0.25),
+              blurRadius: 12,
               offset: const Offset(0, 8),
             )
           ],
         ),
         child: NavigationBar(
-          height: 64,
+          height: 60,
           backgroundColor: Colors.transparent,
+          elevation: 0,
           selectedIndex: currentIndex,
           onDestinationSelected: onTap,
           indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
           destinations: [
             _navItem(Icons.home_outlined, Icons.home_rounded, 'Home'),
             _navItem(Icons.search_outlined, Icons.search_rounded, 'Search'),
             _navItem(Icons.add_box_outlined, Icons.add_box_rounded, 'Sell'),
-            _navItem(Icons.chat_bubble_outline_rounded, Icons.chat_bubble_rounded, 'Chats'),
+            _navItem(Icons.shopping_cart_outlined, Icons.shopping_cart_rounded, 'Cart'),
             _navItem(Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
           ],
         ),
@@ -120,7 +121,7 @@ class Homepage extends StatelessWidget {
     return BlocBuilder<HomepageBloc, HomepageState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: colorScheme.surfaceContainerLowest,
+          backgroundColor: Colors.white,
           body: SafeArea(
             child: RefreshIndicator(
               onRefresh: () async => context.read<HomepageBloc>().add(LoadHomepage()),
@@ -129,26 +130,43 @@ class Homepage extends StatelessWidget {
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: _SectionPadding(
-                      child: _SurfaceCard(
-                        child: ModernHeader(
-                          name: 'Reader',
-                          onNotifications: () => context.router.push(const NotificationsRoute()),
+                  SliverAppBar(
+                    floating: true,
+                    pinned: false,
+                    snap: true,
+                    elevation: 0,
+                    backgroundColor: Colors.white,
+                    surfaceTintColor: Colors.transparent,
+                    titleSpacing: AppSpacing.sm,
+                    leadingWidth: 52,
+                    leading: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: AppSpacing.md),
+                        child: GestureDetector(
+                          onTap: () => onNavigate(4),
+                          child: CircleAvatar(
+                            radius: 16,
+                            backgroundColor: colorScheme.primaryContainer,
+                            child: Icon(Icons.person_rounded, size: 20, color: colorScheme.onPrimaryContainer),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-                      child: AppSearchBar(
-                        readOnly: true,
-                        hintText: 'Search books, courses...',
-                        onTap: () => onNavigate(1),
-                      ),
+                    title: SizedBox(
+                      height: 36,
+                      child: AppSearchBar(readOnly: true, hintText: 'Search books...', onTap: () => onNavigate(1)),
                     ),
+                    actions: [
+                      IconButton(
+                        onPressed: () => context.router.push(const NotificationsRoute()),
+                        icon: Icon(Icons.notifications_outlined, color: colorScheme.onSurface, size: 24),
+                      ),
+                      IconButton(
+                        onPressed: () => context.router.push(const ChatListRoute()),
+                        icon: Icon(Icons.forum_rounded, color: colorScheme.onSurface, size: 24),
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                    ],
                   ),
 
                   const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
@@ -183,10 +201,7 @@ class Homepage extends StatelessWidget {
                           onTap: () => onNavigate(1),
                           child: Text(
                             'See all',
-                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                  color: colorScheme.primary,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w700),
                           ),
                         ),
                       ),
@@ -201,20 +216,11 @@ class Homepage extends StatelessWidget {
                       child: state.loading
                           ? _SkeletonList()
                           : state.listings.isEmpty
-                              ? _EmptyState()
-                              : _BookList(
-                                  state: state,
-                                  onBookTap: (listing) => context.router.push(BookDetailRoute(listing: listing)),
-                                ),
-                    ),
-                  ),
-
-                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.lg)),
-
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      child: SellBanner(onTap: () => onNavigate(2)),
+                          ? _EmptyState()
+                          : _BookList(
+                              state: state,
+                              onBookTap: (listing) => context.router.push(BookDetailRoute(listing: listing)),
+                            ),
                     ),
                   ),
 
@@ -296,13 +302,7 @@ class _SurfaceCard extends StatelessWidget {
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          )
-        ],
+        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 4))],
       ),
       child: child,
     );
@@ -339,25 +339,12 @@ class _SectionTitle extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            icon,
-            color: colorScheme.onPrimaryContainer,
-            size: 18,
-          ),
+          decoration: BoxDecoration(color: colorScheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
+          child: Icon(icon, color: colorScheme.onPrimaryContainer, size: 18),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            title,
-            style: textTheme.titleLarge?.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
-          ),
+          child: Text(title, style: textTheme.titleLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
         ),
         if (trailing != null) trailing!,
       ],

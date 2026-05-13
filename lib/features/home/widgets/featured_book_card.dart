@@ -25,7 +25,7 @@ class FeaturedBookCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.lg),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -45,7 +45,7 @@ class FeaturedBookCard extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
                     child: listing.imagePaths.isNotEmpty
@@ -77,13 +77,13 @@ class FeaturedBookCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '₹${listing.sellingPrice.toStringAsFixed(0)}',
+                      'NPR ${listing.sellingPrice.toStringAsFixed(0)}',
                       style: AppTextStyles.price.copyWith(color: AppColors.accentLight),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(AppRadius.sm),
                       ),
                       child: const Text(

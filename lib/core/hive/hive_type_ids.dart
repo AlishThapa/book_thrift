@@ -1,7 +1,6 @@
 class HiveTypeIds {
   static const int userProfile = 1;
   static const int bookListing = 2;
-  static const int listingDraft = 3;
   static const int chatThread = 4;
   static const int chatMessage = 5;
   static const int appNotification = 6;

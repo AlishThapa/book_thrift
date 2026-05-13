@@ -3,7 +3,6 @@ import 'package:book_thrift/core/hive/hive_boxes.dart';
 import 'package:book_thrift/features/auth/models/user_profile.dart';
 import 'package:book_thrift/features/chat/models/chat_models.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
-import 'package:book_thrift/features/listing/models/listing_draft.dart';
 import 'package:book_thrift/features/notifications/models/app_notification.dart';
 import 'package:book_thrift/features/search/models/search_models.dart';
 import 'package:book_thrift/features/wishlist/models/wishlist_item.dart';
@@ -14,12 +13,6 @@ class LocalDataSource {
   Future<void> upsertListing(BookListing listing) async => Hive.box<BookListing>(HiveBoxes.listings).put(listing.id, listing);
 
   Future<void> deleteListing(String id) async => Hive.box<BookListing>(HiveBoxes.listings).delete(id);
-
-  Future<List<ListingDraft>> getDrafts() async => Hive.box<ListingDraft>(HiveBoxes.drafts).values.toList();
-
-  Future<void> saveDraft(ListingDraft draft) async => Hive.box<ListingDraft>(HiveBoxes.drafts).put(draft.id, draft);
-
-  Future<void> deleteDraft(String id) async => Hive.box<ListingDraft>(HiveBoxes.drafts).delete(id);
 
   Future<UserProfile?> getUserProfile() async => Hive.box<UserProfile>(HiveBoxes.userProfile).get('me');
 
@@ -57,7 +50,6 @@ class LocalDataSource {
   Future<void> clearAll() async {
     await Future.wait([
       Hive.box<BookListing>(HiveBoxes.listings).clear(),
-      Hive.box<ListingDraft>(HiveBoxes.drafts).clear(),
       Hive.box<WishlistItem>(HiveBoxes.wishlist).clear(),
       Hive.box<ChatThread>(HiveBoxes.threads).clear(),
       Hive.box<AppNotification>(HiveBoxes.notifications).clear(),

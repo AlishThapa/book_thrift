@@ -1,7 +1,6 @@
 class HiveBoxes {
   static const userProfile = 'user_profile';
   static const listings = 'book_listings';
-  static const drafts = 'listing_drafts';
   static const wishlist = 'wishlist';
   static const threads = 'chat_threads';
   static const notifications = 'app_notifications';

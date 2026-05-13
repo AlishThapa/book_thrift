@@ -12,7 +12,10 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: MainShellRoute.page),
         AutoRoute(page: BookDetailRoute.page),
         AutoRoute(page: NotificationsRoute.page),
-        AutoRoute(page: CreateListingRoute.page),
+        AutoRoute(
+          page: CreateListingRoute.page,
+          fullscreenDialog: true,
+        ),
         AutoRoute(page: AboutRoute.page),
         AutoRoute(page: SettingsRoute.page),
         AutoRoute(page: SearchRoute.page),
@@ -22,5 +25,7 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: WishlistRoute.page),
         AutoRoute(page: MyListingsRoute.page),
         AutoRoute(page: EditProfileRoute.page),
+        AutoRoute(page: CartRoute.page),
+        AutoRoute(page: CheckoutRoute.page),
       ];
 }

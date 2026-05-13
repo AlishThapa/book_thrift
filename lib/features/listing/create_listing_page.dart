@@ -8,18 +8,15 @@ import 'package:book_thrift/constants/widgets/app_text_form_field.dart';
 import 'package:book_thrift/core/data/app_repository.dart';
 import 'package:book_thrift/core/di/injection.dart';
 import 'package:book_thrift/features/listing/bloc/create_listing_bloc.dart';
-import 'package:book_thrift/features/listing/models/listing_draft.dart';
 
 @RoutePage()
 class CreateListingPage extends StatelessWidget {
-  const CreateListingPage({super.key, this.initialDraft});
-
-  final ListingDraft? initialDraft;
+  const CreateListingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CreateListingBloc(getIt<AppRepository>())..add(SeedForm(initialDraft?.data ?? const {})),
+      create: (_) => CreateListingBloc(getIt<AppRepository>())..add(const SeedForm({})),
       child: const _CreateListingView(),
     );
   }
@@ -156,63 +153,48 @@ class _CreateListingViewState extends State<_CreateListingView> {
     return Scaffold(
       backgroundColor: colorScheme.surfaceContainerLowest,
       appBar: _buildModernAppBar(),
-      body: Column(
-        children: [
-          Expanded(
-            child: BlocConsumer<CreateListingBloc, CreateListingState>(
-              listenWhen: (p, c) => p.message != c.message && c.message.isNotEmpty,
-              listener: (context, state) {
-                if (state.message.isNotEmpty) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: state.published ? AppColors.success : AppColors.error));
-                }
-                if (state.published) {
-                  if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
-                  } else {
-                    for (final controller in _controllers.values) {
-                      controller.clear();
-                    }
-                    _controllers['quantity']?.text = '1';
-                  }
-                }
-              },
-              builder: (context, state) {
-                if (_controllers['title']!.text.isEmpty && state.form.isNotEmpty) {
-                  for (final entry in _controllers.entries) {
-                    final value = state.form[entry.key]?.toString();
-                    if (value != null && value.isNotEmpty) {
-                      entry.value.text = value;
-                    }
-                  }
-                }
+      body: BlocConsumer<CreateListingBloc, CreateListingState>(
+        listenWhen: (p, c) => p.message != c.message && c.message.isNotEmpty,
+        listener: (context, state) {
+          if (state.message.isNotEmpty) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: state.published ? AppColors.success : AppColors.error));
+          }
+          if (state.published) {
+            context.router.back();
+          }
+        },
+        builder: (context, state) {
+          if (_controllers['title']!.text.isEmpty && state.form.isNotEmpty) {
+            for (final entry in _controllers.entries) {
+              final value = state.form[entry.key]?.toString();
+              if (value != null && value.isNotEmpty) {
+                entry.value.text = value;
+              }
+            }
+          }
 
-                return SingleChildScrollView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeaderSection(),
-                        const SizedBox(height: AppSpacing.lg),
-                        _buildImageSection(state),
-                        const SizedBox(height: AppSpacing.lg),
-                        _buildFormSection(),
-                        const SizedBox(height: 100),
-                      ],
-                    ),
-                  ),
-                );
-              },
+          return SingleChildScrollView(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeaderSection(),
+                  const SizedBox(height: AppSpacing.lg),
+                  _buildImageSection(state),
+                  const SizedBox(height: AppSpacing.lg),
+                  _buildFormSection(),
+                  const SizedBox(height: AppSpacing.xl),
+                ],
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
-      floatingActionButton: _buildFloatingActionButtons(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -224,32 +206,29 @@ class _CreateListingViewState extends State<_CreateListingView> {
       elevation: 0,
       backgroundColor: colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Sell Your Book', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-          Text('Create a listing in minutes ✨', style: textTheme.bodySmall),
-        ],
+      title: Text('Share Post', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+      leading: IconButton(
+        onPressed: () => context.router.back(),
+        icon: const Icon(Icons.close_rounded),
       ),
       actions: [
-        Container(
-          margin: const EdgeInsets.only(right: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [colorScheme.tertiary.withValues(alpha: 0.1), colorScheme.tertiary.withValues(alpha: 0.2)]),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: colorScheme.tertiary.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.auto_awesome, color: colorScheme.tertiary, size: 16),
-              const SizedBox(width: 4),
-              Text(
-                'Quick List',
-                style: textTheme.labelSmall?.copyWith(color: colorScheme.tertiary, fontWeight: FontWeight.w600),
-              ),
-            ],
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: TextButton(
+            onPressed: () {
+              if (!formKey.currentState!.validate()) {
+                _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                return;
+              }
+              context.read<CreateListingBloc>().add(PublishListing());
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            child: const Text('Post', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ),
       ],
@@ -557,92 +536,6 @@ class _CreateListingViewState extends State<_CreateListingView> {
         validator: required ? (v) => (v == null || v.trim().isEmpty) ? '${label.replaceAll('*', '').trim()} is required' : null : null,
         onChanged: (v) => context.read<CreateListingBloc>().add(UpdateListingField(key, v)),
       ),
-    );
-  }
-
-  Widget _buildFloatingActionButtons() {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return BlocBuilder<CreateListingBloc, CreateListingState>(
-      builder: (context, state) {
-        final isEdit = state.form['id'] != null;
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.5), width: 1.5),
-                    boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () => context.read<CreateListingBloc>().add(SaveDraft()),
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.bookmark_border_rounded, color: colorScheme.primary, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Save Draft',
-                              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.primary),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Container(
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [colorScheme.primary, colorScheme.primary.withValues(alpha: 0.8)]),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: colorScheme.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6))],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {
-                        if (!formKey.currentState!.validate()) {
-                          _scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                          return;
-                        }
-                        context.read<CreateListingBloc>().add(PublishListing());
-                      },
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(isEdit ? Icons.check_circle_outline_rounded : Icons.publish_rounded, color: colorScheme.onPrimary, size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              isEdit ? 'Publish' : 'Publish',
-                              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onPrimary),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

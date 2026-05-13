@@ -8,6 +8,7 @@ import 'package:book_thrift/features/listing/widgets/book_detail_image_carousel.
 import 'package:book_thrift/features/listing/widgets/book_specs_grid.dart';
 import 'package:book_thrift/features/listing/widgets/seller_info_card.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
+import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
 import 'package:book_thrift/shared/widgets/system/app_buttons.dart';
 import 'package:book_thrift/shared/widgets/system/bottom_cta_bar.dart';
 import 'package:book_thrift/core/router/app_router.gr.dart';
@@ -20,7 +21,7 @@ class BookDetailPage extends StatelessWidget {
 
   void _onShare() {
     Share.share(
-      'Check out this book: ${listing.title} by ${listing.author} for ₹${listing.sellingPrice.toStringAsFixed(0)} on KitabSathi!',
+      'Check out this book: ${listing.title} by ${listing.author} for NPR ${listing.sellingPrice.toStringAsFixed(0)} on KitabSathi!',
       subject: 'Book Listing: ${listing.title}',
     );
   }
@@ -106,7 +107,7 @@ class BookDetailPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                '₹${listing.sellingPrice.toStringAsFixed(0)}',
+                                'NPR ${listing.sellingPrice.toStringAsFixed(0)}',
                                 style: textTheme.headlineSmall?.copyWith(fontSize: 28, color: colorScheme.primary, fontWeight: FontWeight.bold),
                               ),
                               if (listing.negotiable)
@@ -164,15 +165,53 @@ class BookDetailPage extends StatelessWidget {
           : BottomCtaBar(
               children: [
                 Expanded(
-                  child: SecondaryButton(
-                    label: 'Chat',
-                    icon: Icons.chat_bubble_outline_rounded,
-                    onPressed: () => context.router.push(ChatDetailRoute(threadId: 't1', listing: listing)),
+                  flex: 2,
+                  child: SizedBox(
+                    height: 48,
+                    child: FilledButton(
+                      onPressed: () {
+                        // Handle Buy Now - maybe go straight to checkout?
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+                      ),
+                      child: const Text(
+                        'Buy Now',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: PrimaryButton(label: 'Buy Now', icon: Icons.shopping_cart_checkout_rounded, onPressed: () {}),
+                  flex: 2,
+                  child: SizedBox(
+                    height: 48,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        context.read<CartBloc>().add(AddToCart(listing));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Added to cart')),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: colorScheme.primary, width: 1.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+                      ),
+                      child: Text(
+                        'Add to Cart',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.primary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

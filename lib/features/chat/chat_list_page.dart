@@ -4,10 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/chat/bloc/chat_bloc.dart';
 import 'package:book_thrift/features/chat/widgets/chat_thread_card.dart';
-import 'package:book_thrift/features/chat/widgets/chat_header.dart';
-import 'package:book_thrift/features/chat/widgets/chat_search_bar.dart';
 import 'package:book_thrift/features/chat/widgets/chat_filter_chips.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
+import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
 import 'package:book_thrift/core/router/app_router.gr.dart';
 
 @RoutePage()
@@ -35,14 +34,38 @@ class _ChatListPageState extends State<ChatListPage> {
 
     return Scaffold(
       backgroundColor: colorScheme.surfaceContainerLowest,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leadingWidth: 40,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, size: 24),
+          onPressed: () => context.router.back(),
+        ),
+        title: SizedBox(
+          height: 38,
+          child: AppSearchBar(
+            controller: _searchController,
+            hintText: 'Search messages...',
+            onChanged: (query) => chatBloc.add(SearchThreads(query)),
+            onClear: () {
+              _searchController.clear();
+              chatBloc.add(const SearchThreads(''));
+            },
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_box_outlined, size: 24),
+            onPressed: () => context.router.push(CreateListingRoute()),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            const ChatHeader(),
-            ChatSearchBar(
-              controller: _searchController,
-              onChanged: (query) => chatBloc.add(SearchThreads(query)),
-            ),
+            const SizedBox(height: AppSpacing.sm),
             BlocBuilder<ChatBloc, ChatState>(
               buildWhen: (p, c) => p.selectedFilter != c.selectedFilter,
               builder: (context, state) {
