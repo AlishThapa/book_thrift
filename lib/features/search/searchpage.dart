@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/constants/app_colors.dart';
-import 'package:book_thrift/features/listing/book_detail_page.dart';
 import 'package:book_thrift/features/search/bloc/search_bloc.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
 import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
@@ -38,7 +37,6 @@ class _SearchViewState extends State<_SearchView> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final categories = ['Engineering', 'School', 'Medical', 'Business', 'Arts', 'Science'];
 
     return Scaffold(
@@ -188,7 +186,7 @@ class _EmptySearchResults extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.1),
+              color: AppColors.error.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(

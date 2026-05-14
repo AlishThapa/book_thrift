@@ -170,14 +170,23 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 12),
           child: Center(
-            child: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.onSurface, size: 18),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.surfaceContainer,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                padding: EdgeInsets.zero,
-                fixedSize: const Size(40, 40),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(3, 3)),
+                  // BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 2, offset: const Offset(1.5, 1.5)),
+                ],
+              ),
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: colorScheme.onSurface, size: 18),
+                style: IconButton.styleFrom(
+                  backgroundColor: colorScheme.surface,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: EdgeInsets.zero,
+                  fixedSize: const Size(40, 40),
+                ),
               ),
             ),
           ),
@@ -290,9 +299,9 @@ class _Card extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
-        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(5, 5))],
       ),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: child,
@@ -324,8 +333,12 @@ class _PrimaryBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 52,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
+      ),
       child: FilledButton.icon(
         onPressed: onTap,
         icon: Icon(icon, size: 18),
@@ -334,6 +347,7 @@ class _PrimaryBtn extends StatelessWidget {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          elevation: 0, // Handled by Container shadow
         ),
       ),
     );
@@ -348,11 +362,16 @@ class _OutlineBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
+    return Container(
       height: 52,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.white,
           side: BorderSide(color: colorScheme.primary, width: 1.5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           foregroundColor: colorScheme.primary,

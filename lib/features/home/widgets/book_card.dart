@@ -7,34 +7,27 @@ import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 /// Vertical book card used in the horizontal recommended list.
 /// Shows title, condition, price (with original crossed out), and a wishlist toggle.
 class BookCard extends StatelessWidget {
-  const BookCard({
-    super.key,
-    required this.listing,
-    required this.onTap,
-  });
+  const BookCard({super.key, required this.listing, required this.onTap});
 
   final BookListing listing;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 170,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border, width: 0.8),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.07),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Padding(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0,right: 3),
+        child: Container(
+          width: 170,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 5, offset: const Offset(3, 3))],
+          ),
           padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,11 +42,7 @@ class BookCard extends StatelessWidget {
                 listing.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                  height: 1.3,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary, height: 1.3),
               ),
 
               const SizedBox(height: 6),
@@ -72,10 +61,7 @@ class BookCard extends StatelessWidget {
                   BlocBuilder<WishlistBloc, WishlistState>(
                     builder: (context, state) {
                       final isWishlisted = state.ids.contains(listing.id);
-                      return _WishlistButton(
-                        wishlisted: isWishlisted,
-                        onTap: () => context.read<WishlistBloc>().add(ToggleWishlist(listing.id)),
-                      );
+                      return _WishlistButton(wishlisted: isWishlisted, onTap: () => context.read<WishlistBloc>().add(ToggleWishlist(listing.id)));
                     },
                   ),
                 ],
@@ -95,17 +81,8 @@ class _BookCoverPlaceholder extends StatelessWidget {
     return Container(
       height: 110,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.menu_book_rounded,
-          size: 44,
-          color: AppColors.primary.withValues(alpha: 0.5),
-        ),
-      ),
+      decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(12)),
+      child: Center(child: Icon(Icons.menu_book_rounded, size: 44, color: AppColors.primary.withValues(alpha: 0.5))),
     );
   }
 }
@@ -121,16 +98,10 @@ class _ConditionBadge extends StatelessWidget {
     final label = (condition?.isNotEmpty == true) ? condition! : 'Good';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
+      decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: AppColors.success,
-          fontWeight: FontWeight.w600,
-        ),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -145,27 +116,17 @@ class _PriceBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: AppColors.success,
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: BoxDecoration(color: AppColors.success, borderRadius: BorderRadius.circular(10)),
       child: Text(
         'NPR ${price.toStringAsFixed(0)}',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: AppColors.surface,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.3,
-        ),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.surface, fontWeight: FontWeight.w700, letterSpacing: 0.3),
       ),
     );
   }
 }
 
 class _WishlistButton extends StatelessWidget {
-  const _WishlistButton({
-    required this.wishlisted,
-    required this.onTap,
-  });
+  const _WishlistButton({required this.wishlisted, required this.onTap});
 
   final bool wishlisted;
   final VoidCallback onTap;
@@ -176,14 +137,8 @@ class _WishlistButton extends StatelessWidget {
       onTap: onTap,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, animation) =>
-            ScaleTransition(scale: animation, child: child),
-        child: Icon(
-          wishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-          key: ValueKey(wishlisted),
-          color: AppColors.accent,
-          size: 20,
-        ),
+        transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+        child: Icon(wishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded, key: ValueKey(wishlisted), color: AppColors.accent, size: 20),
       ),
     );
   }

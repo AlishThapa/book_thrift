@@ -4,9 +4,10 @@ import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/core/router/app_router.gr.dart';
 import 'package:book_thrift/features/cart/cart_page.dart';
 import 'package:book_thrift/features/home/bloc/homepage_bloc.dart';
-import 'package:book_thrift/features/home/widgets/book_card.dart';
-import 'package:book_thrift/features/home/widgets/book_card_skeleton.dart';
 import 'package:book_thrift/features/home/widgets/category_chips.dart';
+import 'package:book_thrift/features/home/widgets/home_book_list.dart';
+import 'package:book_thrift/features/home/widgets/home_empty_state.dart';
+import 'package:book_thrift/features/home/widgets/home_section_title.dart';
 import 'package:book_thrift/features/profile/profile_page.dart';
 import 'package:book_thrift/features/search/searchpage.dart';
 import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
@@ -42,7 +43,13 @@ class _MainShellPageState extends State<MainShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [Homepage(onNavigate: _onNavigate), const SearchPage(), const SizedBox.shrink(), const CartPage(), const ProfilePage()];
+    final pages = [
+      Homepage(onNavigate: _onNavigate),
+      const SearchPage(),
+      const SizedBox.shrink(),
+      CartPage(onNavigate: _onNavigate),
+      const ProfilePage()
+    ];
 
     return Scaffold(
       extendBody: true,
@@ -118,7 +125,7 @@ class Homepage extends StatelessWidget {
     return BlocBuilder<HomepageBloc, HomepageState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
           body: SafeArea(
             bottom: false,
             child: RefreshIndicator(
@@ -175,7 +182,7 @@ class Homepage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _SectionTitle(icon: Icons.tune_rounded, title: 'Categories'),
+                          const HomeSectionTitle(icon: Icons.tune_rounded, title: 'Categories'),
                           const SizedBox(height: AppSpacing.sm),
                           CategoryChips(
                             categories: _kCategories,
@@ -192,7 +199,7 @@ class Homepage extends StatelessWidget {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                      child: _SectionTitle(
+                      child: HomeSectionTitle(
                         icon: Icons.auto_stories_rounded,
                         title: 'Recommended for You',
                         trailing: GestureDetector(
@@ -210,12 +217,12 @@ class Homepage extends StatelessWidget {
 
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 280,
+                      height: 285,
                       child: state.loading
-                          ? _SkeletonList()
+                          ? const SkeletonList()
                           : state.listings.isEmpty
-                          ? _EmptyState()
-                          : _BookList(
+                          ? const HomeEmptyState()
+                          : HomeBookList(
                               state: state,
                               onBookTap: (listing) => context.router.push(BookDetailRoute(listing: listing)),
                             ),
@@ -229,123 +236,6 @@ class Homepage extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _BookList extends StatelessWidget {
-  const _BookList({required this.state, required this.onBookTap});
-
-  final HomepageState state;
-  final ValueChanged<dynamic> onBookTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      scrollDirection: Axis.horizontal,
-      itemCount: state.listings.length,
-      separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
-      itemBuilder: (context, index) {
-        final listing = state.listings[index];
-        return BookCard(listing: listing, onTap: () => onBookTap(listing));
-      },
-    );
-  }
-}
-
-class _SkeletonList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      scrollDirection: Axis.horizontal,
-      itemCount: 5,
-      separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
-      itemBuilder: (_, __) => const BookCardSkeleton(),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off_rounded, size: 40, color: colorScheme.outline.withValues(alpha: 0.5)),
-          const SizedBox(height: 8),
-          Text('No books found', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
-        ],
-      ),
-    );
-  }
-}
-
-class _SurfaceCard extends StatelessWidget {
-  const _SurfaceCard({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
-        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 4))],
-      ),
-      child: child,
-    );
-  }
-}
-
-class _SectionPadding extends StatelessWidget {
-  const _SectionPadding({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-      child: child,
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.icon, required this.title, this.trailing});
-
-  final IconData icon;
-  final String title;
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: colorScheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
-          child: Icon(icon, color: colorScheme.onPrimaryContainer, size: 18),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(title, style: textTheme.titleLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
-        ),
-        if (trailing != null) trailing!,
-      ],
     );
   }
 }

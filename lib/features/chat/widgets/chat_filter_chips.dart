@@ -20,7 +20,7 @@ class ChatFilterChips extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
-        vertical: AppSpacing.md,
+        vertical: AppSpacing.xs,
       ),
       child: Row(
         children: filters.map((filter) {
@@ -32,30 +32,39 @@ class ChatFilterChips extends StatelessWidget {
               child: Container(
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16, // Increased horizontal padding
-                  vertical: 6,
+                  horizontal: 16,
+                  vertical: 5,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? colorScheme.primary
-                      : colorScheme.surface,
-                  borderRadius: BorderRadius.circular(100),
+                      : colorScheme.surfaceVariant.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
                   border: isSelected
                       ? null
                       : Border.all(
-                          color: colorScheme.outlineVariant,
-                          width: 0.5,
+                          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                          width: 1,
                         ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: colorScheme.primary.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Text(
                   filter,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: isSelected
                         ? Colors.white
                         : colorScheme.onSurfaceVariant,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                    height: 1.2, // Ensure better vertical centering
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    height: 1.2,
                   ),
                 ),
               ),

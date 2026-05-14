@@ -41,13 +41,13 @@ class _ListCard extends StatelessWidget {
     return Container(
       // margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHigh,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 15,
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -134,13 +134,13 @@ class _GridCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHigh,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 12,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],

@@ -21,3 +21,5 @@ To maintain consistency, quality, and performance in the KitabSathi project, ple
 10. **Consistency**: Maintain a consistent theme and feel across all pages.
 11. **Dependency Injection & Blocs**: Dependency injection for Blocs should be properly managed. Global Blocs (those used across multiple features) must be provided in `main.dart` or the root shell. Avoid re-creating Bloc instances inside page builders if they need to maintain state across navigation. Use `getIt` for repository/service injection into Blocs.
 12. **Navigation**: Use `auto_route` for all navigation purposes. Never use the default `Navigator` or `MaterialPageRoute` manually.
+13. **Unused Imports**: Never use unused imports. Remove them to keep the code clean and maintainable.
+14. **Unused Variables**: Remove unused variables to keep the code clean and maintainable.

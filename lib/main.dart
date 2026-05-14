@@ -15,11 +15,9 @@ import 'package:book_thrift/features/profile/bloc/profile_bloc.dart';
 import 'package:book_thrift/features/search/bloc/search_bloc.dart';
 import 'package:book_thrift/features/search/models/search_models.dart';
 import 'package:book_thrift/features/settings/bloc/settings_bloc.dart';
-import 'package:book_thrift/features/splash/splash_page.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 import 'package:book_thrift/features/wishlist/models/wishlist_item.dart';
 import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
-import 'package:auto_route/auto_route.dart';
 import 'package:book_thrift/core/router/app_router.dart';
 import 'package:book_thrift/core/utils/app_theme.dart';
 

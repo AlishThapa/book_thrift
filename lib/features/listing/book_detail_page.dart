@@ -9,9 +9,7 @@ import 'package:book_thrift/features/listing/widgets/book_specs_grid.dart';
 import 'package:book_thrift/features/listing/widgets/seller_info_card.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
-import 'package:book_thrift/shared/widgets/system/app_buttons.dart';
 import 'package:book_thrift/shared/widgets/system/bottom_cta_bar.dart';
-import 'package:book_thrift/core/router/app_router.gr.dart';
 
 @RoutePage()
 class BookDetailPage extends StatelessWidget {

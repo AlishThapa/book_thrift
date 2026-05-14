@@ -9,7 +9,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 @RoutePage()
 class CartPage extends StatefulWidget {
-  const CartPage({super.key});
+  const CartPage({super.key, this.onNavigate});
+
+  final ValueChanged<int>? onNavigate;
 
   @override
   State<CartPage> createState() => _CartPageState();
@@ -75,7 +77,7 @@ class _CartPageState extends State<CartPage> {
           }).toList();
 
           if (state.items.isEmpty) {
-            return const _EmptyCartState();
+            return _EmptyCartState(onNavigate: widget.onNavigate);
           }
 
           return Column(
@@ -116,6 +118,7 @@ class _CartItemTile extends StatelessWidget {
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
         extentRatio: 0.25,
+        dismissible: DismissiblePane(onDismissed: () => context.read<CartBloc>().add(RemoveFromCart(item.book.id))),
         children: [
           SlidableAction(
             onPressed: (context) => context.read<CartBloc>().add(RemoveFromCart(item.book.id)),
@@ -127,15 +130,22 @@ class _CartItemTile extends StatelessWidget {
         ],
       ),
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.sm),
+        padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: AppSpacing.sm, right: AppSpacing.sm),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+          border: Border.all(color: item.isSelected ? colorScheme.primary.withValues(alpha: 0.2) : colorScheme.outline.withValues(alpha: 0.1)),
+          boxShadow: item.isSelected
+              ? [BoxShadow(color: colorScheme.primary.withValues(alpha: 0.1), blurRadius: 12, offset: const Offset(0, 6))]
+              : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 5, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
-            Checkbox(value: item.isSelected, onChanged: (_) => context.read<CartBloc>().add(ToggleSelectItem(item.book.id))),
+            Checkbox(
+              value: item.isSelected,
+              onChanged: (_) => context.read<CartBloc>().add(ToggleSelectItem(item.book.id)),
+              visualDensity: VisualDensity.compact,
+            ),
             ClipRRect(
               borderRadius: BorderRadius.circular(AppRadius.sm),
               child: item.book.imagePaths.isNotEmpty
@@ -261,7 +271,9 @@ class _CartBottomSection extends StatelessWidget {
 }
 
 class _EmptyCartState extends StatelessWidget {
-  const _EmptyCartState();
+  const _EmptyCartState({this.onNavigate});
+
+  final ValueChanged<int>? onNavigate;
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +299,13 @@ class _EmptyCartState extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xl),
           ElevatedButton(
-            onPressed: () => context.router.popUntilRoot(),
+            onPressed: () {
+              if (onNavigate != null) {
+                onNavigate!(0); // Go to Home
+              } else {
+                context.router.popUntilRoot();
+              }
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: colorScheme.primary,
               foregroundColor: Colors.white,

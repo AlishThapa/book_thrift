@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/core/data/app_repository.dart';
 import 'package:book_thrift/core/di/injection.dart';

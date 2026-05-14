@@ -86,7 +86,6 @@ class ProfilePage extends StatelessWidget {
                         () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage())),
                         color: Colors.blueGrey,
                       ),
-                      const SizedBox(height: 120),
                     ]),
                   ),
                 ),

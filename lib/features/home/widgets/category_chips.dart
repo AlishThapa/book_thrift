@@ -17,10 +17,10 @@ class CategoryChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
+      height: 52, // Increased height to accommodate shadow
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.zero,
+        padding: const EdgeInsets.symmetric(vertical: 4), // Added padding for shadow
         itemCount: categories.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
@@ -66,6 +66,15 @@ class _CategoryChip extends StatelessWidget {
               : (isDark ? AppColors.borderDark : AppColors.border),
           width: 1.5,
         ),
+        boxShadow: isSelected
+            ? [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(3, 3),
+                ),
+              ]
+            : null,
       ),
       child: Material(
         color: Colors.transparent,

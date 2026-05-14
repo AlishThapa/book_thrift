@@ -4,11 +4,7 @@ import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/chat/models/chat_models.dart';
 
 class ChatThreadCard extends StatelessWidget {
-  const ChatThreadCard({
-    super.key,
-    required this.thread,
-    this.onTap,
-  });
+  const ChatThreadCard({super.key, required this.thread, this.onTap});
 
   final ChatThread thread;
   final VoidCallback? onTap;
@@ -38,16 +34,12 @@ class ChatThreadCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.sm),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
-          color: colorScheme.surface,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(
-            color: isUnread
-                ? colorScheme.outline.withValues(alpha: 0.4) // Slightly darker
-                : colorScheme.outlineVariant.withValues(alpha: 0.3), // Faint grey
-            width: 0.5,
-          ),
+          border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(5, 5))],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,18 +48,11 @@ class ChatThreadCard extends StatelessWidget {
             Container(
               width: 46,
               height: 46,
-              decoration: BoxDecoration(
-                color: avatarColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: avatarColor.withValues(alpha: 0.1), shape: BoxShape.circle),
               child: Center(
                 child: Text(
                   initial,
-                  style: TextStyle(
-                    color: avatarColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(color: avatarColor, fontWeight: FontWeight.bold, fontSize: 18),
                 ),
               ),
             ),
@@ -82,11 +67,7 @@ class ChatThreadCard extends StatelessWidget {
                     children: [
                       Text(
                         displayName,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: isUnread ? FontWeight.bold : FontWeight.w500,
-                          color: colorScheme.onSurface,
-                        ),
+                        style: TextStyle(fontSize: 14, fontWeight: isUnread ? FontWeight.bold : FontWeight.w500, color: colorScheme.onSurface),
                       ),
                       Text(
                         timeStr,
@@ -102,17 +83,10 @@ class ChatThreadCard extends StatelessWidget {
                   // Item Tag
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: avatarColor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
+                    decoration: BoxDecoration(color: avatarColor.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(100)),
                     child: Text(
                       thread.bookTitle,
-                      style: TextStyle(
-                        color: avatarColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      style: TextStyle(color: avatarColor, fontSize: 10, fontWeight: FontWeight.w500),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -137,10 +111,7 @@ class ChatThreadCard extends StatelessWidget {
                           margin: const EdgeInsets.only(left: 8),
                           width: 8,
                           height: 8,
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
+                          decoration: BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle),
                         ),
                     ],
                   ),

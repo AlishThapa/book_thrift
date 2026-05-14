@@ -33,15 +33,12 @@ class _ChatListPageState extends State<ChatListPage> {
     final chatBloc = context.read<ChatBloc>();
 
     return Scaffold(
-      backgroundColor: colorScheme.surfaceContainerLowest,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leadingWidth: 40,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, size: 24),
-          onPressed: () => context.router.back(),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back_rounded, size: 24), onPressed: () => context.router.back()),
         title: SizedBox(
           height: 38,
           child: AppSearchBar(
@@ -55,10 +52,7 @@ class _ChatListPageState extends State<ChatListPage> {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add_box_outlined, size: 24),
-            onPressed: () => context.router.push(CreateListingRoute()),
-          ),
+          IconButton(icon: const Icon(Icons.add_box_outlined, size: 24), onPressed: () => context.router.push(CreateListingRoute())),
           const SizedBox(width: AppSpacing.xs),
         ],
       ),
@@ -86,28 +80,15 @@ class _ChatListPageState extends State<ChatListPage> {
                   }
 
                   return ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.xs,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
                     itemCount: threads.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 6),
+                    separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
                       final t = threads[i];
                       return ChatThreadCard(
                         thread: t,
                         onTap: () => context.router.push(
-                          ChatDetailRoute(
-                            threadId: t.id,
-                            listing: BookListing.sample(
-                              t.bookId,
-                              t.bookTitle,
-                              'Unknown',
-                              'General',
-                              0,
-                              0,
-                            ),
-                          ),
+                          ChatDetailRoute(threadId: t.id, listing: BookListing.sample(t.bookId, t.bookTitle, 'Unknown', 'General', 0, 0)),
                         ),
                       );
                     },
@@ -136,30 +117,16 @@ class _EmptyChatsState extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.chat_bubble_outline_rounded,
-              size: 64,
-              color: colorScheme.primary,
-            ),
+            decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: Icon(Icons.chat_bubble_outline_rounded, size: 64, color: colorScheme.primary),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text(
-            'No Messages Yet',
-            style: textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('No Messages Yet', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Your conversations with sellers\nwill appear here.',
             textAlign: TextAlign.center,
-            style: textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),
