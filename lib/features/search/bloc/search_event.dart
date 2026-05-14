@@ -22,9 +22,11 @@ class SortChanged extends SearchEvent {
   List<Object?> get props => [sort];
 }
 
-class CategoryFilterChanged extends SearchEvent {
-  const CategoryFilterChanged(this.category);
-  final String? category;
+class ToggleCategory extends SearchEvent {
+  const ToggleCategory(this.category);
+  final String category;
   @override
   List<Object?> get props => [category];
 }
+
+class ClearCategories extends SearchEvent {}

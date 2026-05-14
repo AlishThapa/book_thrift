@@ -32,27 +32,18 @@ class AppSearchBar extends StatelessWidget {
       onTap: onTap,
       onChanged: onChanged,
       textAlignVertical: TextAlignVertical.center,
-      style: textTheme.bodyMedium?.copyWith(
-        fontSize: 14,
-        color: colorScheme.onSurface,
-      ),
+      style: textTheme.bodyMedium?.copyWith(fontSize: 14, color: colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: textTheme.bodyMedium?.copyWith(
-          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-          fontSize: 14,
-        ),
+        hintStyle: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), fontSize: 14),
         prefixIcon: Icon(Icons.search_rounded, color: colorScheme.primary, size: 20),
         suffixIcon: _buildSuffix(colorScheme),
         filled: true,
-        fillColor: colorScheme.surfaceVariant.withValues(alpha: 0.2),
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
         isDense: true,
+        enabled: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 0),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
-        ),
-        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
@@ -70,9 +61,7 @@ class AppSearchBar extends StatelessWidget {
         valueListenable: controller!,
         builder: (context, value, _) {
           if (value.text.isEmpty) {
-            return showFilterIcon 
-                ? Icon(Icons.tune_rounded, size: 20, color: colorScheme.onSurfaceVariant) 
-                : const SizedBox.shrink();
+            return showFilterIcon ? Icon(Icons.tune_rounded, size: 20, color: colorScheme.onSurfaceVariant) : const SizedBox.shrink();
           }
           return IconButton(
             icon: Icon(Icons.clear_rounded, size: 20, color: colorScheme.onSurfaceVariant),

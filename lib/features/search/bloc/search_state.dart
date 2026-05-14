@@ -6,29 +6,29 @@ class SearchState extends Equatable {
     this.sort = 'most relevant',
     this.results = const [],
     this.recent = const [],
-    this.selectedCategory,
+    this.selectedCategories = const {},
   });
   final String query;
   final String sort;
   final List<BookListing> results;
   final List<SearchHistoryItem> recent;
-  final String? selectedCategory;
+  final Set<String> selectedCategories;
 
   SearchState copyWith({
     String? query,
     String? sort,
     List<BookListing>? results,
     List<SearchHistoryItem>? recent,
-    String? selectedCategory,
+    Set<String>? selectedCategories,
   }) =>
       SearchState(
         query: query ?? this.query,
         sort: sort ?? this.sort,
         results: results ?? this.results,
         recent: recent ?? this.recent,
-        selectedCategory: selectedCategory ?? this.selectedCategory,
+        selectedCategories: selectedCategories ?? this.selectedCategories,
       );
 
   @override
-  List<Object?> get props => [query, sort, results, recent, selectedCategory];
+  List<Object?> get props => [query, sort, results, recent, selectedCategories];
 }

@@ -20,9 +20,9 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      extendBody: true,
+      backgroundColor: Colors.white,
       body: SafeArea(
+        bottom: false,
         child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
             final p = state.profile;
@@ -86,6 +86,7 @@ class ProfilePage extends StatelessWidget {
                         () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage())),
                         color: Colors.blueGrey,
                       ),
+                      const SizedBox(height: 120),
                     ]),
                   ),
                 ),

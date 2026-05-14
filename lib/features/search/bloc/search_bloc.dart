@@ -7,17 +7,29 @@ import 'package:book_thrift/features/search/models/search_models.dart';
 import '../../listing/models/book_listing.dart';
 part  'search_event.dart';
 part  'search_state.dart';
+
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   SearchBloc(this.repo) : super(const SearchState()) {
     on<LoadSearch>(_load);
     on<QueryChanged>(_query);
     on<SortChanged>(_sort);
-    on<CategoryFilterChanged>(_categoryFilter);
+    on<ToggleCategory>(_toggleCategory);
+    on<ClearCategories>(_clearCategories);
   }
   final AppRepository repo;
 
-  Future<void> _categoryFilter(CategoryFilterChanged e, Emitter<SearchState> emit) async {
-    emit(state.copyWith(selectedCategory: e.category));
+  Future<void> _toggleCategory(ToggleCategory e, Emitter<SearchState> emit) async {
+    final updated = Set<String>.from(state.selectedCategories);
+    if (updated.contains(e.category)) {
+      updated.remove(e.category);
+    } else {
+      updated.add(e.category);
+    }
+    emit(state.copyWith(selectedCategories: updated));
+  }
+
+  Future<void> _clearCategories(ClearCategories e, Emitter<SearchState> emit) async {
+    emit(state.copyWith(selectedCategories: {}));
   }
 
   Future<void> _load(LoadSearch e, Emitter<SearchState> emit) async {

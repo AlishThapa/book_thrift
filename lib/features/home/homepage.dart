@@ -43,13 +43,7 @@ class _MainShellPageState extends State<MainShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      Homepage(onNavigate: _onNavigate),
-      const SearchPage(),
-      const SizedBox.shrink(),
-      CartPage(onNavigate: _onNavigate),
-      const ProfilePage()
-    ];
+    final pages = [Homepage(onNavigate: _onNavigate), const SearchPage(), const SizedBox.shrink(), CartPage(onNavigate: _onNavigate), const ProfilePage()];
 
     return Scaffold(
       extendBody: true,
@@ -125,7 +119,7 @@ class Homepage extends StatelessWidget {
     return BlocBuilder<HomepageBloc, HomepageState>(
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           body: SafeArea(
             bottom: false,
             child: RefreshIndicator(

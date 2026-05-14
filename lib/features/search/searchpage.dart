@@ -46,10 +46,12 @@ class _SearchViewState extends State<_SearchView> {
       ),
       body: BlocBuilder<SearchBloc, SearchState>(
         builder: (context, state) {
-          final results = state.selectedCategory == null
+          final results = state.selectedCategories.isEmpty
               ? state.results
               : state.results
-                  .where((e) => e.category.toLowerCase().contains(state.selectedCategory!.toLowerCase()))
+                  .where((e) => state.selectedCategories.any(
+                        (cat) => e.category.toLowerCase().contains(cat.toLowerCase()),
+                      ))
                   .toList();
 
           return Column(
@@ -67,7 +69,6 @@ class _SearchViewState extends State<_SearchView> {
                       AppSearchBar(
                         controller: _searchController,
                         hintText: 'Title, author, course...',
-                        showFilterIcon: true,
                         onChanged: (v) => context.read<SearchBloc>().add(QueryChanged(v)),
                         onClear: () {
                           _searchController.clear();
@@ -84,14 +85,12 @@ class _SearchViewState extends State<_SearchView> {
                           separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.xs),
                           itemBuilder: (context, index) {
                             final cat = categories[index];
-                            final isSelected = state.selectedCategory == cat;
+                            final isSelected = state.selectedCategories.contains(cat);
                             return AppFilterChip(
                               label: cat,
                               selected: isSelected,
-                              onSelected: (selected) {
-                                context.read<SearchBloc>().add(
-                                      CategoryFilterChanged(selected ? cat : null),
-                                    );
+                              onSelected: (_) {
+                                context.read<SearchBloc>().add(ToggleCategory(cat));
                               },
                             );
                           },
@@ -104,7 +103,7 @@ class _SearchViewState extends State<_SearchView> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                  child: state.query.trim().isEmpty && state.selectedCategory == null
+                  child: state.query.trim().isEmpty && state.selectedCategories.isEmpty
                       ? const _InitialSearchState()
                       : results.isEmpty
                           ? const _EmptySearchResults()
