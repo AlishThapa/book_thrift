@@ -11,7 +11,6 @@ import 'package:book_thrift/features/profile/widgets/profile_header.dart';
 import 'package:book_thrift/features/profile/widgets/profile_stats.dart';
 import 'package:book_thrift/features/settings/settings_page.dart';
 import 'package:book_thrift/features/wishlist/wishlist_page.dart';
-import 'package:book_thrift/core/router/app_router.gr.dart';
 
 @RoutePage()
 class ProfilePage extends StatelessWidget {
