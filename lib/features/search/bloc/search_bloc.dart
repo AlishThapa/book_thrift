@@ -26,7 +26,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   Future<void> _toggleCategory(ToggleCategory e, Emitter<SearchState> emit) async {
-    final updated = Set<String>.from(state.selectedCategories);
+    final updated = Set<String>.from(state.selectedCategories
+    );
     if (e.category == 'All') {
       updated.clear();
     } else {
