@@ -20,7 +20,7 @@ class SearchRepo {
     final response = await apiInstance.getData(
       url: ApiUrl.getBooks,
       queryParameters: queryParams,
-      useToken: false,
+      useToken: true,
     );
 
     final List<dynamic> data = response['data'] ?? [];

@@ -223,7 +223,10 @@ class Homepage extends StatelessWidget {
                           ? const HomeEmptyState()
                           : HomeBookList(
                               state: state,
-                              onBookTap: (listing) => context.router.push(BookDetailRoute(listing: listing)),
+                              onBookTap: (listing) {
+                                final heroTag = 'home_book_image_${listing.id}';
+                                context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag));
+                              },
                             ),
                     ),
                   ),

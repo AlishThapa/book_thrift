@@ -1,9 +1,34 @@
 part of 'wishlist_bloc.dart';
 
+enum WishlistStatus { initial, loading, success, failure }
+
 class WishlistState extends Equatable {
-  const WishlistState({this.ids = const {}});
+  const WishlistState({
+    this.status = WishlistStatus.initial,
+    this.items = const [],
+    this.ids = const {},
+    this.errorMessage,
+  });
+
+  final WishlistStatus status;
+  final List<BookListing> items;
   final Set<String> ids;
-  WishlistState copyWith(Set<String>? ids) => WishlistState(ids: ids ?? this.ids);
+  final String? errorMessage;
+
+  WishlistState copyWith({
+    WishlistStatus? status,
+    List<BookListing>? items,
+    Set<String>? ids,
+    String? errorMessage,
+  }) {
+    return WishlistState(
+      status: status ?? this.status,
+      items: items ?? this.items,
+      ids: ids ?? this.ids,
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
+  }
+
   @override
-  List<Object?> get props => [ids];
+  List<Object?> get props => [status, items, ids, errorMessage];
 }

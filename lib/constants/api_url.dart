@@ -8,4 +8,6 @@ class ApiUrl {
   static const String postBook = "post-book";
   static const String getBooks = "get-books";
   static const String bookDetails = "book-details";
+  static const String toggleWishlist = "toggle-wishlist";
+  static const String wishlist = "wishlist";
 }

@@ -10,14 +10,14 @@ class ProfileRepo {
 
   Future<ProfileData> updateProfile({String? fullName, String? email, String? phone, String? userType, String? location, String? institution, String? className, String? semester}) async {
     final data = {
-      'full_name': ?fullName,
-      'email': ?email,
-      'phone': ?phone,
-      'user_type': ?userType,
-      'location': ?location,
-      'institution': ?institution,
-      'class_name': ?className,
-      'semester': ?semester,
+      'full_name': fullName,
+      'email': email,
+      'phone': phone,
+      'user_type': userType,
+      'location': location,
+      'institution': institution,
+      'class_name': className,
+      'semester': semester,
     };
 
     final response = await apiInstance.putData(url: ApiUrl.editProfile, data: data);

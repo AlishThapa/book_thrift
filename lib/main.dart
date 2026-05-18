@@ -88,7 +88,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => HomepageBloc(getIt<AppRepository>())..add(LoadHomepage())),
-        BlocProvider(create: (_) => WishlistBloc(getIt<AppRepository>())..add(LoadWishlist())),
+        BlocProvider(create: (_) => WishlistBloc(getIt<ListingRepo>())),
         BlocProvider(
           create: (_) => ProfileBloc(
             localRepo: getIt<AppRepository>(),

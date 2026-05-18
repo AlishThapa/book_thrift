@@ -41,3 +41,5 @@ To maintain consistency, quality, and performance in the KitabSathi project, ple
         *   **Success**: The request completed successfully (with data or confirmation).
         *   **Error**: The request failed (show a user-friendly error message or snackbar).
     *   Use Bloc states (e.g., `Status.loading`, `Status.success`, `Status.failure`) to drive these UI changes.
+
+18. **Controller Disposal**: Always dispose of all controllers (e.g., `AnimationController`, `TextEditingController`, `ScrollController`, etc.) in the `dispose()` method of your `StatefulWidget` to prevent memory leaks. This includes controllers used for slide, fade, or any other animations.

@@ -5,10 +5,11 @@ import 'package:book_thrift/features/listing/models/book_listing.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 
 class BookCard extends StatelessWidget {
-  const BookCard({super.key, required this.listing, required this.onTap});
+  const BookCard({super.key, required this.listing, required this.onTap, this.heroTag});
 
   final BookListing listing;
   final VoidCallback onTap;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,10 @@ class BookCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Cover image area
-              _BookCoverPlaceholder(),
+              Hero(
+                tag: heroTag ?? 'home_book_image_${listing.id}',
+                child: _BookCoverPlaceholder(),
+              ),
 
               const SizedBox(height: 10),
 

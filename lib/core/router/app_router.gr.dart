@@ -80,6 +80,7 @@ class BookDetailRoute extends _i21.PageRouteInfo<BookDetailRouteArgs> {
     _i22.Key? key,
     required _i23.BookListing listing,
     bool isOwner = false,
+    String? heroTag,
     List<_i21.PageRouteInfo>? children,
   }) : super(
           BookDetailRoute.name,
@@ -87,6 +88,7 @@ class BookDetailRoute extends _i21.PageRouteInfo<BookDetailRouteArgs> {
             key: key,
             listing: listing,
             isOwner: isOwner,
+            heroTag: heroTag,
           ),
           initialChildren: children,
         );
@@ -101,6 +103,7 @@ class BookDetailRoute extends _i21.PageRouteInfo<BookDetailRouteArgs> {
         key: args.key,
         listing: args.listing,
         isOwner: args.isOwner,
+        heroTag: args.heroTag,
       );
     },
   );
@@ -111,6 +114,7 @@ class BookDetailRouteArgs {
     this.key,
     required this.listing,
     this.isOwner = false,
+    this.heroTag,
   });
 
   final _i22.Key? key;
@@ -119,9 +123,11 @@ class BookDetailRouteArgs {
 
   final bool isOwner;
 
+  final String? heroTag;
+
   @override
   String toString() {
-    return 'BookDetailRouteArgs{key: $key, listing: $listing, isOwner: $isOwner}';
+    return 'BookDetailRouteArgs{key: $key, listing: $listing, isOwner: $isOwner, heroTag: $heroTag}';
   }
 }
 

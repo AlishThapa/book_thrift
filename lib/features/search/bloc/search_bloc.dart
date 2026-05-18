@@ -52,6 +52,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit(state.copyWith(
       query: '',
       selectedCategories: {},
+      results: [],
       status: SearchStatus.loading,
     ));
 

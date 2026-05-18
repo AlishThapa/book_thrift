@@ -9,10 +9,12 @@ class BookDetailImageCarousel extends StatefulWidget {
     super.key,
     required this.imagePaths,
     required this.listingId,
+    this.heroTag,
   });
 
   final List<String> imagePaths;
   final String listingId;
+  final String? heroTag;
 
   @override
   State<BookDetailImageCarousel> createState() => _BookDetailImageCarouselState();
@@ -24,7 +26,7 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
   @override
   Widget build(BuildContext context) {
     return Hero(
-      tag: 'book_image_${widget.listingId}',
+      tag: widget.heroTag ?? 'book_image_${widget.listingId}',
       child: Material(
         color: Colors.transparent,
         child: _buildContent(),

@@ -7,29 +7,63 @@ import 'package:book_thrift/features/listing/models/book_listing.dart';
 import 'package:book_thrift/features/listing/widgets/book_detail_image_carousel.dart';
 import 'package:book_thrift/features/listing/widgets/book_specs_grid.dart';
 import 'package:book_thrift/features/listing/widgets/seller_info_card.dart';
-import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
 import 'package:book_thrift/features/listing/bloc/listing_detail_bloc.dart';
 import 'package:book_thrift/shared/widgets/system/bottom_cta_bar.dart';
 
 @RoutePage()
 class BookDetailPage extends StatefulWidget {
-  const BookDetailPage({super.key, required this.listing, this.isOwner = false});
+  const BookDetailPage({super.key, required this.listing, this.isOwner = false, this.heroTag});
   final BookListing listing;
   final bool isOwner;
+  final String? heroTag;
 
   @override
   State<BookDetailPage> createState() => _BookDetailPageState();
 }
 
-class _BookDetailPageState extends State<BookDetailPage> {
+class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    ));
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.8, curve: Curves.easeIn),
+      ),
+    );
+
+    _controller.forward();
+
     final bookId = int.tryParse(widget.listing.id);
     if (bookId != null) {
       context.read<ListingDetailBloc>().add(FetchListingDetail(bookId));
     }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleBack() {
+    _controller.reverse();
+    context.router.maybePop();
   }
 
   void _onShare(BookListing listing) {
@@ -44,7 +78,9 @@ class _BookDetailPageState extends State<BookDetailPage> {
 
     return BlocBuilder<ListingDetailBloc, ListingDetailState>(
       builder: (context, state) {
-        final listing = state.listing ?? widget.listing;
+        // Ensure we use the current listing from state only if it matches the ID of the book we opened.
+        // This prevents "flickering" where the Hero animation shows data from the previously viewed book.
+        final listing = (state.listing != null && state.listing!.id == widget.listing.id) ? state.listing! : widget.listing;
 
         return Scaffold(
           backgroundColor: colorScheme.surfaceContainerLowest,
@@ -53,15 +89,16 @@ class _BookDetailPageState extends State<BookDetailPage> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             foregroundColor: colorScheme.onPrimary,
+            leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: _handleBack),
             actions: [
-              BlocBuilder<WishlistBloc, WishlistState>(
-                builder: (_, wishlistState) {
-                  final selected = wishlistState.ids.contains(listing.id);
-                  return IconButton(
-                    onPressed: () => context.read<WishlistBloc>().add(ToggleWishlist(listing.id)),
-                    icon: Icon(selected ? Icons.favorite : Icons.favorite_border, color: selected ? colorScheme.error : colorScheme.onPrimary),
-                  );
+              IconButton(
+                onPressed: () {
+                  final bookId = int.tryParse(listing.id);
+                  if (bookId != null) {
+                    context.read<ListingDetailBloc>().add(ToggleBookWishlist(bookId));
+                  }
                 },
+                icon: Icon(listing.isWishlisted ? Icons.favorite : Icons.favorite_border, color: listing.isWishlisted ? colorScheme.error : colorScheme.onPrimary),
               ),
               IconButton(
                 onPressed: () => _onShare(listing),
@@ -70,115 +107,129 @@ class _BookDetailPageState extends State<BookDetailPage> {
               const SizedBox(width: 8),
             ],
           ),
-          body: state.status == ListingDetailStatus.loading && state.listing == null
-              ? const Center(child: CircularProgressIndicator())
-              : state.status == ListingDetailStatus.failure && state.listing == null
-              ? Center(child: Text('Error: ${state.errorMessage}'))
-              : RefreshIndicator(
-                  onRefresh: () async {
-                    final bookId = int.tryParse(widget.listing.id);
-                    if (bookId != null) {
-                      final bloc = context.read<ListingDetailBloc>();
-                      bloc.add(FetchListingDetail(bookId));
-                      await bloc.stream.firstWhere((s) => s.status != ListingDetailStatus.loading);
-                    }
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
-                        child: Container(
-                          color: colorScheme.primary,
-                          height: 350,
-                          child: BookDetailImageCarousel(imagePaths: listing.imagePaths, listingId: listing.id),
-                        ),
-                      ),
-                      Transform.translate(
-                        offset: const Offset(0, -32),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainer,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 4))],
-                            ),
-                            padding: const EdgeInsets.all(AppSpacing.lg),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Title + price row
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(listing.title.isEmpty ? 'Untitled Book' : listing.title, style: textTheme.headlineSmall),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            listing.owner?.fullName != null ? 'by ${listing.owner!.fullName}' : (listing.author.isEmpty ? 'Unknown Author' : 'by ${listing.author}'),
-                                            style: textTheme.bodyMedium,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          'NPR ${listing.sellingPrice.toStringAsFixed(0)}',
-                                          style: textTheme.headlineSmall?.copyWith(fontSize: 28, color: colorScheme.primary, fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: AppSpacing.lg),
-
-                                Text('Book Details', style: textTheme.titleLarge),
-                                const SizedBox(height: AppSpacing.sm),
-                                BookSpecsGrid(listing: listing),
-
-                                const SizedBox(height: AppSpacing.lg),
-                                Text('About this book', style: textTheme.titleLarge),
-                                const SizedBox(height: AppSpacing.sm),
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surfaceContainerLow,
-                                    borderRadius: BorderRadius.circular(AppRadius.md),
-                                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.05)),
-                                  ),
-                                  child: Text(
-                                    listing.description.trim().isEmpty ? 'No details provided' : listing.description,
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      color: colorScheme.onSurface,
-                                      height: 1.5,
-                                      fontStyle: listing.description.trim().isEmpty ? FontStyle.italic : FontStyle.normal,
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(height: AppSpacing.xl),
-                                Text('Seller Information', style: textTheme.titleLarge),
-                                const SizedBox(height: AppSpacing.sm),
-                                SellerInfoCard(owner: listing.owner),
-
-                                const SizedBox(height: 120),
-                              ],
+          body: PopScope(
+            canPop: true,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) {
+                _controller.reverse();
+              }
+            },
+            child: state.status == ListingDetailStatus.loading && state.listing == null
+                ? const Center(child: CircularProgressIndicator())
+                : state.status == ListingDetailStatus.failure && state.listing == null
+                ? Center(child: Text('Error: ${state.errorMessage}'))
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      final bookId = int.tryParse(widget.listing.id);
+                      if (bookId != null) {
+                        final bloc = context.read<ListingDetailBloc>();
+                        bloc.add(FetchListingDetail(bookId));
+                        await bloc.stream.firstWhere((s) => s.status != ListingDetailStatus.loading);
+                      }
+                    },
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                            child: Container(
+                              color: colorScheme.primary,
+                              height: 350,
+                              child: BookDetailImageCarousel(imagePaths: listing.imagePaths, listingId: listing.id, heroTag: widget.heroTag),
                             ),
                           ),
-                        ),
+                          SlideTransition(
+                            position: _slideAnimation,
+                            child: FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: Transform.translate(
+                                offset: const Offset(0, -32),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.surfaceContainer,
+                                      borderRadius: BorderRadius.circular(20),
+                                      boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 4))],
+                                    ),
+                                    padding: const EdgeInsets.all(AppSpacing.lg),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Title + price row
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(listing.title.isEmpty ? 'Untitled Book' : listing.title, style: textTheme.headlineSmall),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    listing.owner?.fullName != null ? 'by ${listing.owner!.fullName}' : (listing.author.isEmpty ? 'Unknown Author' : 'by ${listing.author}'),
+                                                    style: textTheme.bodyMedium,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  'NPR ${listing.sellingPrice.toStringAsFixed(0)}',
+                                                  style: textTheme.headlineSmall?.copyWith(fontSize: 28, color: colorScheme.primary, fontWeight: FontWeight.bold),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: AppSpacing.lg),
+
+                                        Text('Book Details', style: textTheme.titleLarge),
+                                        const SizedBox(height: AppSpacing.sm),
+                                        BookSpecsGrid(listing: listing),
+
+                                        const SizedBox(height: AppSpacing.lg),
+                                        Text('About this book', style: textTheme.titleLarge),
+                                        const SizedBox(height: AppSpacing.sm),
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                                          decoration: BoxDecoration(
+                                            color: colorScheme.surfaceContainerLow,
+                                            borderRadius: BorderRadius.circular(AppRadius.md),
+                                            border: Border.all(color: colorScheme.primary.withValues(alpha: 0.05)),
+                                          ),
+                                          child: Text(
+                                            listing.description.trim().isEmpty ? 'No details provided' : listing.description,
+                                            style: textTheme.bodyMedium?.copyWith(
+                                              color: colorScheme.onSurface,
+                                              height: 1.5,
+                                              fontStyle: listing.description.trim().isEmpty ? FontStyle.italic : FontStyle.normal,
+                                            ),
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: AppSpacing.xl),
+                                        Text('Seller Information', style: textTheme.titleLarge),
+                                        const SizedBox(height: AppSpacing.sm),
+                                        SellerInfoCard(owner: listing.owner),
+
+                                        const SizedBox(height: 120),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
           ),
           bottomNavigationBar: widget.isOwner
               ? null

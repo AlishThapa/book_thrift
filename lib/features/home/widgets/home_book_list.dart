@@ -23,7 +23,12 @@ class HomeBookList extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
       itemBuilder: (context, index) {
         final listing = state.listings[index];
-        return BookCard(listing: listing, onTap: () => onBookTap(listing));
+        final heroTag = 'home_book_image_${listing.id}';
+        return BookCard(
+          listing: listing,
+          heroTag: heroTag,
+          onTap: () => onBookTap(listing),
+        );
       },
     );
   }

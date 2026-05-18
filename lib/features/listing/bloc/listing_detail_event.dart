@@ -15,3 +15,12 @@ class FetchListingDetail extends ListingDetailEvent {
   @override
   List<Object> get props => [bookId];
 }
+
+class ToggleBookWishlist extends ListingDetailEvent {
+  final int bookId;
+
+  const ToggleBookWishlist(this.bookId);
+
+  @override
+  List<Object> get props => [bookId];
+}

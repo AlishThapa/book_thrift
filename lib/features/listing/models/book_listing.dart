@@ -3,7 +3,7 @@ import 'package:book_thrift/core/hive/hive_type_ids.dart';
 import 'package:book_thrift/features/auth/models/user_profile.dart';
 
 class BookListing {
-  BookListing({required this.id, required this.sellerId, required this.title, required this.author, required this.category, required this.subject, required this.institution, required this.classOrCourse, required this.semester, required this.edition, required this.publisher, this.isbn, required this.condition, required this.description, required this.originalPrice, required this.sellingPrice, required this.negotiable, required this.quantity, required this.imagePaths, required this.location, required this.deliveryMethod, required this.isAvailable, required this.isReserved, required this.status, required this.createdAt, required this.updatedAt, this.owner});
+  BookListing({required this.id, required this.sellerId, required this.title, required this.author, required this.category, required this.subject, required this.institution, required this.classOrCourse, required this.semester, required this.edition, required this.publisher, this.isbn, required this.condition, required this.description, required this.originalPrice, required this.sellingPrice, required this.negotiable, required this.quantity, required this.imagePaths, required this.location, required this.deliveryMethod, required this.isAvailable, required this.isReserved, required this.status, required this.createdAt, required this.updatedAt, this.owner, this.isWishlisted = false});
 
   final String id; final String sellerId; final String title; final String author; final String category; final String subject;
   final String institution; final String classOrCourse; final String semester; final String edition; final String publisher; final String? isbn;
@@ -11,14 +11,16 @@ class BookListing {
   final int quantity; final List<String> imagePaths; final String location; final List<String> deliveryMethod;
   final bool isAvailable; final bool isReserved; final String status; final DateTime createdAt; final DateTime updatedAt;
   final UserProfile? owner;
+  final bool isWishlisted;
 
-  BookListing copyWith({String? status, bool? isReserved, bool? isAvailable, UserProfile? owner}) => BookListing(
+  BookListing copyWith({String? status, bool? isReserved, bool? isAvailable, UserProfile? owner, bool? isWishlisted}) => BookListing(
         id: id, sellerId: sellerId, title: title, author: author, category: category, subject: subject, institution: institution,
         classOrCourse: classOrCourse, semester: semester, edition: edition, publisher: publisher, isbn: isbn, condition: condition,
         description: description, originalPrice: originalPrice, sellingPrice: sellingPrice, negotiable: negotiable, quantity: quantity,
         imagePaths: imagePaths, location: location, deliveryMethod: deliveryMethod, isAvailable: isAvailable ?? this.isAvailable,
         isReserved: isReserved ?? this.isReserved, status: status ?? this.status, createdAt: createdAt, updatedAt: DateTime.now(),
         owner: owner ?? this.owner,
+        isWishlisted: isWishlisted ?? this.isWishlisted,
       );
 
   static BookListing sample(String id, String title, String author, String category, double original, double selling) => BookListing(
@@ -59,6 +61,7 @@ class BookListing {
       createdAt: data['created_at'] != null ? DateTime.parse(data['created_at']) : DateTime.now(),
       updatedAt: data['updated_at'] != null ? DateTime.parse(data['updated_at']) : DateTime.now(),
       owner: data['owner'] != null ? UserProfile.fromJson(data['owner']) : null,
+      isWishlisted: data['is_wishlisted'] ?? false,
     );
   }
 }
@@ -75,7 +78,8 @@ class BookListingAdapter extends TypeAdapter<BookListing> {
       sellingPrice: r.readDouble(), negotiable: r.readBool(), quantity: r.readInt(), imagePaths: (r.readList()).cast<String>(),
       location: r.readString(), deliveryMethod: (r.readList()).cast<String>(), isAvailable: r.readBool(), isReserved: r.readBool(),
       status: r.readString(), createdAt: DateTime.fromMillisecondsSinceEpoch(r.readInt()), updatedAt: DateTime.fromMillisecondsSinceEpoch(r.readInt()),
-      owner: r.availableBytes > 0 ? r.read() as UserProfile? : null);
+      owner: r.availableBytes > 0 ? r.read() as UserProfile? : null,
+      isWishlisted: r.availableBytes > 0 ? r.readBool() : false);
 
   @override
   void write(BinaryWriter w, BookListing o) {
@@ -87,6 +91,7 @@ class BookListingAdapter extends TypeAdapter<BookListing> {
      ..writeBool(o.negotiable)..writeInt(o.quantity)..writeList(o.imagePaths)..writeString(o.location)..writeList(o.deliveryMethod)
      ..writeBool(o.isAvailable)..writeBool(o.isReserved)..writeString(o.status)
      ..writeInt(o.createdAt.millisecondsSinceEpoch)..writeInt(o.updatedAt.millisecondsSinceEpoch)
-     ..write(o.owner);
+     ..write(o.owner)
+     ..writeBool(o.isWishlisted);
   }
 }

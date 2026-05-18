@@ -27,11 +27,7 @@ class _SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<_SearchView> {
   final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  int _animationSession = 0;
 
   @override
   void dispose() {
@@ -44,15 +40,17 @@ class _SearchViewState extends State<_SearchView> {
     final categories = ['All', 'School', '+2 College', 'Bachelor & Above', 'Novels & Fiction', 'Religion & Spirituality', 'Self-Help', 'Children\'s Books', 'Others'];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search Books'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Search Books'), centerTitle: true),
       body: BlocConsumer<SearchBloc, SearchState>(
-        listenWhen: (p, c) => p.query != c.query,
+        listenWhen: (p, c) => p.query != c.query || (p.status != c.status && c.status == SearchStatus.loading && c.results.isEmpty),
         listener: (context, state) {
           if (_searchController.text != state.query) {
             _searchController.text = state.query;
+          }
+          if (state.status == SearchStatus.loading && state.results.isEmpty) {
+            setState(() {
+              _animationSession++;
+            });
           }
         },
         builder: (context, state) {
@@ -125,9 +123,7 @@ class _SearchViewState extends State<_SearchView> {
                                   physics: const AlwaysScrollableScrollPhysics(),
                                   child: SizedBox(
                                     height: MediaQuery.of(context).size.height * 0.6,
-                                    child: state.query.trim().isEmpty && state.selectedCategories.isEmpty
-                                        ? const _InitialSearchState()
-                                        : const _EmptySearchResults(),
+                                    child: state.query.trim().isEmpty && state.selectedCategories.isEmpty ? const _InitialSearchState() : const _EmptySearchResults(),
                                   ),
                                 )
                               : ListView.separated(
@@ -135,12 +131,19 @@ class _SearchViewState extends State<_SearchView> {
                                   itemCount: results.length,
                                   padding: const EdgeInsets.fromLTRB(0, AppSpacing.md, 0, 100),
                                   separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-                                  itemBuilder: (_, i) => BookCard(
-                                    listing: results[i],
-                                    onTap: () => context.router.push(
-                                      BookDetailRoute(listing: results[i]),
-                                    ),
-                                  ),
+                                  itemBuilder: (_, i) {
+                                    final listing = results[i];
+                                    final heroTag = 'search_book_image_${listing.id}';
+                                    return _AnimatedBookCard(
+                                      key: ValueKey('anim_${_animationSession}_${listing.id}'),
+                                      index: i,
+                                      child: BookCard(
+                                        listing: listing,
+                                        heroTag: heroTag,
+                                        onTap: () => context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag)),
+                                      ),
+                                    );
+                                  },
                                 ),
                         ),
                 ),
@@ -165,31 +168,19 @@ class _InitialSearchState extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
-            decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.explore_rounded,
-              size: 64,
-              color: colorScheme.primary,
-            ),
+            decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: Icon(Icons.explore_rounded, size: 64, color: colorScheme.primary),
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
             'Discover Your Next Read',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Search for books by title, author, course,\nor institution to find exactly what you need.',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -209,34 +200,84 @@ class _EmptySearchResults extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(AppSpacing.xl),
-            decoration: BoxDecoration(
-              color: colorScheme.error.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.search_off_rounded,
-              size: 64,
-              color: colorScheme.error,
-            ),
+            decoration: BoxDecoration(color: colorScheme.error.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: Icon(Icons.search_off_rounded, size: 64, color: colorScheme.error),
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
             'No matching books found',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Try adjusting your search or filters to\nfind what you are looking for.',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AnimatedBookCard extends StatefulWidget {
+  final Widget child;
+  final int index;
+
+  const _AnimatedBookCard({super.key, required this.child, required this.index});
+
+  @override
+  State<_AnimatedBookCard> createState() => _AnimatedBookCardState();
+}
+
+class _AnimatedBookCardState extends State<_AnimatedBookCard> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(-1.0, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutQuart,
+    ));
+
+    _opacityAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    ));
+
+    final delay = Duration(milliseconds: (widget.index % 10) * 300);
+    Future.delayed(delay, () {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacityAnimation,
+      child: SlideTransition(position: _slideAnimation, child: widget.child),
     );
   }
 }

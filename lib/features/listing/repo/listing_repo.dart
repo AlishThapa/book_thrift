@@ -44,8 +44,24 @@ class ListingRepo {
     final response = await apiInstance.getData(
       url: ApiUrl.bookDetails,
       queryParameters: {'book_id': bookId},
-      useToken: false,
+      useToken: true,
     );
     return BookListing.fromJson(response['data'] as Map<String, dynamic>);
+  }
+
+  Future<List<BookListing>> getWishlist() async {
+    final response = await apiInstance.getData(
+      url: ApiUrl.wishlist,
+      useToken: true,
+    );
+    final List<dynamic> data = response['data'] ?? [];
+    return data.map((e) => BookListing.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<Map<String, dynamic>> toggleWishlist(int bookId) async {
+    return await apiInstance.postData(
+      url: ApiUrl.toggleWishlist,
+      queryParameters: {'book_id': bookId},
+    );
   }
 }

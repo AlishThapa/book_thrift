@@ -13,26 +13,29 @@ class BookCard extends StatelessWidget {
     this.onTap,
     this.trailing,
     this.grid = false,
+    this.heroTag,
   });
 
   final BookListing listing;
   final VoidCallback? onTap;
   final Widget? trailing;
   final bool grid;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
     return grid 
-        ? _GridCard(listing: listing, onTap: onTap) 
-        : _ListCard(listing: listing, onTap: onTap, trailing: trailing);
+        ? _GridCard(listing: listing, onTap: onTap, heroTag: heroTag) 
+        : _ListCard(listing: listing, onTap: onTap, trailing: trailing, heroTag: heroTag);
   }
 }
 
 class _ListCard extends StatelessWidget {
-  const _ListCard({required this.listing, this.onTap, this.trailing});
+  const _ListCard({required this.listing, this.onTap, this.trailing, this.heroTag});
   final BookListing listing;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,11 @@ class _ListCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark 
+            ? Colors.grey.withValues(alpha: 0.3) 
+            : colorScheme.outline.withValues(alpha: 0.1)
+        ),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.1),
@@ -61,7 +68,7 @@ class _ListCard extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.sm),
             child: Row(
               children: [
-                _BookImage(listing: listing, size: HeightConstants.bookImageWidth),
+                _BookImage(listing: listing, size: HeightConstants.bookImageWidth, heroTag: heroTag),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
@@ -124,9 +131,10 @@ class _ListCard extends StatelessWidget {
 }
 
 class _GridCard extends StatelessWidget {
-  const _GridCard({required this.listing, this.onTap});
+  const _GridCard({required this.listing, this.onTap, this.heroTag});
   final BookListing listing;
   final VoidCallback? onTap;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +144,11 @@ class _GridCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark 
+            ? Colors.grey.withValues(alpha: 0.3) 
+            : colorScheme.outline.withValues(alpha: 0.1)
+        ),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.05),
@@ -157,7 +169,7 @@ class _GridCard extends StatelessWidget {
                 Expanded(
                   child: Stack(
                     children: [
-                      _BookImage(listing: listing, size: double.infinity, isGrid: true),
+                      _BookImage(listing: listing, size: double.infinity, isGrid: true, heroTag: heroTag),
                       Positioned(
                         top: 8,
                         right: 8,
@@ -213,16 +225,17 @@ class _GridCard extends StatelessWidget {
 }
 
 class _BookImage extends StatelessWidget {
-  const _BookImage({required this.listing, required this.size, this.isGrid = false});
+  const _BookImage({required this.listing, required this.size, this.isGrid = false, this.heroTag});
   final BookListing listing;
   final double size;
   final bool isGrid;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Hero(
-      tag: 'book_image_${listing.id}',
+      tag: heroTag ?? 'book_image_${listing.id}',
       child: Container(
         width: isGrid ? double.infinity : size,
         height: isGrid ? double.infinity : size,

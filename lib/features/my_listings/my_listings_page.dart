@@ -122,7 +122,8 @@ class _ListingsList extends StatelessWidget {
           },
           child: BookCard(
             listing: item,
-            onTap: () => context.router.push(BookDetailRoute(listing: item, isOwner: true)).then((_) => onRefresh()),
+            heroTag: 'my_listings_book_image_${item.id}',
+            onTap: () => context.router.push(BookDetailRoute(listing: item, isOwner: true, heroTag: 'my_listings_book_image_${item.id}')).then((_) => onRefresh()),
           ),
         );
       },
