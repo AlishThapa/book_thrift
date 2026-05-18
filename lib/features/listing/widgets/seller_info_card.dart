@@ -1,18 +1,15 @@
+import 'package:book_thrift/features/auth/models/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 
 class SellerInfoCard extends StatelessWidget {
   const SellerInfoCard({
     super.key,
-    required this.sellerName,
-    required this.rating,
-    required this.reviewsCount,
+    this.owner,
     this.onTap,
   });
 
-  final String sellerName;
-  final double rating;
-  final int reviewsCount;
+  final UserProfile? owner;
   final VoidCallback? onTap;
 
   @override
@@ -20,6 +17,11 @@ class SellerInfoCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
+
+    final name = owner?.fullName ?? 'Local Student';
+    final phone = owner?.phone ?? '';
+    final email = owner?.email ?? '';
+    final institution = owner?.institutionName ?? '';
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -34,49 +36,76 @@ class SellerInfoCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-            child: Text(
-              sellerName[0],
-              style: TextStyle(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                backgroundImage: owner?.imagePath != null ? NetworkImage(owner!.imagePath!) : null,
+                child: owner?.imagePath == null
+                    ? Text(
+                        name.isNotEmpty ? name[0].toUpperCase() : '?',
+                        style: TextStyle(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                        ),
+                      )
+                    : null,
               ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  sellerName,
-                  style: textTheme.titleMedium,
-                ),
-                const SizedBox(height: 2),
-                Row(
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.star_rounded, size: 16, color: colorScheme.tertiary),
-                    const SizedBox(width: 4),
                     Text(
-                      '$rating ($reviewsCount reviews)',
-                      style: textTheme.bodySmall,
+                      name,
+                      style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
+                    if (institution.isNotEmpty)
+                      Text(
+                        institution,
+                        style: textTheme.bodySmall?.copyWith(color: colorScheme.primary),
+                      ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          IconButton(
-            onPressed: onTap,
-            icon: Icon(Icons.chevron_right_rounded, color: colorScheme.onSurfaceVariant),
-          ),
+          const SizedBox(height: AppSpacing.md),
+          const Divider(height: 1),
+          const SizedBox(height: AppSpacing.md),
+          _InfoRow(icon: Icons.phone_outlined, text: phone.isEmpty ? 'Not provided' : phone),
+          const SizedBox(height: AppSpacing.sm),
+          _InfoRow(icon: Icons.email_outlined, text: email.isEmpty ? 'Not provided' : email),
         ],
       ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -35,6 +35,7 @@ class _BookCardSkeletonState extends State<BookCardSkeleton>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return AnimatedBuilder(
       animation: _animation,
       builder: (_, __) => Opacity(
@@ -42,7 +43,7 @@ class _BookCardSkeletonState extends State<BookCardSkeleton>
         child: Container(
           width: 170,
           decoration: BoxDecoration(
-            color: AppColors.neutralLight,
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(18),
           ),
           padding: const EdgeInsets.all(12),
@@ -54,7 +55,7 @@ class _BookCardSkeletonState extends State<BookCardSkeleton>
                 height: 110,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.neutral.withOpacity(0.25),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -86,11 +87,12 @@ class _ShimmerLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.neutral.withOpacity(0.2),
+        color: colorScheme.onSurface.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
     );

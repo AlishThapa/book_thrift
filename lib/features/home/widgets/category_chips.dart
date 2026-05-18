@@ -17,7 +17,7 @@ class CategoryChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 52, // Increased height to accommodate shadow
+      height: 52,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(vertical: 4), // Added padding for shadow
@@ -51,30 +51,40 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
         color: isSelected
-            ? AppColors.primary
-            : (isDark ? const Color(0xFF1E293B) : AppColors.surface),
+            ? colorScheme.primary
+            : (isDark ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainerLow),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: isSelected
-              ? AppColors.primary
-              : (isDark ? AppColors.borderDark : AppColors.border),
+              ? colorScheme.primary
+              : (isDark ? colorScheme.outline.withValues(alpha: 0.2) : colorScheme.outline.withValues(alpha: 0.1)),
           width: 1.5,
         ),
         boxShadow: isSelected
             ? [
                 BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(3, 3),
+                  color: colorScheme.primary.withValues(alpha: 0.15),
+                  blurRadius: 8,
+                  offset: const Offset(2, 2),
                 ),
               ]
-            : null,
+            : (isDark
+                ? []
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    )
+                  ]),
       ),
       child: Material(
         color: Colors.transparent,
@@ -87,19 +97,17 @@ class _CategoryChip extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (isSelected) ...[
-                  const Icon(
+                  Icon(
                     Icons.check_rounded,
                     size: 14,
-                    color: Colors.white,
+                    color: colorScheme.onPrimary,
                   ),
                   const SizedBox(width: 5),
                 ],
                 Text(
                   label,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: isSelected
-                            ? Colors.white
-                            : (isDark ? Colors.white70 : AppColors.textSecondary),
+                        color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                       ),
                 ),

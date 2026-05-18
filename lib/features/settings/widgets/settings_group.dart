@@ -3,8 +3,6 @@ import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/constants/size_constants.dart';
 import 'package:book_thrift/constants/widgets/app_surface.dart';
 
-import '../../../constants/app_colors.dart';
-
 class SettingsGroup extends StatelessWidget {
   final String title;
   final List<Widget> children;
@@ -17,17 +15,20 @@ class SettingsGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: AppSpacing.xs, bottom: AppSpacing.xs),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.xs, 0, 0, AppSpacing.sm),
           child: Text(
             title.toUpperCase(),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            style: theme.textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2,
-              color: Theme.of(context).colorScheme.primary,
+              color: colorScheme.primary,
             ),
           ),
         ),
@@ -37,7 +38,7 @@ class SettingsGroup extends StatelessWidget {
             children: _buildChildrenWithDividers(),
           ),
         ),
-        const SizedBox(height: HeightConstants.lg),
+        const SizedBox(height: HeightConstants.md),
       ],
     );
   }

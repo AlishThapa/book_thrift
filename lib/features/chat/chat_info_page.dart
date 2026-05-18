@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/chat/bloc/chat_bloc.dart';
 import 'package:book_thrift/features/chat/models/chat_models.dart';

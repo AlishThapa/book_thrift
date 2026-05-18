@@ -2,15 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
-import 'package:book_thrift/features/my_listings/my_listings_page.dart';
-import 'package:book_thrift/features/notifications/notifications_page.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
 import 'package:book_thrift/features/profile/bloc/profile_bloc.dart';
-import 'package:book_thrift/features/profile/edit_profile_page.dart';
-import 'package:book_thrift/features/profile/public_seller_profile_page.dart';
 import 'package:book_thrift/features/profile/widgets/profile_header.dart';
 import 'package:book_thrift/features/profile/widgets/profile_stats.dart';
-import 'package:book_thrift/features/settings/settings_page.dart';
-import 'package:book_thrift/features/wishlist/wishlist_page.dart';
 
 @RoutePage()
 class ProfilePage extends StatelessWidget {
@@ -18,78 +13,86 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      // backgroundColor: colorScheme.surface,
       body: SafeArea(
         bottom: false,
         child: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
             final p = state.profile;
-            return CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: ProfileHeader(
-                    profile: p,
-                    onEdit: () async {
-                      await Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfilePage(profile: p)));
-                      if (!context.mounted) return;
-                      context.read<ProfileBloc>().add(LoadProfile());
-                    },
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<ProfileBloc>().add(LoadProfile());
+              },
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: ProfileHeader(
+                      profile: p,
+                      onEdit: () async {
+                        await context.pushRoute(EditProfileRoute(profile: p));
+                        if (!context.mounted) return;
+                        context.read<ProfileBloc>().add(LoadProfile());
+                      },
+                    ),
                   ),
-                ),
-                const SliverToBoxAdapter(child: ProfileStats()),
-                const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      _sectionTitle(context, 'Store Management'),
-                      _tile(
-                        context,
-                        Icons.inventory_2_outlined,
-                        'My Listings',
-                        'Manage your listed books',
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyListingsPage())),
-                        color: Colors.blueAccent,
-                      ),
-                      _tile(
-                        context,
-                        Icons.storefront_outlined,
-                        'Public Profile',
-                        'View your store as others see it',
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PublicSellerProfilePage())),
-                        color: Colors.orangeAccent,
-                      ),
-                      _sectionTitle(context, 'Preferences'),
-                      _tile(
-                        context,
-                        Icons.favorite_rounded,
-                        'Wishlist',
-                        'Books you\'ve saved for later',
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistPage())),
-                        color: Colors.pinkAccent,
-                      ),
-                      _tile(
-                        context,
-                        Icons.notifications_active_outlined,
-                        'Notifications',
-                        'Alerts, messages, and updates',
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage())),
-                        color: Colors.teal,
-                      ),
-                      _tile(
-                        context,
-                        Icons.settings_suggest_outlined,
-                        'Settings',
-                        'App preferences and account security',
-                        () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage())),
-                        color: Colors.blueGrey,
-                      ),
-                      const SizedBox(height: 120),
-                    ]),
+                  const SliverToBoxAdapter(child: ProfileStats()),
+                  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _sectionTitle(context, 'Store Management'),
+                        _tile(
+                          context,
+                          Icons.inventory_2_outlined,
+                          'My Listings',
+                          'Manage your listed books',
+                          () => context.pushRoute(const MyListingsRoute()),
+                          color: Colors.blueAccent,
+                        ),
+                          _tile(
+                          context,
+                          Icons.storefront_outlined,
+                          'Public Profile',
+                          'View your store as others see it',
+                          () => context.pushRoute(const PublicSellerProfileRoute()),
+                          color: Colors.orangeAccent,
+                        ),
+                        _sectionTitle(context, 'Preferences'),
+                        _tile(
+                          context,
+                          Icons.favorite_rounded,
+                          'Wishlist',
+                          'Books you\'ve saved for later',
+                          () => context.pushRoute(const WishlistRoute()),
+                          color: Colors.pinkAccent,
+                        ),
+                        _tile(
+                          context,
+                          Icons.notifications_active_outlined,
+                          'Notifications',
+                          'Alerts, messages, and updates',
+                          () => context.pushRoute(const NotificationsRoute()),
+                          color: Colors.teal,
+                        ),
+                        _tile(
+                          context,
+                          Icons.settings_suggest_outlined,
+                          'Settings',
+                          'App preferences and account security',
+                          () => context.pushRoute(const SettingsRoute()),
+                          color: Colors.blueGrey,
+                        ),
+                        const SizedBox(height: 120),
+                      ]),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),
@@ -117,10 +120,14 @@ class ProfilePage extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 10, offset: const Offset(5, 5))],
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey.withValues(alpha: 0.3)
+              : colorScheme.outline.withValues(alpha: 0.1),
+        ),
+        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(4, 4))],
       ),
       child: Material(
         color: Colors.transparent,

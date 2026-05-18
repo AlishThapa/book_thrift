@@ -33,10 +33,7 @@ class _ChatListPageState extends State<ChatListPage> {
     final chatBloc = context.read<ChatBloc>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leadingWidth: 40,
         leading: IconButton(icon: const Icon(Icons.arrow_back_rounded, size: 24), onPressed: () => context.router.back()),
         title: SizedBox(

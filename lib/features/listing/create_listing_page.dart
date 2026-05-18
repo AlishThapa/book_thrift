@@ -5,8 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/widgets/app_text_form_field.dart';
-import 'package:book_thrift/core/data/app_repository.dart';
-import 'package:book_thrift/core/di/injection.dart';
 import 'package:book_thrift/features/listing/bloc/create_listing_bloc.dart';
 
 @RoutePage()
@@ -15,10 +13,7 @@ class CreateListingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => CreateListingBloc(getIt<AppRepository>())..add(const SeedForm({})),
-      child: const _CreateListingView(),
-    );
+    return const _CreateListingView();
   }
 }
 
@@ -43,6 +38,16 @@ class _CreateListingViewState extends State<_CreateListingView> {
   };
 
   final List<String> _conditions = ['New', 'Like New', 'Used', 'Old'];
+  final List<String> _categories = [
+    'School',
+    '+2 College',
+    'Bachelor & Above',
+    'Novels & Fiction',
+    'Religion & Spirituality',
+    'Self-Help',
+    'Children\'s Books',
+    'Others',
+  ];
 
   @override
   void dispose() {
@@ -445,6 +450,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
           ),
           const SizedBox(height: AppSpacing.lg),
           _buildFormField('title', 'Book Title *', hint: 'Enter the book name'),
+          _buildCategoryDropdown(),
           _buildConditionDropdown(),
           _buildFormField('sellingPrice', 'Selling Price *', type: TextInputType.number, hint: 'NPR Enter price'),
           _buildFormField('publisher', 'Publisher', required: false, hint: 'Book publisher (optional)'),
@@ -516,6 +522,74 @@ class _CreateListingViewState extends State<_CreateListingView> {
                   }
                 },
                 validator: (value) => (value == null || value.isEmpty) ? 'Condition is required' : null,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryDropdown() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return BlocBuilder<CreateListingBloc, CreateListingState>(
+      buildWhen: (p, c) => p.form['category'] != c.form['category'],
+      builder: (context, state) {
+        final currentValue = state.form['category']?.toString();
+        // Default to 'Others' if not set or not in list
+        final selectedValue = _categories.contains(currentValue) ? currentValue : 'Others';
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Category',
+                    style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500, color: colorScheme.onSurfaceVariant),
+                  ),
+                  Text(
+                    ' *',
+                    style: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500, color: Colors.red),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: selectedValue,
+                style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
+                hint: Text('Select Category', style: textTheme.bodyMedium?.copyWith(color: colorScheme.outline)),
+                icon: Icon(Icons.keyboard_arrow_down_rounded, color: colorScheme.outline),
+                decoration: InputDecoration(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  filled: true,
+                  fillColor: colorScheme.surfaceContainerLow,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+                  ),
+                ),
+                items: _categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(category, style: textTheme.bodyMedium),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    context.read<CreateListingBloc>().add(UpdateListingField('category', value));
+                  }
+                },
+                validator: (value) => (value == null || value.isEmpty) ? 'Category is required' : null,
               ),
             ],
           ),

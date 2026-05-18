@@ -35,11 +35,8 @@ class _WishlistPageState extends State<WishlistPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('My Wishlist', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
-        backgroundColor: Colors.white,
-        elevation: 0,
+        title: const Text('My Wishlist'),
         centerTitle: false,
       ),
       body: BlocBuilder<WishlistBloc, WishlistState>(

@@ -27,17 +27,14 @@ class _CartPageState extends State<CartPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         titleSpacing: 0,
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: const Padding(
           padding: EdgeInsets.only(left: AppSpacing.md),
           child: Center(
             child: Text(
               'My Cart',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ),
         ),
@@ -63,7 +60,7 @@ class _CartPageState extends State<CartPage> {
         actions: [
           IconButton(
             onPressed: () => context.read<CartBloc>().add(ClearCart()),
-            icon: const Icon(Icons.delete_outline, color: Colors.black54),
+            icon: const Icon(Icons.delete_outline),
             tooltip: 'Clear Cart',
           ),
 
@@ -132,12 +129,12 @@ class _CartItemTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: AppSpacing.sm, right: AppSpacing.sm),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(color: item.isSelected ? colorScheme.primary.withValues(alpha: 0.2) : colorScheme.outline.withValues(alpha: 0.1)),
           boxShadow: item.isSelected
               ? [BoxShadow(color: colorScheme.primary.withValues(alpha: 0.1), blurRadius: 12, offset: const Offset(0, 6))]
-              : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 5, offset: const Offset(0, 2))],
+              : [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.03), blurRadius: 5, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
@@ -228,8 +225,8 @@ class _CartBottomSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5))],
+        color: colorScheme.surface,
+        boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -5))],
       ),
       child: SafeArea(
         top: false,

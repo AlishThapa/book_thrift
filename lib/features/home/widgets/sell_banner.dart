@@ -15,7 +15,7 @@ class SellBanner extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        splashColor: AppColors.accentDark.withOpacity(0.3),
+        splashColor: AppColors.accentDark.withValues(alpha: 0.3),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           child: Row(
@@ -24,7 +24,7 @@ class SellBanner extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.18),
+                  color: Colors.white.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -51,7 +51,7 @@ class SellBanner extends StatelessWidget {
                     Text(
                       'Turn your books into cash! 💰',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withOpacity(0.88),
+                        color: Colors.white.withValues(alpha: 0.88),
                       ),
                     ),
                   ],

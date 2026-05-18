@@ -9,6 +9,7 @@ import 'package:book_thrift/features/home/widgets/home_book_list.dart';
 import 'package:book_thrift/features/home/widgets/home_empty_state.dart';
 import 'package:book_thrift/features/home/widgets/home_section_title.dart';
 import 'package:book_thrift/features/profile/profile_page.dart';
+import 'package:book_thrift/features/search/bloc/search_bloc.dart';
 import 'package:book_thrift/features/search/searchpage.dart';
 import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
 import 'package:flutter/material.dart';
@@ -38,17 +39,21 @@ class _MainShellPageState extends State<MainShellPage> {
       context.router.push(CreateListingRoute());
       return;
     }
+    if (i == 1) {
+      context.read<SearchBloc>().add(LoadSearch());
+    }
     setState(() => _index = i);
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final pages = [Homepage(onNavigate: _onNavigate), const SearchPage(), const SizedBox.shrink(), CartPage(onNavigate: _onNavigate), const ProfilePage()];
 
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surfaceContainerLowest,
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: _BottomNav(currentIndex: _index, onTap: _onNavigate),
       resizeToAvoidBottomInset: true,
@@ -106,7 +111,7 @@ class _BottomNav extends StatelessWidget {
   }
 }
 
-const List<String> _kCategories = ['All', 'School', 'Engineering', 'Medical', 'Competitive', 'Others'];
+const List<String> _kCategories = ['All', 'School', '+2 College', 'Bachelor & Above', 'Novels & Fiction', 'Religion & Spirituality', 'Self-Help', 'Children\'s Books', 'Others'];
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key, required this.onNavigate});
@@ -134,7 +139,7 @@ class Homepage extends StatelessWidget {
                     pinned: false,
                     snap: true,
                     elevation: 0,
-                    backgroundColor: Colors.white,
+                    backgroundColor: colorScheme.surfaceContainerLowest,
                     surfaceTintColor: Colors.transparent,
                     titleSpacing: AppSpacing.sm,
                     leadingWidth: 52,

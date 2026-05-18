@@ -40,14 +40,14 @@ class AppTextStyles {
   );
 
   static const TextStyle subtitle = TextStyle(
-    fontSize: FontSizes.sm,
+    fontSize: FontSizes.md,
     fontWeight: FontWeight.w500,
     color: AppColors.softText,
     height: 1.35,
   );
 
   static const TextStyle caption = TextStyle(
-    fontSize: FontSizes.xs,
+    fontSize: FontSizes.sm,
     fontWeight: FontWeight.w500,
     color: AppColors.softText,
     height: 1.3,

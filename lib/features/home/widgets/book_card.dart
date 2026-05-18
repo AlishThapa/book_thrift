@@ -4,8 +4,6 @@ import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 
-/// Vertical book card used in the horizontal recommended list.
-/// Shows title, condition, price (with original crossed out), and a wishlist toggle.
 class BookCard extends StatelessWidget {
   const BookCard({super.key, required this.listing, required this.onTap});
 
@@ -19,14 +17,14 @@ class BookCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0,right: 3),
+        padding: const EdgeInsets.only(bottom: 8.0, right: 3),
         child: Container(
           width: 170,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 5, offset: const Offset(3, 3))],
+            border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.withValues(alpha: 0.3) : colorScheme.outline.withValues(alpha: 0.1)),
+            boxShadow: [BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.1), blurRadius: 5, offset: const Offset(3, 3))],
           ),
           padding: const EdgeInsets.all(12),
           child: Column(
@@ -42,7 +40,7 @@ class BookCard extends StatelessWidget {
                 listing.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary, height: 1.3),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurface, height: 1.3),
               ),
 
               const SizedBox(height: 6),

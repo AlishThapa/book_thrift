@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 
-class AppTextFormField extends StatelessWidget {
+class AppTextFormField extends StatefulWidget {
   const AppTextFormField({
     super.key,
     required this.label,
@@ -16,6 +16,7 @@ class AppTextFormField extends StatelessWidget {
     this.validator,
     this.inputFormatters,
     this.maxLines = 1,
+    this.suffixIcon,
   });
 
   final String label;
@@ -29,12 +30,26 @@ class AppTextFormField extends StatelessWidget {
   final FormFieldValidator<String>? validator;
   final List<TextInputFormatter>? inputFormatters;
   final int maxLines;
+  final Widget? suffixIcon;
+
+  @override
+  State<AppTextFormField> createState() => _AppTextFormFieldState();
+}
+
+class _AppTextFormFieldState extends State<AppTextFormField> {
+  late bool _obscured;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscured = widget.obscureText;
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final required = label.contains('*');
+    final required = widget.label.contains('*');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -43,7 +58,7 @@ class AppTextFormField extends StatelessWidget {
         children: [
           RichText(
             text: TextSpan(
-              text: label.replaceAll('*', '').trim(),
+              text: widget.label.replaceAll('*', '').trim(),
               style: AppTextStyles.subtitle.copyWith(
                 fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface.withValues(alpha: 0.8),
@@ -53,19 +68,29 @@ class AppTextFormField extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           TextFormField(
-            controller: controller,
-            initialValue: controller == null ? initialValue : null,
+            controller: widget.controller,
+            initialValue: widget.controller == null ? widget.initialValue : null,
             style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface),
-            keyboardType: keyboardType,
-            obscureText: obscureText,
-            readOnly: readOnly,
-            onChanged: onChanged,
-            validator: validator,
-            inputFormatters: inputFormatters,
-            maxLines: maxLines,
+            keyboardType: widget.keyboardType,
+            obscureText: _obscured,
+            readOnly: widget.readOnly,
+            onChanged: widget.onChanged,
+            validator: widget.validator,
+            inputFormatters: widget.inputFormatters,
+            maxLines: _obscured ? 1 : widget.maxLines,
             decoration: InputDecoration(
-              hintText: hint,
+              hintText: widget.hint,
               fillColor: colorScheme.surfaceContainerHigh,
+              suffixIcon: widget.obscureText
+                  ? IconButton(
+                      onPressed: () => setState(() => _obscured = !_obscured),
+                      icon: Icon(
+                        _obscured ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                        size: 20,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    )
+                  : widget.suffixIcon,
             ),
           ),
         ],

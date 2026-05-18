@@ -23,16 +23,6 @@ class BookSpecsGrid extends StatelessWidget {
           value: listing.category,
         ),
         _SpecTile(
-          icon: Icons.school_outlined,
-          label: 'Course',
-          value: listing.classOrCourse,
-        ),
-        _SpecTile(
-          icon: Icons.history_edu_outlined,
-          label: 'Semester',
-          value: listing.semester.isEmpty ? '' : 'Sem ${listing.semester}',
-        ),
-        _SpecTile(
           icon: Icons.verified_outlined,
           label: 'Condition',
           value: listing.condition,
@@ -41,11 +31,6 @@ class BookSpecsGrid extends StatelessWidget {
           icon: Icons.location_on_outlined,
           label: 'Location',
           value: listing.location,
-        ),
-        _SpecTile(
-          icon: Icons.local_shipping_outlined,
-          label: 'Delivery',
-          value: listing.deliveryMethod.isNotEmpty ? listing.deliveryMethod.first : '',
         ),
       ],
     );

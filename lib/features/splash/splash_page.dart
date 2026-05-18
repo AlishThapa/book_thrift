@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:book_thrift/constants/font_sizes.dart';
 import 'package:book_thrift/core/router/app_router.gr.dart';
 
+import 'package:book_thrift/core/di/injection.dart';
+import 'package:book_thrift/core/storage/storage_service.dart';
+
 @RoutePage()
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -19,7 +22,18 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     Timer(const Duration(seconds: 2), () {
       if (!mounted) return;
-      context.router.replace(const OnboardingRoute());
+      
+      final storage = getIt<StorageService>();
+      final token = storage.getAccessToken();
+      final onboardingComplete = storage.isOnboardingComplete();
+
+      if (token != null && token.isNotEmpty) {
+        context.router.replace(MainShellRoute());
+      } else if (!onboardingComplete) {
+        context.router.replace(const OnboardingRoute());
+      } else {
+        context.router.replace(const AuthEntryRoute());
+      }
     });
   }
 

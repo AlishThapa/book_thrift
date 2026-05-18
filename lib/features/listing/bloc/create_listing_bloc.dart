@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:book_thrift/core/data/app_repository.dart';
-import 'package:book_thrift/features/listing/models/book_listing.dart';
+import 'package:book_thrift/features/listing/repo/listing_repo.dart';
 
 part 'create_listing_event.dart';
 part 'create_listing_state.dart';
@@ -19,7 +18,7 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
     on<ClearImages>(_clearImages);
   }
 
-  final AppRepository repo;
+  final ListingRepo repo;
   final ImagePicker _picker = ImagePicker();
 
   void _updateField(UpdateListingField event, Emitter<CreateListingState> emit) {
@@ -28,8 +27,12 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
 
   void _seedForm(SeedForm event, Emitter<CreateListingState> emit) {
     final images = (event.form['imagePaths'] as List?)?.cast<String>() ?? [];
+    final initialForm = {...state.form, ...event.form};
+    if (initialForm['category'] == null) {
+      initialForm['category'] = 'Others';
+    }
     emit(state.copyWith(
-      form: {...state.form, ...event.form},
+      form: initialForm,
       selectedImages: images,
     ));
   }
@@ -109,41 +112,32 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
       return;
     }
 
-    final id = f['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
-    await repo.saveListing(BookListing(
-      id: id,
-      sellerId: 'me',
-      title: f['title'] ?? '',
-      author: 'Unknown',
-      category: 'General',
-      subject: 'General',
-      institution: '',
-      classOrCourse: '',
-      semester: '',
-      edition: '',
-      publisher: f['publisher'] ?? '',
-      isbn: null,
-      condition: f['condition'] ?? 'Good',
-      description: f['description'] ?? '',
-      originalPrice: 0,
-      sellingPrice: double.tryParse('${f['sellingPrice'] ?? 0}') ?? 0,
-      negotiable: true,
-      quantity: int.tryParse('${f['quantity'] ?? 1}') ?? 1,
-      imagePaths: state.selectedImages,
-      location: f['location'] ?? 'Unknown',
-      deliveryMethod: ['Meetup'],
-      isAvailable: true,
-      isReserved: false,
-      status: 'active',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ));
+    try {
+      emit(state.copyWith(isPickingImages: true)); // Reusing isPickingImages as a general loading state for now or we could add isSubmitting
 
-    emit(state.copyWith(
-      published: true,
-      message: 'Listing published successfully!',
-      selectedImages: [], // Clear images after publishing
-      form: {}, // Clear form after publishing
-    ));
+      await repo.postBook(
+        title: f['title'] ?? '',
+        condition: f['condition'] ?? 'Good',
+        price: double.tryParse('${f['sellingPrice'] ?? 0}') ?? 0,
+        quantity: int.tryParse('${f['quantity'] ?? 1}') ?? 1,
+        description: f['description'] ?? '',
+        location: f['location'] ?? 'Unknown',
+        category: f['category'] ?? 'Others',
+        imagePaths: state.selectedImages,
+      );
+
+      emit(state.copyWith(
+        published: true,
+        message: 'Listing published successfully!',
+        selectedImages: [], // Clear images after publishing
+        form: {}, // Clear form after publishing
+        isPickingImages: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        message: 'Error publishing listing: $e',
+        isPickingImages: false,
+      ));
+    }
   }
 }

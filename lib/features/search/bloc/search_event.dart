@@ -15,6 +15,13 @@ class QueryChanged extends SearchEvent {
   List<Object?> get props => [query];
 }
 
+class SearchSubmitted extends SearchEvent {
+  const SearchSubmitted(this.query);
+  final String query;
+  @override
+  List<Object?> get props => [query];
+}
+
 class SortChanged extends SearchEvent {
   const SortChanged(this.sort);
   final String sort;
@@ -30,3 +37,5 @@ class ToggleCategory extends SearchEvent {
 }
 
 class ClearCategories extends SearchEvent {}
+
+class RefreshSearch extends SearchEvent {}

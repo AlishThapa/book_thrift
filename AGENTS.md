@@ -12,7 +12,14 @@ To maintain consistency, quality, and performance in the KitabSathi project, ple
     *   **Never** use manual `isDark` checks in the `build` method to toggle colors (e.g., `isDark ? Colors.black : Colors.white`).
     *   **Always** use `Theme.of(context).colorScheme` and `Theme.of(context).textTheme`. The `AppTheme` is already configured to switch these automatically.
     *   Example: Use `Theme.of(context).colorScheme.surface` instead of checking `brightness`.
-4.  **Modularization**: Do not code everything in a single file. Delegate UI components into separate `StatelessWidget` or `StatefulWidget` classes and keep them in a `widgets/` folder within the specific feature directory.
+4.  **Modularization & Folder Structure**: 
+    *   Do not code everything in a single file. 
+    *   Every feature/page directory must follow this structure:
+        *   `bloc/`: Contains Bloc and its related files (Events, States).
+        *   `models/`: Contains data models.
+        *   `repo/`: Contains repository classes for API integration.
+        *   `widgets/`: Contains `StatelessWidget` or `StatefulWidget` components.
+        *   `feature_name.dart`: The main page/entry point for the feature.
 5.  **Animations**: Use animations only where they add value to the UX. Keep them subtle and purposeful.
 6.  **State Management**: Strictly **never use `setState`** for business logic or cross-component state. Use `Bloc` or `Cubit` even for smaller interactions if they affect the state of the feature. Local UI state (like tab indices or local field controllers) can use stateful widgets but prefer Bloc where possible.
 7.  **Typography**: Use `FontSizes` constants for all font size definitions.
@@ -23,3 +30,14 @@ To maintain consistency, quality, and performance in the KitabSathi project, ple
 12. **Navigation**: Use `auto_route` for all navigation purposes. Never use the default `Navigator` or `MaterialPageRoute` manually.
 13. **Unused Imports**: Never use unused imports. Remove them to keep the code clean and maintainable.
 14. **Unused Variables**: Remove unused variables to keep the code clean and maintainable.
+15. **Pull to Refresh**: Always implement `RefreshIndicator` for pages that fetch data from a backend/repository to allow users to manually refresh content. Use `AlwaysScrollableScrollPhysics` on the scroll view to ensure it works even with little content.
+16. **Card Distinguishability**: To ensure cards are distinguishable from the background (especially when colors are similar), use a conditional border:
+    `border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.withValues(alpha: 0.3) : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1))`
+
+17. **API Handling & Loading States**:
+    *   **CRITICAL**: Always show a loading indicator (e.g., `CircularProgressIndicator` or a shimmer effect) while an API call is in progress.
+    *   Every feature that interacts with an API must properly manage and UI-reflect three states:
+        *   **Loading**: The request is pending.
+        *   **Success**: The request completed successfully (with data or confirmation).
+        *   **Error**: The request failed (show a user-friendly error message or snackbar).
+    *   Use Bloc states (e.g., `Status.loading`, `Status.success`, `Status.failure`) to drive these UI changes.

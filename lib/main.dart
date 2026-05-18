@@ -1,3 +1,5 @@
+import 'package:book_thrift/features/auth/bloc/auth_bloc.dart';
+import 'package:book_thrift/features/auth/repository/repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -12,6 +14,10 @@ import 'package:book_thrift/features/home/bloc/homepage_bloc.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
 import 'package:book_thrift/features/notifications/models/app_notification.dart';
 import 'package:book_thrift/features/profile/bloc/profile_bloc.dart';
+import 'package:book_thrift/features/profile/repo/profile_repo.dart';
+import 'package:book_thrift/features/listing/bloc/create_listing_bloc.dart';
+import 'package:book_thrift/features/listing/bloc/listing_detail_bloc.dart';
+import 'package:book_thrift/features/listing/repo/listing_repo.dart';
 import 'package:book_thrift/features/search/bloc/search_bloc.dart';
 import 'package:book_thrift/features/search/models/search_models.dart';
 import 'package:book_thrift/features/settings/bloc/settings_bloc.dart';
@@ -21,12 +27,14 @@ import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
 import 'package:book_thrift/core/router/app_router.dart';
 import 'package:book_thrift/core/utils/app_theme.dart';
 
+import 'features/search/repo/search_repo.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   _registerAdapters();
   await _openBoxes();
-  setupDependencies();
+  await setupDependencies();
   await _seedIfNeeded(getIt<AppRepository>());
   runApp( MyApp());
 }
@@ -73,9 +81,7 @@ Future<void> _seedIfNeeded(AppRepository repo) async {
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  final _appRouter = AppRouter();
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -83,15 +89,28 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => HomepageBloc(getIt<AppRepository>())..add(LoadHomepage())),
         BlocProvider(create: (_) => WishlistBloc(getIt<AppRepository>())..add(LoadWishlist())),
-        BlocProvider(create: (_) => ProfileBloc(getIt<AppRepository>())..add(LoadProfile())),
+        BlocProvider(
+          create: (_) => ProfileBloc(
+            localRepo: getIt<AppRepository>(),
+            profileRepo: getIt<ProfileRepo>(),
+          )..add(LoadProfile()),
+        ),
         BlocProvider(create: (_) => SettingsBloc(getIt<AppRepository>())..add(LoadSettings())),
         BlocProvider(create: (_) => ChatBloc(getIt<AppRepository>())..add(LoadThreads())),
-        BlocProvider(create: (_) => SearchBloc(getIt<AppRepository>())..add(LoadSearch())),
+        BlocProvider(
+          create: (_) => SearchBloc(
+            localRepo: getIt<AppRepository>(),
+            searchRepo: getIt<SearchRepo>(),
+          )..add(LoadSearch()),
+        ),
         BlocProvider(create: (_) => CartBloc()),
+        BlocProvider(create: (_) => AuthBloc(authRepository: getIt<AuthRepository>())),
+        BlocProvider(create: (_) => CreateListingBloc(getIt<ListingRepo>())..add(const SeedForm({}))),
+        BlocProvider(create: (_) => ListingDetailBloc(getIt<ListingRepo>())),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, settingsState) => MaterialApp.router(
-          routerConfig: _appRouter.config(),
+          routerConfig: getIt<AppRouter>().config(),
           debugShowCheckedModeBanner: false,
           title: 'KitabSathi',
           theme: AppTheme.lightTheme,

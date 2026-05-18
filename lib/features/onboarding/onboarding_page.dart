@@ -2,6 +2,9 @@ import "package:auto_route/auto_route.dart";
 import "package:flutter/material.dart";
 import "package:book_thrift/core/router/app_router.gr.dart";
 
+import "package:book_thrift/core/di/injection.dart";
+import "package:book_thrift/core/storage/storage_service.dart";
+
 @RoutePage()
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -62,7 +65,9 @@ class _OnboardingPageState extends State<OnboardingPage>
     _animController.forward();
   }
 
-  void _navigate() {
+  Future<void> _navigate() async {
+    await getIt<StorageService>().setOnboardingComplete(true);
+    if (!mounted) return;
     context.router.replace(const AuthEntryRoute());
   }
 

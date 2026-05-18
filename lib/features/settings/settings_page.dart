@@ -1,3 +1,4 @@
+import 'package:book_thrift/core/storage/storage_service.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +37,7 @@ class SettingsPage extends StatelessWidget {
                     value: settingsState.themeMode == ThemeMode.dark,
                     onChanged: (v) => context.read<SettingsBloc>().add(ToggleDarkMode(v)),
                     title: const Text('Dark Mode'),
-                    secondary: const Icon(Icons.dark_mode_rounded),
+                    secondary: _IconWrapper(icon: Icons.dark_mode_rounded, color: Colors.blueAccent),
                   ),
                 ],
               ),
@@ -47,7 +48,7 @@ class SettingsPage extends StatelessWidget {
                     value: settingsState.notificationsEnabled,
                     onChanged: (v) => context.read<SettingsBloc>().add(ToggleNotifications(v)),
                     title: const Text('Push Notifications'),
-                    secondary: const Icon(Icons.notifications_rounded),
+                    secondary: _IconWrapper(icon: Icons.notifications_rounded, color: Colors.teal),
                   ),
                 ],
               ),
@@ -55,15 +56,15 @@ class SettingsPage extends StatelessWidget {
                 title: 'General',
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.info_rounded),
+                    leading: _IconWrapper(icon: Icons.info_rounded, color: Colors.blueGrey),
                     title: const Text('About KitabSathi'),
-                    trailing: const Icon(Icons.chevron_right_rounded),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
                     onTap: () {
                       context.router.push(const AboutRoute());
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.restart_alt_rounded, color: AppColors.warning),
+                    leading: _IconWrapper(icon: Icons.restart_alt_rounded, color: AppColors.warning),
                     title: const Text('Clear local data & reseed'),
                     onTap: () => _showResetConfirmation(context),
                   ),
@@ -74,17 +75,29 @@ class SettingsPage extends StatelessWidget {
                 title: 'Account',
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.logout_rounded),
-                    title: const Text('Logout'),
-                    trailing: const Icon(Icons.chevron_right_rounded),
+                    leading: _IconWrapper(icon: Icons.lock_reset_rounded, color: Colors.orange),
+                    title: const Text('Change Password'),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
                     onTap: () {
-                      context.router.replaceAll([const AuthEntryRoute()]);
+                      context.router.push(const ChangePasswordRoute());
+                    },
+                  ),
+
+                  ListTile(
+                    leading: _IconWrapper(icon: Icons.logout_rounded, color: AppColors.neutral),
+                    title: const Text('Logout'),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                    onTap: () async {
+                      await getIt<StorageService>().clearAccessToken();
+                      if (context.mounted) {
+                        context.router.replaceAll([const AuthEntryRoute()]);
+                      }
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.delete_forever_rounded, color: AppColors.error),
+                    leading: _IconWrapper(icon: Icons.delete_forever_rounded, color: AppColors.error),
                     title: const Text('Delete Profile', style: TextStyle(color: AppColors.error)),
-                    trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.error),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.error),
                     onTap: () => _showDeleteConfirmation(context),
                   ),
                 ],
@@ -174,6 +187,25 @@ class SettingsPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _IconWrapper extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+
+  const _IconWrapper({required this.icon, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(icon, color: color, size: 22),
     );
   }
 }

@@ -38,7 +38,7 @@ class ChatFilterChips extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? colorScheme.primary
-                      : colorScheme.surfaceVariant.withValues(alpha: 0.3),
+                      : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   border: isSelected
                       ? null

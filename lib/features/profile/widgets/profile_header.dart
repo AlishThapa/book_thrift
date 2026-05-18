@@ -14,20 +14,32 @@ class ProfileHeader extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 15),
+      padding: const EdgeInsets.symmetric(vertical: 15),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [colorScheme.primary, colorScheme.secondary], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+        gradient: LinearGradient(
+          colors: [
+            colorScheme.primary,
+            colorScheme.secondary,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(22), bottomRight: Radius.circular(22)),
       ),
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
             child: Row(
               children: [
                 Text(
                   'Account',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  style: TextStyle(
+                    color: colorScheme.onPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ],
             ),
@@ -39,13 +51,13 @@ class ProfileHeader extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
+                    border: Border.all(color: colorScheme.onPrimary.withValues(alpha: 0.5), width: 2),
                   ),
                   child: CircleAvatar(
                     radius: 35,
-                    backgroundColor: Colors.white24,
-                    backgroundImage: (profile?.imagePath != null && profile!.imagePath.isNotEmpty) ? NetworkImage(profile!.imagePath) : null,
-                    child: (profile?.imagePath == null || profile!.imagePath.isEmpty) ? const Icon(Icons.person, size: 35, color: Colors.white) : null,
+                    backgroundColor: colorScheme.onPrimary.withValues(alpha: 0.2),
+                    backgroundImage: (profile?.imagePath != null && profile!.imagePath!.isNotEmpty) ? NetworkImage(profile!.imagePath!) : null,
+                    child: (profile?.imagePath == null || profile!.imagePath!.isEmpty) ? Icon(Icons.person, size: 35, color: colorScheme.onPrimary) : null,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),
@@ -55,28 +67,34 @@ class ProfileHeader extends StatelessWidget {
                     children: [
                       Text(
                         profile?.fullName ?? 'Guest User',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: colorScheme.onPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          shadows: [Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black26)],
+                          shadows: [Shadow(offset: const Offset(0, 1), blurRadius: 2, color: colorScheme.shadow.withValues(alpha: 0.3))],
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         profile?.institutionName ?? 'Join a Campus',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, fontWeight: FontWeight.w500),
+                        style: TextStyle(color: colorScheme.onPrimary.withValues(alpha: 0.9), fontSize: 14, fontWeight: FontWeight.w500),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Text(profile?.location ?? 'Add location', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
+                      Text(
+                        profile?.location ?? 'Add location',
+                        style: TextStyle(color: colorScheme.onPrimary.withValues(alpha: 0.7), fontSize: 12),
+                      ),
                     ],
                   ),
                 ),
                 IconButton.filledTonal(
                   onPressed: onEdit,
                   icon: const Icon(Icons.edit_rounded, size: 18),
-                  style: IconButton.styleFrom(backgroundColor: Colors.white24, foregroundColor: Colors.white),
+                  style: IconButton.styleFrom(
+                    backgroundColor: colorScheme.onPrimary.withValues(alpha: 0.2),
+                    foregroundColor: colorScheme.onPrimary,
+                  ),
                 ),
               ],
             ),

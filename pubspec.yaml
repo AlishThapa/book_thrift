@@ -23,6 +23,10 @@ dependencies:
   share_plus: ^10.1.4
   auto_route: ^9.3.0+1
   flutter_slidable: ^4.0.3
+  dio: ^5.9.2
+  logger: ^2.7.0
+  fluttertoast: ^9.0.0
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,10 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:book_thrift/constants/widgets/app_surface.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/constants/app_colors.dart';
 
+@RoutePage()
 class PublicSellerProfilePage extends StatelessWidget {
   const PublicSellerProfilePage({super.key});
 
