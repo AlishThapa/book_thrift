@@ -32,6 +32,24 @@ class _MainShellPageState extends State<MainShellPage> {
   void initState() {
     super.initState();
     _index = widget.initialIndex;
+    _loadTab(_index);
+  }
+
+  void _loadTab(int i) {
+    switch (i) {
+      case 0:
+        context.read<HomepageBloc>().add(LoadHomepage());
+        break;
+      case 1:
+        context.read<SearchBloc>().add(LoadSearch());
+        break;
+      case 3:
+        context.read<CartBloc>().add(LoadCart());
+        break;
+      case 4:
+        context.read<ProfileBloc>().add(LoadProfile());
+        break;
+    }
   }
 
   void _onNavigate(int i) {
@@ -39,9 +57,7 @@ class _MainShellPageState extends State<MainShellPage> {
       context.router.push(CreateListingRoute());
       return;
     }
-    if (i == 1) {
-      context.read<SearchBloc>().add(LoadSearch());
-    }
+    _loadTab(i);
     setState(() => _index = i);
   }
 

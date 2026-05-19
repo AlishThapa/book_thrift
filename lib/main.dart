@@ -27,6 +27,7 @@ import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
 import 'package:book_thrift/core/router/app_router.dart';
 import 'package:book_thrift/core/utils/app_theme.dart';
 
+import 'features/cart/repo/cart_repo.dart';
 import 'features/search/repo/search_repo.dart';
 
 Future<void> main() async {
@@ -87,23 +88,23 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => HomepageBloc(getIt<AppRepository>())..add(LoadHomepage())),
+        BlocProvider(create: (_) => HomepageBloc(getIt<AppRepository>())),
         BlocProvider(create: (_) => WishlistBloc(getIt<ListingRepo>())),
         BlocProvider(
           create: (_) => ProfileBloc(
             localRepo: getIt<AppRepository>(),
             profileRepo: getIt<ProfileRepo>(),
-          )..add(LoadProfile()),
+          ),
         ),
         BlocProvider(create: (_) => SettingsBloc(getIt<AppRepository>())..add(LoadSettings())),
-        BlocProvider(create: (_) => ChatBloc(getIt<AppRepository>())..add(LoadThreads())),
+        BlocProvider(create: (_) => ChatBloc(getIt<AppRepository>())),
         BlocProvider(
           create: (_) => SearchBloc(
             localRepo: getIt<AppRepository>(),
             searchRepo: getIt<SearchRepo>(),
-          )..add(LoadSearch()),
+          ),
         ),
-        BlocProvider(create: (_) => CartBloc()),
+        BlocProvider(create: (_) => CartBloc(getIt<CartRepo>())),
         BlocProvider(create: (_) => AuthBloc(authRepository: getIt<AuthRepository>())),
         BlocProvider(create: (_) => CreateListingBloc(getIt<ListingRepo>())..add(const SeedForm({}))),
         BlocProvider(create: (_) => ListingDetailBloc(getIt<ListingRepo>())),

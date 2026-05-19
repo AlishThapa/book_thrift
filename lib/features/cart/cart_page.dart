@@ -22,6 +22,17 @@ class _CartPageState extends State<CartPage> {
   String _searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -69,30 +80,57 @@ class _CartPageState extends State<CartPage> {
       ),
       body: BlocBuilder<CartBloc, CartState>(
         builder: (context, state) {
+          if (state.status == CartStatus.loading && state.items.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state.status == CartStatus.failure && state.items.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${state.errorMessage}'),
+                  const SizedBox(height: AppSpacing.md),
+                  ElevatedButton(
+                    onPressed: () => context.read<CartBloc>().add(LoadCart()),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
           final filteredItems = state.items.where((item) {
             return item.book.title.toLowerCase().contains(_searchQuery.toLowerCase());
           }).toList();
 
           if (state.items.isEmpty) {
-            return _EmptyCartState(onNavigate: widget.onNavigate);
+            return RefreshIndicator(
+              onRefresh: () async => context.read<CartBloc>().add(LoadCart()),
+              child: _EmptyCartState(onNavigate: widget.onNavigate),
+            );
           }
 
-          return Column(
-            children: [
-              const SizedBox(height: AppSpacing.sm),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: filteredItems.length,
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                  itemBuilder: (context, index) {
-                    final item = filteredItems[index];
-                    return _CartItemTile(item: item);
-                  },
+          return RefreshIndicator(
+            onRefresh: () async => context.read<CartBloc>().add(LoadCart()),
+            child: Column(
+              children: [
+                const SizedBox(height: AppSpacing.sm),
+                Expanded(
+                  child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: filteredItems.length,
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                    itemBuilder: (context, index) {
+                      final item = filteredItems[index];
+                      return _CartItemTile(item: item);
+                    },
+                  ),
                 ),
-              ),
-              if (state.items.any((i) => i.isSelected)) _CartBottomSection(totalPrice: state.totalPrice, isAllSelected: state.isAllSelected),
-            ],
+                if (state.items.any((i) => i.isSelected)) _CartBottomSection(totalPrice: state.totalPrice, isAllSelected: state.isAllSelected),
+              ],
+            ),
           );
         },
       ),

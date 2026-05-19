@@ -10,4 +10,6 @@ class ApiUrl {
   static const String bookDetails = "book-details";
   static const String toggleWishlist = "toggle-wishlist";
   static const String wishlist = "wishlist";
+  static const String addToCart = "cart/add";
+  static const String cart = "cart";
 }

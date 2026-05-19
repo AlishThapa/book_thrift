@@ -32,6 +32,11 @@ class BookSpecsGrid extends StatelessWidget {
           label: 'Location',
           value: listing.location,
         ),
+        _SpecTile(
+          icon: Icons.inventory_2_outlined,
+          label: 'Quantity',
+          value: listing.quantity.toString(),
+        ),
       ],
     );
   }
