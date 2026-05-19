@@ -12,6 +12,23 @@ class ListingDetailBloc extends Bloc<ListingDetailEvent, ListingDetailState> {
   ListingDetailBloc(this._listingRepo) : super(const ListingDetailState()) {
     on<FetchListingDetail>(_onFetchListingDetail);
     on<ToggleBookWishlist>(_onToggleBookWishlist);
+    on<DeleteListing>(_onDeleteListing);
+  }
+
+  Future<void> _onDeleteListing(
+    DeleteListing event,
+    Emitter<ListingDetailState> emit,
+  ) async {
+    emit(state.copyWith(status: ListingDetailStatus.loading));
+    try {
+      await _listingRepo.deleteListing(event.bookId);
+      emit(state.copyWith(status: ListingDetailStatus.deleted));
+    } catch (e) {
+      emit(state.copyWith(
+        status: ListingDetailStatus.failure,
+        errorMessage: e.toString(),
+      ));
+    }
   }
 
   Future<void> _onFetchListingDetail(

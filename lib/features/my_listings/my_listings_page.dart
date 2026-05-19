@@ -1,28 +1,29 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
-import 'package:book_thrift/core/data/app_repository.dart';
 import 'package:book_thrift/core/di/injection.dart';
 import 'package:book_thrift/core/router/app_router.gr.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
+import 'package:book_thrift/features/my_listings/bloc/my_listings_bloc.dart';
+import 'package:book_thrift/features/my_listings/repo/my_listings_repo.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 @RoutePage()
-class MyListingsPage extends StatefulWidget {
+class MyListingsPage extends StatelessWidget {
   const MyListingsPage({super.key});
 
   @override
-  State<MyListingsPage> createState() => _MyListingsPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => MyListingsBloc(getIt<MyListingsRepo>())..add(const LoadMyListings()),
+      child: const _MyListingsView(),
+    );
+  }
 }
 
-class _MyListingsPageState extends State<MyListingsPage> {
-  Key _refreshKey = UniqueKey();
-
-  void _refresh() {
-    setState(() {
-      _refreshKey = UniqueKey();
-    });
-  }
+class _MyListingsView extends StatelessWidget {
+  const _MyListingsView();
 
   @override
   Widget build(BuildContext context) {
@@ -56,19 +57,32 @@ class _MyListingsPageState extends State<MyListingsPage> {
             ),
           ),
         ),
-        body: FutureBuilder(
-          key: _refreshKey,
-          future: getIt<AppRepository>().listings(),
-          builder: (_, snapshot) {
-            final listings = (snapshot.data as List<BookListing>?) ?? [];
+        body: BlocBuilder<MyListingsBloc, MyListingsState>(
+          builder: (context, state) {
+            if (state.status == MyListingsStatus.loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-            final active = listings.where((e) => e.status == 'active').toList();
-            final sold = listings.where((e) => e.status == 'sold').toList();
+            if (state.status == MyListingsStatus.failure) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Error: ${state.errorMessage}'),
+                    const SizedBox(height: AppSpacing.md),
+                    ElevatedButton(
+                      onPressed: () => context.read<MyListingsBloc>().add(const LoadMyListings()),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
 
             return TabBarView(
               children: [
-                _ListingsList(listings: active, type: 'active', onRefresh: _refresh),
-                _ListingsList(listings: sold, type: 'sold', onRefresh: _refresh),
+                _ListingsList(listings: state.activeListings, type: 'active'),
+                _ListingsList(listings: state.soldListings, type: 'sold'),
               ],
             );
           },
@@ -79,10 +93,9 @@ class _MyListingsPageState extends State<MyListingsPage> {
 }
 
 class _ListingsList extends StatelessWidget {
-  const _ListingsList({required this.listings, required this.type, required this.onRefresh});
+  const _ListingsList({required this.listings, required this.type});
   final List<BookListing> listings;
   final String type;
-  final VoidCallback onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -92,41 +105,40 @@ class _ListingsList extends StatelessWidget {
         title: 'No $type listings',
         subtitle: type == 'active' ? 'You haven\'t listed any books for sale yet.' : 'Your sold books will appear here.',
         actionLabel: type == 'active' ? 'Start Selling' : null,
-        onAction: () => context.router.push(const CreateListingRoute()).then((_) => onRefresh()),
+        onAction: () => context.router.push(CreateListingRoute()).then((_) {
+          if (context.mounted) {
+            context.read<MyListingsBloc>().add(const RefreshMyListings());
+          }
+        }),
       );
     }
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      itemCount: listings.length,
-      itemBuilder: (_, i) {
-        final item = listings[i];
-        return Dismissible(
-          key: Key('listing_${item.id}'),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-            ),
-            child: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error, size: 28),
-          ),
-          onDismissed: (_) async {
-            await getIt<AppRepository>().deleteListing(item.id);
-            onRefresh();
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${item.title} deleted')));
-            }
-          },
-          child: BookCard(
-            listing: item,
-            heroTag: 'my_listings_book_image_${item.id}',
-            onTap: () => context.router.push(BookDetailRoute(listing: item, isOwner: true, heroTag: 'my_listings_book_image_${item.id}')).then((_) => onRefresh()),
-          ),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<MyListingsBloc>().add(const RefreshMyListings());
       },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        itemCount: listings.length,
+        itemBuilder: (_, i) {
+          final item = listings[i];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: BookCard(
+              listing: item,
+              heroTag: 'my_listings_book_image_${item.id}',
+              onTap: () => context.router.push(BookDetailRoute(
+                listing: item,
+                isOwner: true,
+                heroTag: 'my_listings_book_image_${item.id}',
+              )).then((_) {
+                if (context.mounted) {
+                  context.read<MyListingsBloc>().add(const RefreshMyListings());
+                }
+              }),
+            ),
+          );
+        },
+      ),
     );
   }
 }

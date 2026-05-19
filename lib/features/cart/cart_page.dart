@@ -37,106 +37,135 @@ class _CartPageState extends State<CartPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        leading: const Padding(
-          padding: EdgeInsets.only(left: AppSpacing.md),
-          child: Center(
-            child: Text(
-              'My Cart',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-          ),
-        ),
-        leadingWidth: 100,
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-          child: SizedBox(
-            height: 36,
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) => setState(() => _searchQuery = value),
-              decoration: InputDecoration(
-                hintText: 'Search in cart...',
-                prefixIcon: const Icon(Icons.search, size: 18),
-                filled: true,
-                fillColor: colorScheme.surfaceContainerLow,
-                contentPadding: EdgeInsets.zero,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: BorderSide.none),
+    return BlocConsumer<CartBloc, CartState>(
+      listener: (context, state) {
+        if (state.status == CartStatus.failure && state.errorMessage.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.errorMessage), backgroundColor: theme.colorScheme.error),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            titleSpacing: 0,
+            leading: const Padding(
+              padding: EdgeInsets.only(left: AppSpacing.md),
+              child: Center(
+                child: Text(
+                  'My Cart',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
               ),
             ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => context.read<CartBloc>().add(ClearCart()),
-            icon: const Icon(Icons.delete_outline),
-            tooltip: 'Clear Cart',
-          ),
-
-          const SizedBox(width: AppSpacing.xs),
-        ],
-      ),
-      body: BlocBuilder<CartBloc, CartState>(
-        builder: (context, state) {
-          if (state.status == CartStatus.loading && state.items.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state.status == CartStatus.failure && state.items.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Error: ${state.errorMessage}'),
-                  const SizedBox(height: AppSpacing.md),
-                  ElevatedButton(
-                    onPressed: () => context.read<CartBloc>().add(LoadCart()),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final filteredItems = state.items.where((item) {
-            return item.book.title.toLowerCase().contains(_searchQuery.toLowerCase());
-          }).toList();
-
-          if (state.items.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: () async => context.read<CartBloc>().add(LoadCart()),
-              child: _EmptyCartState(onNavigate: widget.onNavigate),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async => context.read<CartBloc>().add(LoadCart()),
-            child: Column(
-              children: [
-                const SizedBox(height: AppSpacing.sm),
-                Expanded(
-                  child: ListView.separated(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: filteredItems.length,
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, index) {
-                      final item = filteredItems[index];
-                      return _CartItemTile(item: item);
-                    },
+            leadingWidth: 100,
+            title: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              child: SizedBox(
+                height: 36,
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                  decoration: InputDecoration(
+                    hintText: 'Search in cart...',
+                    prefixIcon: const Icon(Icons.search, size: 18),
+                    filled: true,
+                    fillColor: colorScheme.surfaceContainerLow,
+                    contentPadding: EdgeInsets.zero,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: BorderSide.none),
                   ),
                 ),
-                if (state.items.any((i) => i.isSelected)) _CartBottomSection(totalPrice: state.totalPrice, isAllSelected: state.isAllSelected),
-              ],
+              ),
             ),
-          );
-        },
-      ),
+            actions: [
+              if (state.items.any((i) => i.isSelected))
+                IconButton(
+                  onPressed: () => context.read<CartBloc>().add(RemoveSelectedItems()),
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  tooltip: 'Remove Selected',
+                )
+              else if (state.items.isNotEmpty)
+                IconButton(
+                  onPressed: () => context.read<CartBloc>().add(ClearCart()),
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Clear Cart',
+                ),
+              const SizedBox(width: AppSpacing.xs),
+            ],
+          ),
+          body: _buildBody(context, state),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(BuildContext context, CartState state) {
+    if (state.status == CartStatus.loading && state.items.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (state.status == CartStatus.failure && state.items.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Error: ${state.errorMessage}'),
+            const SizedBox(height: AppSpacing.md),
+            ElevatedButton(
+              onPressed: () => context.read<CartBloc>().add(LoadCart()),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final filteredItems = state.items.where((item) {
+      return item.book.title.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+
+    if (state.items.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: () async => context.read<CartBloc>().add(LoadCart()),
+        child: _EmptyCartState(onNavigate: widget.onNavigate),
+      );
+    }
+
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: () async => context.read<CartBloc>().add(LoadCart()),
+          child: Column(
+            children: [
+              const SizedBox(height: AppSpacing.sm),
+              Expanded(
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: filteredItems.length,
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+                  itemBuilder: (context, index) {
+                    final item = filteredItems[index];
+                    return _CartItemTile(item: item);
+                  },
+                ),
+              ),
+              if (state.items.any((i) => i.isSelected)) _CartBottomSection(totalPrice: state.totalPrice, isAllSelected: state.isAllSelected),
+            ],
+          ),
+        ),
+        if (state.status == CartStatus.loading && state.items.isNotEmpty)
+          Container(
+            color: Colors.black.withValues(alpha: 0.1),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+      ],
     );
   }
 }
+
 
 class _CartItemTile extends StatelessWidget {
   const _CartItemTile({required this.item});
@@ -208,12 +237,18 @@ class _CartItemTile extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          _QtyBtn(icon: Icons.remove, onTap: () => context.read<CartBloc>().add(UpdateQuantity(item.book.id, item.quantity - 1))),
+                          _QtyBtn(
+                            icon: Icons.remove,
+                            onTap: item.quantity > 1 ? () => context.read<CartBloc>().add(DecrementQuantity(item.book.id)) : null,
+                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Text('${item.quantity}', style: theme.textTheme.bodySmall),
                           ),
-                          _QtyBtn(icon: Icons.add, onTap: () => context.read<CartBloc>().add(UpdateQuantity(item.book.id, item.quantity + 1))),
+                          _QtyBtn(
+                            icon: Icons.add,
+                            onTap: () => context.read<CartBloc>().add(IncrementQuantity(item.book.id)),
+                          ),
                         ],
                       ),
                     ],
@@ -231,19 +266,24 @@ class _CartItemTile extends StatelessWidget {
 class _QtyBtn extends StatelessWidget {
   const _QtyBtn({required this.icon, required this.onTap});
   final IconData icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
-          borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(4),
+      child: Opacity(
+        opacity: onTap == null ? 0.3 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Icon(icon, size: 16),
         ),
-        child: Icon(icon, size: 16),
       ),
     );
   }

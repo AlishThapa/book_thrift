@@ -24,3 +24,12 @@ class ToggleBookWishlist extends ListingDetailEvent {
   @override
   List<Object> get props => [bookId];
 }
+
+class DeleteListing extends ListingDetailEvent {
+  final int bookId;
+
+  const DeleteListing(this.bookId);
+
+  @override
+  List<Object> get props => [bookId];
+}

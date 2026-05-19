@@ -1,6 +1,6 @@
 part of 'listing_detail_bloc.dart';
 
-enum ListingDetailStatus { initial, loading, success, failure }
+enum ListingDetailStatus { initial, loading, success, failure, deleted }
 
 class ListingDetailState extends Equatable {
   const ListingDetailState({

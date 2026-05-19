@@ -15,6 +15,9 @@ import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../cart/bloc/cart_bloc.dart';
+import '../profile/bloc/profile_bloc.dart';
+
 @RoutePage()
 class MainShellPage extends StatefulWidget {
   const MainShellPage({super.key, this.initialIndex = 0});
@@ -241,7 +244,11 @@ class Homepage extends StatelessWidget {
                               state: state,
                               onBookTap: (listing) {
                                 final heroTag = 'home_book_image_${listing.id}';
-                                context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag));
+                                context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag)).then((result) {
+                                  if (result == true && context.mounted) {
+                                    context.read<HomepageBloc>().add(LoadHomepage());
+                                  }
+                                });
                               },
                             ),
                     ),

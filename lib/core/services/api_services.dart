@@ -97,9 +97,9 @@ class ApiServices {
         options: Options(headers: headers),
       );
 
-      if (kDebugMode) {
-        log('Response status code: ${response.statusCode}\nResponse data: ${response.data}');
-      }
+      // if (kDebugMode) {
+      //   log('Response status code: ${response.statusCode}\nResponse data: ${response.data}');
+      // }
 
       final resJson = response.data;
 
@@ -190,6 +190,63 @@ class ApiServices {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>> deleteData({required String url, dynamic data, Map<String, dynamic>? queryParameters, String? token, bool? useToken}) async {
+    final dio = ds.dio;
+    Map<String, dynamic> headers = {};
+
+    final authToken = token ?? getIt<StorageService>().getAccessToken();
+    Logger().d("Auth Token: $authToken");
+
+    if ((useToken ?? this.useToken) && authToken != null) {
+      headers['Authorization'] = 'Bearer $authToken';
+    }
+
+    Map<String, dynamic> queryParams = {...?queryParameters};
+    Logger().d('Request URL: $url\nData: $data\nHeaders: $headers');
+    try {
+      final response = await dio.delete(
+        url,
+        data: data,
+        queryParameters: queryParams,
+        options: Options(headers: headers),
+      );
+
+      if (kDebugMode) {
+        Logger().d('Response status code: ${response.statusCode}\nResponse data: ${response.data}');
+      }
+
+      final resJson = response.data;
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (resJson is Map<String, dynamic>) {
+          return resJson;
+        } else {
+          return {'data': resJson};
+        }
+      } else {
+        String errorMessage = 'Unknown error occurred';
+        if (resJson is Map<String, dynamic>) {
+          errorMessage = resJson['detail'] ?? resJson['details'] ?? resJson['message'] ?? errorMessage;
+        } else if (resJson is String && resJson.isNotEmpty) {
+          errorMessage = resJson;
+        }
+        throw errorMessage;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        Logger().e('Error during API call: $e');
+      }
+      if (e is DioException) {
+        toastMessage(message: 'Error connecting to the internet');
+      } else {
+        await toastMessage(message: 'Error: $e');
+        rethrow;
+      }
+      rethrow;
+    }
+  }
+
 }
 
 ApiServices get apiInstance => ApiServices.instance;

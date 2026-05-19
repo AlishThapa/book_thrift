@@ -38,6 +38,13 @@ class _AuthEntryPageState extends State<AuthEntryPage> {
   void _showSignup() => context.router.push(const ProfileSetupRoute());
 
   @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return BlocListener<AuthBloc, AuthState>(
@@ -210,6 +217,19 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   }
 
   @override
+  void dispose() {
+    _fullName.dispose();
+    _email.dispose();
+    _password.dispose();
+    _phone.dispose();
+    _institution.dispose();
+    _course.dispose();
+    _semester.dispose();
+    _location.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -304,7 +324,15 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       AuthCard(
                         child: Column(
                           children: [
-                            _field(_phone, "Phone", type: TextInputType.number, formatters: [FilteringTextInputFormatter.digitsOnly]),
+                            _field(
+                              _phone,
+                              "Phone",
+                              type: TextInputType.number,
+                              formatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(10),
+                              ],
+                            ),
                             _userTypeDropdown(),
                             _field(_location, "Location"),
                           ],

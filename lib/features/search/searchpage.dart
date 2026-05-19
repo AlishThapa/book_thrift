@@ -140,7 +140,11 @@ class _SearchViewState extends State<_SearchView> {
                                       child: BookCard(
                                         listing: listing,
                                         heroTag: heroTag,
-                                        onTap: () => context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag)),
+                                        onTap: () => context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag)).then((result) {
+                                          if (result == true && context.mounted) {
+                                            context.read<SearchBloc>().add(RefreshSearch());
+                                          }
+                                        }),
                                       ),
                                     );
                                   },
@@ -240,15 +244,15 @@ class _AnimatedBookCardState extends State<_AnimatedBookCard> with SingleTickerP
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 400),
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(-1.0, 0.0),
+      begin: const Offset(-0.1, 0.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeOutQuart,
+      curve: Curves.easeOutCubic,
     ));
 
     _opacityAnimation = Tween<double>(
@@ -259,7 +263,9 @@ class _AnimatedBookCardState extends State<_AnimatedBookCard> with SingleTickerP
       curve: Curves.easeIn,
     ));
 
-    final delay = Duration(milliseconds: (widget.index % 10) * 300);
+    // Only stagger the first few items, then animate immediately for scrolled items
+    final delay = widget.index < 6 ? Duration(milliseconds: widget.index * 80) : Duration.zero;
+
     Future.delayed(delay, () {
       if (mounted) {
         _controller.forward();

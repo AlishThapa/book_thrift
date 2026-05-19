@@ -25,12 +25,9 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: widget.heroTag ?? 'book_image_${widget.listingId}',
-      child: Material(
-        color: Colors.transparent,
-        child: _buildContent(),
-      ),
+    return Material(
+      color: Colors.transparent,
+      child: _buildContent(),
     );
   }
 

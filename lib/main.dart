@@ -20,7 +20,9 @@ import 'package:book_thrift/features/listing/bloc/listing_detail_bloc.dart';
 import 'package:book_thrift/features/listing/repo/listing_repo.dart';
 import 'package:book_thrift/features/search/bloc/search_bloc.dart';
 import 'package:book_thrift/features/search/models/search_models.dart';
+import 'package:book_thrift/features/settings/bloc/bin_bloc.dart';
 import 'package:book_thrift/features/settings/bloc/settings_bloc.dart';
+import 'package:book_thrift/features/settings/repo/bin_repository.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 import 'package:book_thrift/features/wishlist/models/wishlist_item.dart';
 import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
@@ -107,7 +109,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => CartBloc(getIt<CartRepo>())),
         BlocProvider(create: (_) => AuthBloc(authRepository: getIt<AuthRepository>())),
         BlocProvider(create: (_) => CreateListingBloc(getIt<ListingRepo>())..add(const SeedForm({}))),
-        BlocProvider(create: (_) => ListingDetailBloc(getIt<ListingRepo>())),
+        BlocProvider(create: (_) => BinBloc(getIt<BinRepository>())),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, settingsState) => MaterialApp.router(

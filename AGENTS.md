@@ -47,3 +47,5 @@ To maintain consistency, quality, and performance in the KitabSathi project, ple
 
 20. **Lazy API Calls**: Don't call APIs on the initial start of the app unless absolutely necessary for the initial view. For tabbed navigation or multi-page shells, trigger data fetching only when the user navigates to that specific page/tab. Always implement `RefreshIndicator` for manual re-fetching.
 
+21. **Const Management**: When modifying widgets, ensure the `const` keyword is correctly applied or removed. If a widget's constructor or its children become non-constant (e.g., by using variables or non-const widgets), remove the `const` keyword to avoid compilation errors like "Cannot invoke a non-'const' constructor where a const expression is expected." Conversely, always prefer using `const` where possible to improve performance.
+

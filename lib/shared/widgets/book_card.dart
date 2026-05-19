@@ -236,26 +236,29 @@ class _BookImage extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Hero(
       tag: heroTag ?? 'book_image_${listing.id}',
-      child: Container(
-        width: isGrid ? double.infinity : size,
-        height: isGrid ? double.infinity : size,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              colorScheme.primary.withValues(alpha: 0.1),
-              colorScheme.primary.withValues(alpha: 0.05),
-            ],
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          width: isGrid ? double.infinity : size,
+          height: isGrid ? double.infinity : size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                colorScheme.primary.withValues(alpha: 0.1),
+                colorScheme.primary.withValues(alpha: 0.05),
+              ],
+            ),
           ),
+          child: listing.imagePaths.isNotEmpty
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  child: _buildImage(listing.imagePaths.first, colorScheme),
+                )
+              : const _BookPlaceholder(),
         ),
-        child: listing.imagePaths.isNotEmpty
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                child: _buildImage(listing.imagePaths.first, colorScheme),
-              )
-            : const _BookPlaceholder(),
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:book_thrift/core/hive/hive_type_ids.dart';
 class UserProfile {
   UserProfile({
     this.id,
+    this.uid,
     required this.fullName,
     required this.email,
     this.password,
@@ -19,6 +20,7 @@ class UserProfile {
   });
 
   final int? id;
+  final String? uid;
   final String fullName;
   final String email;
   final String? password;
@@ -35,6 +37,7 @@ class UserProfile {
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
       id: json['id'],
+      uid: json['uid'],
       fullName: json['full_name'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
@@ -50,6 +53,7 @@ class UserProfile {
 
   Map<String, dynamic> toJson() {
     return {
+      'uid': uid,
       'full_name': fullName,
       'email': email,
       if (password != null) 'password': password,
@@ -64,6 +68,7 @@ class UserProfile {
 
   UserProfile copyWith({
     int? id,
+    String? uid,
     String? fullName,
     String? email,
     String? password,
@@ -79,6 +84,7 @@ class UserProfile {
   }) {
     return UserProfile(
       id: id ?? this.id,
+      uid: uid ?? this.uid,
       fullName: fullName ?? this.fullName,
       email: email ?? this.email,
       password: password ?? this.password,
@@ -112,6 +118,7 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
     final imagePath = reader.readString();
 
     int? id;
+    String? uid;
     String? createdAt;
     String? updatedAt;
 
@@ -119,6 +126,9 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
     if (reader.availableBytes > 0) {
       try {
         id = reader.read() as int?;
+        if (reader.availableBytes > 0) {
+          uid = reader.read() as String?;
+        }
         if (reader.availableBytes > 0) {
           createdAt = reader.read() as String?;
         }
@@ -132,6 +142,7 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
 
     return UserProfile(
       id: id,
+      uid: uid,
       fullName: fullName,
       email: email,
       phone: phone,
@@ -159,6 +170,7 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       ..writeString(obj.location)
       ..writeString(obj.imagePath ?? '')
       ..write(obj.id)
+      ..write(obj.uid)
       ..write(obj.createdAt)
       ..write(obj.updatedAt);
   }

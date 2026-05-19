@@ -5,20 +5,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/constants/app_colors.dart';
 import 'package:book_thrift/constants/widgets/app_text_form_field.dart';
+import 'package:book_thrift/features/listing/models/book_listing.dart';
 import 'package:book_thrift/features/listing/bloc/create_listing_bloc.dart';
 
 @RoutePage()
 class CreateListingPage extends StatelessWidget {
-  const CreateListingPage({super.key});
+  const CreateListingPage({super.key, this.listing});
+  final BookListing? listing;
 
   @override
   Widget build(BuildContext context) {
-    return const _CreateListingView();
+    return _CreateListingView(listing: listing);
   }
 }
 
 class _CreateListingView extends StatefulWidget {
-  const _CreateListingView();
+  const _CreateListingView({this.listing});
+  final BookListing? listing;
 
   @override
   State<_CreateListingView> createState() => _CreateListingViewState();
@@ -28,14 +31,36 @@ class _CreateListingViewState extends State<_CreateListingView> {
   final formKey = GlobalKey<FormState>();
   final ScrollController _scrollController = ScrollController();
 
-  final Map<String, TextEditingController> _controllers = {
-    'title': TextEditingController(),
-    'sellingPrice': TextEditingController(),
-    'publisher': TextEditingController(),
-    'quantity': TextEditingController(text: '1'),
-    'description': TextEditingController(),
-    'location': TextEditingController(),
-  };
+  late final Map<String, TextEditingController> _controllers;
+
+  @override
+  void initState() {
+    super.initState();
+    final listing = widget.listing;
+    _controllers = {
+      'title': TextEditingController(text: listing?.title),
+      'sellingPrice': TextEditingController(text: listing?.sellingPrice.toStringAsFixed(0)),
+      'publisher': TextEditingController(text: listing?.publisher),
+      'quantity': TextEditingController(text: listing?.quantity.toString() ?? '1'),
+      'description': TextEditingController(text: listing?.description),
+      'location': TextEditingController(text: listing?.location),
+    };
+
+    if (listing != null) {
+      // Initialize bloc with existing listing data if editing
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final bloc = context.read<CreateListingBloc>();
+        bloc.add(UpdateListingField('title', listing.title));
+        bloc.add(UpdateListingField('category', listing.category));
+        bloc.add(UpdateListingField('condition', listing.condition));
+        bloc.add(UpdateListingField('sellingPrice', listing.sellingPrice.toStringAsFixed(0)));
+        bloc.add(UpdateListingField('publisher', listing.publisher));
+        bloc.add(UpdateListingField('quantity', listing.quantity.toString()));
+        bloc.add(UpdateListingField('description', listing.description));
+        bloc.add(UpdateListingField('location', listing.location));
+      });
+    }
+  }
 
   final List<String> _conditions = ['New', 'Like New', 'Used', 'Old'];
   final List<String> _categories = [
@@ -167,7 +192,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
             ).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: state.published ? AppColors.success : AppColors.error));
           }
           if (state.published) {
-            context.router.back();
+            context.router.maybePop(true);
           }
         },
         builder: (context, state) {
@@ -206,12 +231,13 @@ class _CreateListingViewState extends State<_CreateListingView> {
   PreferredSizeWidget _buildModernAppBar() {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final isEditing = widget.listing != null;
 
     return AppBar(
       elevation: 0,
       backgroundColor: colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-      title: Text('Share Post', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+      title: Text(isEditing ? 'Edit Post' : 'Share Post', style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
       leading: IconButton(
         onPressed: () => context.router.back(),
         icon: const Icon(Icons.close_rounded),
@@ -233,7 +259,7 @@ class _CreateListingViewState extends State<_CreateListingView> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
-            child: const Text('Post', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(isEditing ? 'Update' : 'Post', style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ),
       ],

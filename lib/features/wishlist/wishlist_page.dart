@@ -173,7 +173,11 @@ class _SlidableWishlistItem extends StatelessWidget {
         child: BookCard(
           listing: listing,
           heroTag: heroTag,
-          onTap: () => context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag)),
+          onTap: () => context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag)).then((result) {
+            if (result == true && context.mounted) {
+              context.read<WishlistBloc>().add(LoadWishlist());
+            }
+          }),
           trailing: IconButton(
             onPressed: () => _remove(context),
             icon: const Icon(Icons.favorite, color: Colors.redAccent, size: 22),

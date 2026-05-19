@@ -1,15 +1,20 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
+import 'package:book_thrift/core/di/injection.dart';
+import 'package:book_thrift/core/router/app_router.gr.dart';
+import 'package:book_thrift/core/storage/storage_service.dart';
+import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
+import 'package:book_thrift/features/listing/bloc/listing_detail_bloc.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
+import 'package:book_thrift/features/listing/repo/listing_repo.dart';
 import 'package:book_thrift/features/listing/widgets/book_detail_image_carousel.dart';
 import 'package:book_thrift/features/listing/widgets/book_specs_grid.dart';
 import 'package:book_thrift/features/listing/widgets/seller_info_card.dart';
-import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
-import 'package:book_thrift/features/listing/bloc/listing_detail_bloc.dart';
+import 'package:book_thrift/shared/widgets/book_card.dart';
 import 'package:book_thrift/shared/widgets/system/bottom_cta_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:share_plus/share_plus.dart';
 
 @RoutePage()
 class BookDetailPage extends StatefulWidget {
@@ -42,11 +47,6 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
     );
 
     _controller.forward();
-
-    final bookId = int.tryParse(widget.listing.id);
-    if (bookId != null) {
-      context.read<ListingDetailBloc>().add(FetchListingDetail(bookId));
-    }
   }
 
   @override
@@ -61,7 +61,34 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
   }
 
   void _onShare(BookListing listing) {
-    Share.share('Check out this book: ${listing.title} by ${listing.author} for NPR ${listing.sellingPrice.toStringAsFixed(0)} on KitabSathi!', subject: 'Book Listing: ${listing.title}');
+    Share.share(
+      'Check out this book: ${listing.title} by ${listing.author} for NPR ${listing.sellingPrice.toStringAsFixed(0)} on KitabSathi!',
+      subject: 'Book Listing: ${listing.title}',
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, String listingId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Listing?'),
+        content: const Text('Are you sure you want to delete this book listing? This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              final bookId = int.tryParse(listingId);
+              if (bookId != null) {
+                context.read<ListingDetailBloc>().add(DeleteListing(bookId));
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -70,21 +97,49 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    return BlocListener<CartBloc, CartState>(
-      listenWhen: (p, c) => p.status != c.status,
-      listener: (context, state) {
-        if (state.status == CartStatus.success) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to cart successfully!'), behavior: SnackBarBehavior.floating));
-        } else if (state.status == CartStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.errorMessage), backgroundColor: colorScheme.error, behavior: SnackBarBehavior.floating));
+    return BlocProvider(
+      create: (context) {
+        final bloc = ListingDetailBloc(getIt<ListingRepo>());
+        final bookId = int.tryParse(widget.listing.id);
+        if (bookId != null) {
+          bloc.add(FetchListingDetail(bookId));
         }
+        return bloc;
       },
+      child: MultiBlocListener(
+        listeners: [
+        BlocListener<CartBloc, CartState>(
+          listenWhen: (p, c) => p.status != c.status,
+          listener: (context, state) {
+            if (state.status == CartStatus.success) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to cart successfully!'), behavior: SnackBarBehavior.floating));
+            } else if (state.status == CartStatus.failure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.errorMessage), backgroundColor: colorScheme.error, behavior: SnackBarBehavior.floating));
+            }
+          },
+        ),
+        BlocListener<ListingDetailBloc, ListingDetailState>(
+          listenWhen: (p, c) => p.status != c.status,
+          listener: (context, state) {
+            if (state.status == ListingDetailStatus.deleted) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Listing deleted successfully'), behavior: SnackBarBehavior.floating));
+              context.router.maybePop(true);
+            } else if (state.status == ListingDetailStatus.failure && state.listing != null) {
+              // Show error if action (like delete or wishlist) fails but we still have the listing
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.errorMessage), backgroundColor: colorScheme.error, behavior: SnackBarBehavior.floating));
+            }
+          },
+        ),
+      ],
       child: BlocBuilder<ListingDetailBloc, ListingDetailState>(
         builder: (context, state) {
-          // Ensure we use the current listing from state only if it matches the ID of the book we opened.
-          // This prevents "flickering" where the Hero animation shows data from the previously viewed book.
           final listing = (state.listing != null && state.listing!.id == widget.listing.id) ? state.listing! : widget.listing;
-
+          final currentUid = getIt<StorageService>().getUid();
+          final isOwner = widget.isOwner || (listing.owner?.uid != null && listing.owner?.uid == currentUid);
           return Scaffold(
             backgroundColor: colorScheme.surfaceContainerLowest,
             extendBodyBehindAppBar: true,
@@ -101,7 +156,10 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                       context.read<ListingDetailBloc>().add(ToggleBookWishlist(bookId));
                     }
                   },
-                  icon: Icon(listing.isWishlisted ? Icons.favorite : Icons.favorite_border, color: listing.isWishlisted ? colorScheme.error : colorScheme.onPrimary),
+                  icon: Icon(
+                    listing.isWishlisted ? Icons.favorite : Icons.favorite_border,
+                    color: listing.isWishlisted ? colorScheme.error : colorScheme.onPrimary,
+                  ),
                 ),
                 IconButton(
                   onPressed: () => _onShare(listing),
@@ -134,12 +192,15 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Column(
                           children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
-                              child: Container(
-                                color: colorScheme.primary,
-                                height: 350,
-                                child: BookDetailImageCarousel(imagePaths: listing.imagePaths, listingId: listing.id, heroTag: widget.heroTag),
+                            Hero(
+                              tag: widget.heroTag ?? 'book_image_${listing.id}',
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+                                child: Container(
+                                  color: colorScheme.primary,
+                                  height: 350,
+                                  child: BookDetailImageCarousel(imagePaths: listing.imagePaths, listingId: listing.id, heroTag: widget.heroTag),
+                                ),
                               ),
                             ),
                             SlideTransition(
@@ -172,7 +233,9 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                                                     Text(listing.title.isEmpty ? 'Untitled Book' : listing.title, style: textTheme.headlineSmall),
                                                     const SizedBox(height: 4),
                                                     Text(
-                                                      listing.owner?.fullName != null ? 'by ${listing.owner!.fullName}' : (listing.author.isEmpty ? 'Unknown Author' : 'by ${listing.author}'),
+                                                      listing.owner?.fullName != null
+                                                          ? 'by ${listing.owner!.fullName}'
+                                                          : (listing.author.isEmpty ? 'Unknown Author' : 'by ${listing.author}'),
                                                       style: textTheme.bodyMedium,
                                                     ),
                                                   ],
@@ -183,7 +246,11 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                                                 children: [
                                                   Text(
                                                     'NPR ${listing.sellingPrice.toStringAsFixed(0)}',
-                                                    style: textTheme.headlineSmall?.copyWith(fontSize: 28, color: colorScheme.primary, fontWeight: FontWeight.bold),
+                                                    style: textTheme.headlineSmall?.copyWith(
+                                                      fontSize: 28,
+                                                      color: colorScheme.primary,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -221,6 +288,30 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                                           const SizedBox(height: AppSpacing.sm),
                                           SellerInfoCard(owner: listing.owner),
 
+                                          if (listing.similarBooks != null && listing.similarBooks!.isNotEmpty) ...[
+                                            const SizedBox(height: AppSpacing.xl),
+                                            Text('Similar books by the seller', style: textTheme.titleLarge),
+                                            const SizedBox(height: AppSpacing.sm),
+                                            ListView.separated(
+                                              padding: EdgeInsets.zero,
+                                              shrinkWrap: true,
+                                              physics: const NeverScrollableScrollPhysics(),
+                                              itemCount: listing.similarBooks!.length,
+                                              separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.md),
+                                              itemBuilder: (context, index) {
+                                                final similarBook = listing.similarBooks![index];
+                                                final heroTag = 'similar_book_${similarBook.id}';
+                                                return BookCard(
+                                                  listing: similarBook,
+                                                  heroTag: heroTag,
+                                                  onTap: () {
+                                                    context.router.push(BookDetailRoute(listing: similarBook, heroTag: heroTag));
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ],
+
                                           const SizedBox(height: 120),
                                         ],
                                       ),
@@ -234,8 +325,54 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                       ),
                     ),
             ),
-            bottomNavigationBar: widget.isOwner
-                ? null
+            bottomNavigationBar: isOwner
+                ? BottomCtaBar(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              // Handle Edit - Pass existing listing data to CreateListingPage in edit mode
+                              context.router.push(CreateListingRoute(listing: listing)).then((result) {
+                                if (result == true && context.mounted) {
+                                  final bookId = int.tryParse(listing.id);
+                                  if (bookId != null) {
+                                    context.read<ListingDetailBloc>().add(FetchListingDetail(bookId));
+                                  }
+                                }
+                              });
+                            },
+                            icon: const Icon(Icons.edit_rounded, size: 20),
+                            label: const Text('Edit Listing'),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: colorScheme.primary),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: FilledButton.icon(
+                            onPressed: () {
+                              // Handle Delete - show confirmation dialog then call delete API
+                              _showDeleteConfirmation(context, listing.id);
+                            },
+                            icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                            label: const Text('Delete'),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: colorScheme.error,
+                              foregroundColor: colorScheme.onError,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
                 : BottomCtaBar(
                     children: [
                       Expanded(
@@ -298,6 +435,7 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
           );
         },
       ),
+    ),
     );
   }
 }

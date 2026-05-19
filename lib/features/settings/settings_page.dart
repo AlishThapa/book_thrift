@@ -64,6 +64,14 @@ class SettingsPage extends StatelessWidget {
                     },
                   ),
                   ListTile(
+                    leading: _IconWrapper(icon: Icons.delete_outline_rounded, color: Colors.orange),
+                    title: const Text('Bin'),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                    onTap: () {
+                      context.router.push(const BinRoute());
+                    },
+                  ),
+                  ListTile(
                     leading: _IconWrapper(icon: Icons.restart_alt_rounded, color: AppColors.warning),
                     title: const Text('Clear local data & reseed'),
                     onTap: () => _showResetConfirmation(context),

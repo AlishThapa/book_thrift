@@ -9,6 +9,8 @@ import 'package:book_thrift/features/profile/repo/profile_repo.dart';
 import 'package:book_thrift/features/listing/repo/listing_repo.dart';
 import 'package:book_thrift/features/search/repo/search_repo.dart';
 import 'package:book_thrift/features/cart/repo/cart_repo.dart';
+import 'package:book_thrift/features/my_listings/repo/my_listings_repo.dart';
+import 'package:book_thrift/features/settings/repo/bin_repository.dart';
 
 import 'package:book_thrift/core/storage/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +27,8 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton(ListingRepo.new);
   getIt.registerLazySingleton(SearchRepo.new);
   getIt.registerLazySingleton(CartRepo.new);
+  getIt.registerLazySingleton(MyListingsRepo.new);
+  getIt.registerLazySingleton(BinRepository.new);
   getIt.registerSingleton(AppRouter());
   getIt.registerLazySingleton(DioServices.new);
 }

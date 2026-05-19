@@ -17,4 +17,22 @@ class CartRepo {
 
     return response['data']['cart_amount'];
   }
+
+  Future<int> decrementQuantity(int bookId) async {
+    final response = await apiInstance.postData(
+      url: ApiUrl.decrementCart,
+      data: {'book_id': bookId},
+    );
+
+    return response['data']['cart_amount'];
+  }
+
+  Future<int> removeItems(List<int> bookIds) async {
+    final response = await apiInstance.deleteData(
+      url: ApiUrl.removeCart,
+      data: {'book_ids': bookIds},
+    );
+
+    return response['data']['deleted_count'];
+  }
 }

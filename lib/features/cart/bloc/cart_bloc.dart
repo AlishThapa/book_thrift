@@ -29,13 +29,21 @@ class RemoveFromCart extends CartEvent {
   List<Object?> get props => [bookId];
 }
 
-class UpdateQuantity extends CartEvent {
-  const UpdateQuantity(this.bookId, this.quantity);
+class IncrementQuantity extends CartEvent {
+  const IncrementQuantity(this.bookId);
   final String bookId;
-  final int quantity;
   @override
-  List<Object?> get props => [bookId, quantity];
+  List<Object?> get props => [bookId];
 }
+
+class DecrementQuantity extends CartEvent {
+  const DecrementQuantity(this.bookId);
+  final String bookId;
+  @override
+  List<Object?> get props => [bookId];
+}
+
+class RemoveSelectedItems extends CartEvent {}
 
 class ToggleSelectItem extends CartEvent {
   const ToggleSelectItem(this.bookId);
@@ -95,7 +103,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     on<LoadCart>(_onLoadCart);
     on<AddToCart>(_onAddToCart);
     on<RemoveFromCart>(_onRemoveFromCart);
-    on<UpdateQuantity>(_onUpdateQuantity);
+    on<IncrementQuantity>(_onIncrementQuantity);
+    on<DecrementQuantity>(_onDecrementQuantity);
+    on<RemoveSelectedItems>(_onRemoveSelectedItems);
     on<ToggleSelectItem>(_onToggleSelectItem);
     on<ToggleSelectAll>(_onToggleSelectAll);
     on<ClearCart>(_onClearCart);
@@ -140,18 +150,72 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
-  void _onRemoveFromCart(RemoveFromCart event, Emitter<CartState> emit) {
-    emit(state.copyWith(items: state.items.where((i) => i.book.id != event.bookId).toList()));
+  Future<void> _onRemoveFromCart(RemoveFromCart event, Emitter<CartState> emit) async {
+    emit(state.copyWith(status: CartStatus.loading));
+    try {
+      final bookId = int.tryParse(event.bookId);
+      if (bookId == null) throw Exception('Invalid book ID');
+      await _cartRepo.removeItems([bookId]);
+      emit(state.copyWith(
+        items: state.items.where((i) => i.book.id != event.bookId).toList(),
+        status: CartStatus.success,
+      ));
+    } catch (e) {
+      emit(state.copyWith(status: CartStatus.failure, errorMessage: e.toString()));
+    }
   }
 
-  void _onUpdateQuantity(UpdateQuantity event, Emitter<CartState> emit) {
-    final updatedItems = state.items.map((item) {
-      if (item.book.id == event.bookId) {
-        return item.copyWith(quantity: event.quantity > 0 ? event.quantity : 1);
-      }
-      return item;
-    }).toList();
-    emit(state.copyWith(items: updatedItems));
+  Future<void> _onRemoveSelectedItems(RemoveSelectedItems event, Emitter<CartState> emit) async {
+    final selectedIds = state.items.where((i) => i.isSelected).map((i) => int.tryParse(i.book.id)).whereType<int>().toList();
+    if (selectedIds.isEmpty) return;
+
+    emit(state.copyWith(status: CartStatus.loading));
+    try {
+      await _cartRepo.removeItems(selectedIds);
+      final remainingItems = state.items.where((i) => !i.isSelected).toList();
+      emit(state.copyWith(items: remainingItems, status: CartStatus.success));
+    } catch (e) {
+      emit(state.copyWith(status: CartStatus.failure, errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _onIncrementQuantity(IncrementQuantity event, Emitter<CartState> emit) async {
+    emit(state.copyWith(status: CartStatus.loading));
+    try {
+      final bookId = int.tryParse(event.bookId);
+      if (bookId == null) throw Exception('Invalid book ID');
+      final newAmount = await _cartRepo.addToCart(bookId);
+      final updatedItems = state.items.map((item) {
+        if (item.book.id == event.bookId) {
+          return item.copyWith(quantity: newAmount);
+        }
+        return item;
+      }).toList();
+      emit(state.copyWith(items: updatedItems, status: CartStatus.success));
+    } catch (e) {
+      emit(state.copyWith(status: CartStatus.failure, errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _onDecrementQuantity(DecrementQuantity event, Emitter<CartState> emit) async {
+    final item = state.items.firstWhere((i) => i.book.id == event.bookId);
+    if (item.quantity <= 1) return;
+
+    emit(state.copyWith(status: CartStatus.loading));
+    try {
+      final bookId = int.tryParse(event.bookId);
+      if (bookId == null) throw Exception('Invalid book ID');
+      final newAmount = await _cartRepo.decrementQuantity(bookId);
+      final updatedItems = state.items.map((item) {
+        if (item.book.id == event.bookId) {
+          return item.copyWith(quantity: newAmount);
+        }
+        return item;
+      }).toList();
+      emit(state.copyWith(items: updatedItems, status: CartStatus.success));
+    } catch (e) {
+      emit(state.copyWith(status: CartStatus.failure, errorMessage: e.toString()));
+    }
   }
 
   void _onToggleSelectItem(ToggleSelectItem event, Emitter<CartState> emit) {
@@ -171,7 +235,16 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     emit(state.copyWith(items: updatedItems));
   }
 
-  void _onClearCart(ClearCart event, Emitter<CartState> emit) {
-    emit(const CartState());
+  Future<void> _onClearCart(ClearCart event, Emitter<CartState> emit) async {
+    if (state.items.isEmpty) return;
+    
+    emit(state.copyWith(status: CartStatus.loading));
+    try {
+      final allIds = state.items.map((i) => int.tryParse(i.book.id)).whereType<int>().toList();
+      await _cartRepo.removeItems(allIds);
+      emit(const CartState(status: CartStatus.success));
+    } catch (e) {
+      emit(state.copyWith(status: CartStatus.failure, errorMessage: e.toString()));
+    }
   }
 }
