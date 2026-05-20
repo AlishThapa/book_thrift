@@ -17,11 +17,12 @@ class UpdateListingField extends CreateListingEvent {
 }
 
 class SeedForm extends CreateListingEvent {
-  const SeedForm(this.form);
+  const SeedForm(this.form, {this.bookId});
   final Map<String, dynamic> form;
+  final int? bookId;
 
   @override
-  List<Object?> get props => [form];
+  List<Object?> get props => [form, bookId];
 }
 
 class NextStep extends CreateListingEvent {}

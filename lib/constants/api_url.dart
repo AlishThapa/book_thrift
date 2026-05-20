@@ -6,6 +6,7 @@ class ApiUrl {
   static const String getProfile = "get-profile";
   static const String editProfile = "edit-profile";
   static const String postBook = "post-book";
+  static const String updateBook = "update-book/";
   static const String deleteBook = "delete-book";
   static const String getBooks = "get-books";
   static const String bookDetails = "book-details";

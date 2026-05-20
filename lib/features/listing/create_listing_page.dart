@@ -50,14 +50,17 @@ class _CreateListingViewState extends State<_CreateListingView> {
       // Initialize bloc with existing listing data if editing
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final bloc = context.read<CreateListingBloc>();
-        bloc.add(UpdateListingField('title', listing.title));
-        bloc.add(UpdateListingField('category', listing.category));
-        bloc.add(UpdateListingField('condition', listing.condition));
-        bloc.add(UpdateListingField('sellingPrice', listing.sellingPrice.toStringAsFixed(0)));
-        bloc.add(UpdateListingField('publisher', listing.publisher));
-        bloc.add(UpdateListingField('quantity', listing.quantity.toString()));
-        bloc.add(UpdateListingField('description', listing.description));
-        bloc.add(UpdateListingField('location', listing.location));
+        bloc.add(SeedForm({
+          'title': listing.title,
+          'category': listing.category,
+          'condition': listing.condition,
+          'sellingPrice': listing.sellingPrice.toStringAsFixed(0),
+          'publisher': listing.publisher,
+          'quantity': listing.quantity.toString(),
+          'description': listing.description,
+          'location': listing.location,
+          'imagePaths': listing.imagePaths,
+        }, bookId: int.tryParse(listing.id)));
       });
     }
   }
@@ -496,8 +499,18 @@ class _CreateListingViewState extends State<_CreateListingView> {
       buildWhen: (p, c) => p.form['condition'] != c.form['condition'],
       builder: (context, state) {
         final currentValue = state.form['condition']?.toString();
-        // Ensure the value exists in our list, otherwise null
-        final selectedValue = _conditions.contains(currentValue) ? currentValue : null;
+        
+        // Normalize condition for matching (API might return lowercase)
+        String? selectedValue;
+        if (currentValue != null) {
+          try {
+            selectedValue = _conditions.firstWhere(
+              (c) => c.toLowerCase() == currentValue.toLowerCase(),
+            );
+          } catch (_) {
+            selectedValue = null;
+          }
+        }
 
         return Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.md),

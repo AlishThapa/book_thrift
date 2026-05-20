@@ -135,7 +135,7 @@ class ApiServices {
     }
   }
 
-  Future<Map<String, dynamic>> putData({required String url, dynamic data, Map<String, dynamic>? queryParameters, String? token, bool? useToken}) async {
+  Future<Map<String, dynamic>> putData({required String url, dynamic data, Map<String, dynamic>? queryParameters, String? token, bool? isFileUpload = false, bool? useToken}) async {
     final dio = ds.dio;
     Map<String, dynamic> headers = {};
 
@@ -146,12 +146,16 @@ class ApiServices {
       headers['Authorization'] = 'Bearer $authToken';
     }
 
+    if (isFileUpload!) {
+      headers['Content-Type'] = 'multipart/form-data';
+    }
+
     Map<String, dynamic> queryParams = {...?queryParameters};
     Logger().d('Request URL: $url\nData: $data\nHeaders: $headers');
     try {
       final response = await dio.put(
         url,
-        data: data,
+        data: isFileUpload ? FormData.fromMap(data) : data,
         queryParameters: queryParams,
         options: Options(headers: headers),
       );

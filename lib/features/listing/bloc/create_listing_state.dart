@@ -8,6 +8,7 @@ class CreateListingState extends Equatable {
     this.message = '',
     this.selectedImages = const [],
     this.isPickingImages = false,
+    this.bookId,
   });
 
   final int step;
@@ -16,6 +17,7 @@ class CreateListingState extends Equatable {
   final String message;
   final List<String> selectedImages;
   final bool isPickingImages;
+  final int? bookId;
 
   CreateListingState copyWith({
     int? step,
@@ -24,6 +26,7 @@ class CreateListingState extends Equatable {
     String? message,
     List<String>? selectedImages,
     bool? isPickingImages,
+    int? bookId,
   }) =>
       CreateListingState(
         step: step ?? this.step,
@@ -32,8 +35,9 @@ class CreateListingState extends Equatable {
         message: message ?? this.message,
         selectedImages: selectedImages ?? this.selectedImages,
         isPickingImages: isPickingImages ?? this.isPickingImages,
+        bookId: bookId ?? this.bookId,
       );
 
   @override
-  List<Object?> get props => [step, form, published, message, selectedImages, isPickingImages];
+  List<Object?> get props => [step, form, published, message, selectedImages, isPickingImages, bookId];
 }

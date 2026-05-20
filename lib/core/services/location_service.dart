@@ -1,7 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 enum LocationPermissionStatus { notAsked, granted, denied }
 
@@ -46,7 +45,7 @@ class LocationService {
         return;
       }
 
-      final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
+      final position = await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.medium));
 
       await _prefs.setDouble(_keyLat, position.latitude);
       await _prefs.setDouble(_keyLng, position.longitude);

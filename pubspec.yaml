@@ -27,6 +27,7 @@ dependencies:
   logger: ^2.7.0
   fluttertoast: ^9.0.0
   shared_preferences: ^2.5.5
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

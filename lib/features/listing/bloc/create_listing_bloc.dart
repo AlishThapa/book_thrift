@@ -37,6 +37,7 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
     emit(state.copyWith(
       form: initialForm,
       selectedImages: images,
+      bookId: event.bookId,
     ));
   }
 
@@ -140,24 +141,41 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
         Logger().w("Publishing: Location permission not granted or not asked, skipping coordinates");
       }
 
-      await repo.postBook(
-        title: f['title'] ?? '',
-        condition: f['condition'] ?? 'Good',
-        price: double.tryParse('${f['sellingPrice'] ?? 0}') ?? 0,
-        quantity: int.tryParse('${f['quantity'] ?? 1}') ?? 1,
-        description: f['description'] ?? '',
-        location: f['location'] ?? 'Unknown',
-        category: f['category'] ?? 'Others',
-        imagePaths: state.selectedImages,
-        latitude: lat,
-        longitude: lng,
-      );
+      if (state.bookId != null) {
+        await repo.updateBook(
+          bookId: state.bookId!,
+          title: f['title'],
+          condition: f['condition'],
+          price: double.tryParse('${f['sellingPrice'] ?? 0}'),
+          quantity: int.tryParse('${f['quantity'] ?? 1}'),
+          description: f['description'],
+          location: f['location'],
+          category: f['category'],
+          imagePaths: state.selectedImages,
+          latitude: lat,
+          longitude: lng,
+        );
+      } else {
+        await repo.postBook(
+          title: f['title'] ?? '',
+          condition: f['condition'] ?? 'Good',
+          price: double.tryParse('${f['sellingPrice'] ?? 0}') ?? 0,
+          quantity: int.tryParse('${f['quantity'] ?? 1}') ?? 1,
+          description: f['description'] ?? '',
+          location: f['location'] ?? 'Unknown',
+          category: f['category'] ?? 'Others',
+          imagePaths: state.selectedImages,
+          latitude: lat,
+          longitude: lng,
+        );
+      }
 
       emit(state.copyWith(
         published: true,
-        message: 'Listing published successfully!',
+        message: state.bookId != null ? 'Book updated successfully!' : 'Book published successfully!',
         selectedImages: [], // Clear images after publishing
         form: {}, // Clear form after publishing
+        bookId: null,
         isPickingImages: false,
       ));
     } catch (e) {
