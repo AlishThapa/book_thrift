@@ -24,17 +24,17 @@ class ModernHeader extends StatelessWidget {
                 'Hello, $name 👋',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
               ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.primary.withOpacity(0.15) : AppColors.secondary.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isDark ? AppColors.primary.withOpacity(0.3) : AppColors.secondary.withOpacity(0.2),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -51,11 +51,11 @@ class ModernHeader extends StatelessWidget {
         ),
         Container(
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B) : AppColors.neutralLight,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: isDark ? Colors.black26 : AppColors.primary.withOpacity(0.15),
+                color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -65,7 +65,7 @@ class ModernHeader extends StatelessWidget {
             onPressed: onNotifications,
             icon: Icon(
               Icons.notifications_none_rounded,
-              color: isDark ? Colors.white : AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
               size: 26,
             ),
           ),

@@ -1,51 +1,125 @@
-# Development Guidelines for AI Agents
+# AGENTS.md — KitabSathi / BookThrift Development Guidelines
 
-To maintain consistency, quality, and performance in the KitabSathi project, please adhere to the following rules:
+Read this file fully before making any code modifications or creating new features.
 
-1.  **Validation & Syntax**: After every work the agents perform, scan the file to ensure there are no missing imports, missing closing braces (e.g., `)`, `}`), or missing symbols (e.g., `;`, `,`).
-2.  **Design Tokens**: Use `lib/constants/design_tokens.dart` for defining radius (`AppRadius`), spacing (`AppSpacing`), and text styles (`AppTextStyles`).
-3.  **Colors & Opacity**: 
-    *   Use only the provided `AppColors` from `lib/constants/app_colors.dart`. 
-    *   Follow the **60:30:10** color rule.
-    *   **CRITICAL**: Never use `.withOpacity(0.x)`. It is deprecated or behaves inconsistently in newer Flutter versions for some contexts. Always use `.withValues(alpha: 0.x)`.
-    *   Example: `AppColors.primary.withValues(alpha: 0.08)`.
-4.  **Theming & Consistency**:
-    *   **Never** use manual `isDark` checks in the `build` method to toggle colors (e.g., `isDark ? Colors.black : Colors.white`).
-    *   **Always** use `Theme.of(context).colorScheme` and `Theme.of(context).textTheme`. The `AppTheme` is already configured to switch these automatically.
-    *   Example: Use `Theme.of(context).colorScheme.surface` instead of checking `brightness`.
-5.  **Modularization & Folder Structure**: 
-    *   Do not code everything in a single file. 
-    *   Every feature/page directory must follow this structure:
-        *   `bloc/`: Contains Bloc and its related files (Events, States).
-        *   `models/`: Contains data models.
-        *   `repo/`: Contains repository classes for API integration.
-        *   `widgets/`: Contains `StatelessWidget` or `StatefulWidget` components.
-        *   `feature_name.dart`: The main page/entry point for the feature.
-6.  **Animations**: Use animations only where they add value to the UX. Keep them subtle and purposeful.
-7.  **State Management**: Strictly **never use `setState`** for business logic or cross-component state. Use `Bloc` or `Cubit` even for smaller interactions if they affect the state of the feature. Local UI state (like tab indices or local field controllers) can use stateful widgets but prefer Bloc where possible.
-8.  **Typography**: Use `FontSizes` constants for all font size definitions.
-9.  **Dimensions**: Use `HeightConstants` and `WidthConstants` from `lib/constants/size_constants.dart` for providing height and width. If a needed value is missing, add it to the constants file first.
-10. **Modern UI/UX**: The app UI should feel modern, "alive," and user-friendly. Avoid dull or old-fashioned designs. Use shadows, gradients, and rounded corners (via tokens) appropriately.
-11. **Consistency**: Maintain a consistent theme and feel across all pages.
-12. **Dependency Injection & Blocs**: Dependency injection for Blocs should be properly managed. Global Blocs (those used across multiple features) must be provided in `main.dart` or the root shell. Avoid re-creating Bloc instances inside page builders if they need to maintain state across navigation. Use `getIt` for repository/service injection into Blocs.
-13. **Navigation**: Use `auto_route` for all navigation purposes. Never use the default `Navigator` or `MaterialPageRoute` manually.
-14. **Unused Imports**: Never use unused imports. Remove them to keep the code clean and maintainable.
-15. **Unused Variables**: Remove unused variables to keep the code clean and maintainable.
-16. **Pull to Refresh**: Always implement `RefreshIndicator` for pages that fetch data from a backend/repository to allow users to manually refresh content. Use `AlwaysScrollableScrollPhysics` on the scroll view to ensure it works even with little content.
-17. **Card Distinguishability**: To ensure cards are distinguishable from the background (especially when colors are similar), use a conditional border:
-    `border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.withValues(alpha: 0.3) : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1))`
+---
 
-18. **API Handling & Loading States**:
-    *   **CRITICAL**: Always show a loading indicator (e.g., `CircularProgressIndicator` or a shimmer effect) while an API call is in progress.
-    *   Every feature that interacts with an API must properly manage and UI-reflect three states:
-        *   **Loading**: The request is pending.
-        *   **Success**: The request completed successfully (with data or confirmation).
-        *   **Error**: The request failed (show a user-friendly error message or snackbar).
-    *   Use Bloc states (e.g., `Status.loading`, `Status.success`, `Status.failure`) to drive these UI changes.
+## 🗂️ Project & Folder Architecture
 
-19. **Controller Disposal**: Always dispose of all controllers (e.g., `AnimationController`, `TextEditingController`, `ScrollController`, etc.) in the `dispose()` method of your `StatefulWidget` to prevent memory leaks. This includes controllers used for slide, fade, or any other animations.
+Every single feature or page directory must adhere strictly to the following modularized structure. Do not code an entire feature inside a single file.
 
-20. **Lazy API Calls**: Don't call APIs on the initial start of the app unless absolutely necessary for the initial view. For tabbed navigation or multi-page shells, trigger data fetching only when the user navigates to that specific page/tab. Always implement `RefreshIndicator` for manual re-fetching.
+```
+lib/features/feature_name/
+├── bloc/          # Bloc, Events, States (*_bloc.dart, *_event.dart, *_state.dart)
+├── models/        # Typed data models with fromJson/toJson conversions
+├── repo/          # Repository classes for data fetching and API integrations
+├── widgets/       # Isolated, descriptive feature-specific sub-widgets
+└── feature_name_page.dart  # Main feature entry point / page scaffold
+```
 
-21. **Const Management**: When modifying widgets, ensure the `const` keyword is correctly applied or removed. If a widget's constructor or its children become non-constant (e.g., by using variables or non-const widgets), remove the `const` keyword to avoid compilation errors like "Cannot invoke a non-'const' constructor where a const expression is expected." Conversely, always prefer using `const` where possible to improve performance.
+### Dependency Injection & State Management
+* **Bloc / Cubit Only:** State management is strictly controlled via `Bloc`. Never mix with Riverpod, Provider, or GetX.
+* **No local `setState` for Business Logic:** Use local UI stateful widgets *only* for ephemeral visual controls (e.g., active tab indices, text controllers). Anything touching data or cross-component state belongs in a Bloc.
+* **DI via GetIt:** Always use `getIt` for injecting repositories, services, and backend instances into your Blocs.
+* **Global Blocs:** Blocs that span multiple features must be provided at the root shell or in `main.dart`. Do not blindly instantiate a new Bloc inside page builders if its state needs to be maintained across screens.
 
+---
+
+## 🎨 Theme, Colors & Design Tokens
+
+### The Core Design Philosophy
+The UI must feel highly modern, "alive," and user-friendly. Avoid dull, vintage layouts. Leverage soft shadows, rich gradients, and precise rounded corners using tokens.
+
+### Absolute Color Rules
+
+1. **Follow the 60:30:10 Rule:** 60% dominant canvas background/surfaces, 30% structural secondary elements, 10% vivid accents (`AppColors.accent`).
+
+2. **CRITICAL — Ban on `.withOpacity()`:** The `.withOpacity(0.x)` modifier is forbidden. It is deprecated or behaves inconsistently across modern Flutter framework layers. Always use `.withValues(alpha: 0.x)`.
+    - ✅ Correct: `AppColors.primary.withValues(alpha: 0.08)`
+    - ❌ Incorrect: `AppColors.primary.withOpacity(0.08)`
+
+3. **No Manual `isDark` Hardcoding:** Never query or evaluate brightness to manually hardcode layout blocks (e.g., `isDark ? Colors.black : Colors.white`). Always utilize `Theme.of(context).colorScheme` and `Theme.of(context).textTheme`. The overarching `AppTheme` handles look-and-feel toggling dynamically.
+
+4. **Card Distinguishability Rule:** To ensure elements split cleanly against similar backgrounds (especially across light/dark responsive phases), implement this conditional utility border:
+   ```dart
+   border: Border.all(
+     color: Theme.of(context).brightness == Brightness.dark
+         ? Colors.grey.withValues(alpha: 0.3)
+         : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1)
+   )
+   ```
+
+### Spacing, Dimensions & Radius Controls
+
+Never pass hardcoded magic layout integers to layout options. Map them directly from design tokens:
+
+| Token | Value |
+|---|---|
+| `AppRadius.sm` | 10 |
+| `AppRadius.md` | 14 |
+| `AppRadius.lg` | 18 |
+| `AppSpacing.xxs` | 6 |
+| `AppSpacing.xs` | 8 |
+| `AppSpacing.sm` | 12 |
+| `AppSpacing.md` | 16 |
+| `AppSpacing.lg` | 20 |
+| `AppSpacing.xl` | 24 |
+
+* **Sizing Constants:** Utilize explicit definitions from `lib/constants/size_constants.dart` (`HeightConstants` / `WidthConstants`). If a required layout variation is missing, append it directly to the root token library file first.
+    * `HeightConstants.bookImageHeight` → `110`
+    * `WidthConstants.bookImageWidth` → `85`
+
+---
+
+## 📐 Strict UI/UX Rules
+
+1. **Loading States are Mandatory:** Show a concrete visual indicator (`CircularProgressIndicator` or a themed Shimmer layout skeleton) while an API transaction is moving. Never leave a screen stagnant.
+
+2. **Explicit Three-State Pattern:** Every view querying APIs must model and layout architecture flags for:
+    * `Status.loading` — Request is pending.
+    * `Status.success` — Processing succeeded (render actual content or validation confirmation).
+    * `Status.failure` — Graceful error rendering presenting localized user-friendly copy (no raw exception stacks).
+
+3. **Lazy Data Fetching:** Do not execute API loads on application boot unless it is vital for the primary container frame. For tab routing or multi-shell environments, fire requests *only* when the consumer navigates onto that unique viewport.
+
+4. **Pull to Refresh Standard:** Implement `RefreshIndicator` for lists fetching dynamic remote structures. Force `AlwaysScrollableScrollPhysics()` on the internal viewport scroll layer so manual pulls function cleanly even when data blocks are brief.
+
+5. **Controller Lifecycle Management:** Always call `.dispose()` on layout controllers (`AnimationController`, `TextEditingController`, `ScrollController`) inside the `dispose()` stack of `StatefulWidget` frames to avoid severe memory retention leaks.
+
+6. **Touch Target Footprint:** Keep visual touch components mapped to minimum interactive hitboxes of **48×48px**.
+
+7. **Auto-Dismiss Keyboards:** Wrap high-input or scrollable entry forms inside an interactive listener block to drop background focus cleanly:
+   ```dart
+   GestureDetector(onTap: FocusScope.of(context).unfocus)
+   ```
+
+8. **Navigation Restrictions:** All routing commands must utilize `auto_route`. Never make raw manual assignments via `Navigator.push` or native `MaterialPageRoute`.
+
+---
+
+## 🚫 Code Guardrails — Things We Never Do
+
+* **Never use `Colors.white` or `Colors.black` directly:** Target explicit references within `AppColors`.
+* **Never print directly to the console:** Do not drop standard `print()` statements into production features; routing execution tracing goes through the systemic project Logger wrapper.
+* **Never use unassigned or dead allocations:** Zero tolerance for unused imports and hanging, unread local variables. Clean up the source block completely before shipping.
+* **Never break the compilation `const` boundaries:** When tailoring tree parameters, ensure the `const` keyword is cleanly distributed or dropped. If an evaluated block becomes dynamic (e.g., using variables or runtime values), strip out the higher-level constant tree call to avoid building critical compiler failures. Conversely, systematically favor `const` properties where objects remain completely static.
+* **Never design standalone raw elements:** Do not write a direct `Text` element without explicitly assigning a configured token from `AppTextStyles` or matching tracking elements within `Theme.of(context).textTheme`.
+* **Never write dense monolithic trees:** Keep local `build()` methods lightweight. If an extracted view or sub-component pushes past ~40 lines of layout structure, spin it out into an independent `StatelessWidget` or `StatefulWidget` file inside the target feature's subfolder. No singular `build()` method may ever exceed **80 absolute lines**.
+
+---
+
+## ✅ Pull Request Checklist
+
+Before staging code updates or declaring a screen task complete, verify every rule is checked off:
+
+- [ ] Base layer respects `Theme.of(context).colorScheme` parameters seamlessly across themes.
+- [ ] All alpha/opacity mutations exclusively leverage `.withValues(alpha: 0.x)`.
+- [ ] No hardcoded numbers used for structural margins, spacing, padding, or corners.
+- [ ] Screen structures map directly into the isolated standard feature layout (`bloc/`, `models/`, `repo/`, `widgets/`).
+- [ ] Clean lifecycle tracking implemented — all text and animation controllers are explicitly disposed.
+- [ ] Data-driven screens explicitly manage Loading, Success, and Failure visual states.
+- [ ] Pull-to-refresh (`RefreshIndicator`) implemented with `AlwaysScrollableScrollPhysics` on active data grids/lists.
+- [ ] Touch interactives maintain standard hitboxes (>= 48×48px).
+- [ ] View navigation strictly targets the `auto_route` engine.
+- [ ] Code base is fully clean of dead imports, debug logs, and unused variables.
+- [ ] No localized UI `build()` method passes the 80-line ceiling.

@@ -22,71 +22,101 @@ class MyListingsPage extends StatelessWidget {
   }
 }
 
-class _MyListingsView extends StatelessWidget {
+class _MyListingsView extends StatefulWidget {
   const _MyListingsView();
+
+  @override
+  State<_MyListingsView> createState() => _MyListingsViewState();
+}
+
+class _MyListingsViewState extends State<_MyListingsView> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      final status = _tabController.index == 0 ? 'active' : 'sold';
+      context.read<MyListingsBloc>().add(LoadMyListings(status: status));
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_onTabChanged);
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: colorScheme.surfaceContainerLowest,
-        appBar: AppBar(
-          title: const Text('My Listings', style: TextStyle(fontWeight: FontWeight.bold)),
-          centerTitle: true,
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(50),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-              decoration: BoxDecoration(color: colorScheme.surfaceContainerLow, borderRadius: BorderRadius.circular(AppRadius.md)),
-              child: TabBar(
-                dividerColor: Colors.transparent,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicator: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md), color: colorScheme.primary),
-                labelColor: colorScheme.onPrimary,
-                unselectedLabelColor: colorScheme.onSurfaceVariant,
-                labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                tabs: const [
-                  Tab(text: 'Active'),
-                  Tab(text: 'Sold'),
-                ],
-              ),
+    return Scaffold(
+      backgroundColor: colorScheme.surfaceContainerLowest,
+      appBar: AppBar(
+        title: const Text('My Listings', style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+            decoration: BoxDecoration(color: colorScheme.surfaceContainerLow, borderRadius: BorderRadius.circular(AppRadius.md)),
+            child: TabBar(
+              controller: _tabController,
+              dividerColor: Colors.transparent,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md), color: colorScheme.primary),
+              labelColor: colorScheme.onPrimary,
+              unselectedLabelColor: colorScheme.onSurfaceVariant,
+              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              tabs: const [
+                Tab(text: 'Active'),
+                Tab(text: 'Sold'),
+              ],
             ),
           ),
         ),
-        body: BlocBuilder<MyListingsBloc, MyListingsState>(
-          builder: (context, state) {
-            if (state.status == MyListingsStatus.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+      ),
+      body: BlocBuilder<MyListingsBloc, MyListingsState>(
+        builder: (context, state) {
+          if (state.status == MyListingsStatus.loading) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            if (state.status == MyListingsStatus.failure) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Error: ${state.errorMessage}'),
-                    const SizedBox(height: AppSpacing.md),
-                    ElevatedButton(
-                      onPressed: () => context.read<MyListingsBloc>().add(const LoadMyListings()),
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return TabBarView(
-              children: [
-                _ListingsList(listings: state.activeListings, type: 'active'),
-                _ListingsList(listings: state.soldListings, type: 'sold'),
-              ],
+          if (state.status == MyListingsStatus.failure) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${state.errorMessage}'),
+                  const SizedBox(height: AppSpacing.md),
+                  ElevatedButton(
+                    onPressed: () {
+                      final status = _tabController.index == 0 ? 'active' : 'sold';
+                      context.read<MyListingsBloc>().add(LoadMyListings(status: status));
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
             );
-          },
-        ),
+          }
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _ListingsList(listings: state.activeListings, type: 'active'),
+              _ListingsList(listings: state.soldListings, type: 'sold'),
+            ],
+          );
+        },
       ),
     );
   }
@@ -107,14 +137,14 @@ class _ListingsList extends StatelessWidget {
         actionLabel: type == 'active' ? 'Start Selling' : null,
         onAction: () => context.router.push(CreateListingRoute()).then((_) {
           if (context.mounted) {
-            context.read<MyListingsBloc>().add(const RefreshMyListings());
+            context.read<MyListingsBloc>().add(RefreshMyListings(status: type));
           }
         }),
       );
     }
     return RefreshIndicator(
       onRefresh: () async {
-        context.read<MyListingsBloc>().add(const RefreshMyListings());
+        context.read<MyListingsBloc>().add(RefreshMyListings(status: type));
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -132,7 +162,7 @@ class _ListingsList extends StatelessWidget {
                 heroTag: 'my_listings_book_image_${item.id}',
               )).then((_) {
                 if (context.mounted) {
-                  context.read<MyListingsBloc>().add(const RefreshMyListings());
+                  context.read<MyListingsBloc>().add(RefreshMyListings(status: type));
                 }
               }),
             ),

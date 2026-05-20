@@ -15,28 +15,33 @@ class MyListingsBloc extends Bloc<MyListingsEvent, MyListingsState> {
   }
 
   Future<void> _onLoadMyListings(LoadMyListings event, Emitter<MyListingsState> emit) async {
-    emit(state.copyWith(status: MyListingsStatus.loading));
-    await _fetchListings(emit);
+    // Only show loading if we don't have data yet
+    final currentList = event.status == 'sold' ? state.soldListings : state.activeListings;
+    if (currentList.isEmpty) {
+      emit(state.copyWith(status: MyListingsStatus.loading));
+    }
+    await _fetchListings(emit, event.status);
   }
 
   Future<void> _onRefreshMyListings(RefreshMyListings event, Emitter<MyListingsState> emit) async {
-    await _fetchListings(emit);
+    await _fetchListings(emit, event.status);
   }
 
-  Future<void> _fetchListings(Emitter<MyListingsState> emit) async {
+  Future<void> _fetchListings(Emitter<MyListingsState> emit, String status) async {
     try {
-      // Fetching active and sold listings separately as requested.
-      // For active, we don't pass the status to let it default to 'active' as per the API.
-      final results = await Future.wait([
-        _repo.getMyListings(), // defaults to active
-        _repo.getMyListings(status: 'sold'),
-      ]);
+      final results = await _repo.getMyListings(status: status);
 
-      emit(state.copyWith(
-        status: MyListingsStatus.success,
-        activeListings: results[0],
-        soldListings: results[1],
-      ));
+      if (status == 'sold') {
+        emit(state.copyWith(
+          status: MyListingsStatus.success,
+          soldListings: results,
+        ));
+      } else {
+        emit(state.copyWith(
+          status: MyListingsStatus.success,
+          activeListings: results,
+        ));
+      }
     } catch (e) {
       emit(state.copyWith(
         status: MyListingsStatus.failure,

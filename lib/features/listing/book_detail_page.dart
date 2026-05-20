@@ -181,7 +181,39 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                     child: state.status == ListingDetailStatus.loading && state.listing == null
                         ? const Center(child: CircularProgressIndicator())
                         : state.status == ListingDetailStatus.failure && state.listing == null
-                        ? Center(child: Text('Error: ${state.errorMessage}'))
+                            ? Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(AppSpacing.xl),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.error_outline_rounded, size: 48, color: colorScheme.error),
+                                      const SizedBox(height: AppSpacing.md),
+                                      Text(
+                                        'Oops! Something went wrong',
+                                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: AppSpacing.xs),
+                                      Text(
+                                        state.errorMessage,
+                                        textAlign: TextAlign.center,
+                                        style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                                      ),
+                                      const SizedBox(height: AppSpacing.lg),
+                                      FilledButton.icon(
+                                        onPressed: () {
+                                          final bookId = int.tryParse(widget.listing.id);
+                                          if (bookId != null) {
+                                            context.read<ListingDetailBloc>().add(FetchListingDetail(bookId));
+                                          }
+                                        },
+                                        icon: const Icon(Icons.refresh_rounded),
+                                        label: const Text('Retry'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
                         : RefreshIndicator(
                             onRefresh: () async {
                               final bookId = int.tryParse(widget.listing.id);

@@ -34,7 +34,7 @@ class BookCard extends StatelessWidget {
               // Cover image area
               Hero(
                 tag: heroTag ?? 'home_book_image_${listing.id}',
-                child: _BookCoverPlaceholder(),
+                child: _BookCover(imagePaths: listing.imagePaths),
               ),
 
               const SizedBox(height: 10),
@@ -76,15 +76,27 @@ class BookCard extends StatelessWidget {
   }
 }
 
-/// Book cover placeholder — swap with CachedNetworkImage when imageUrl is available.
-class _BookCoverPlaceholder extends StatelessWidget {
+/// Book cover — shows the first image from [imagePaths] or a placeholder.
+class _BookCover extends StatelessWidget {
+  const _BookCover({required this.imagePaths});
+  final List<String> imagePaths;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 110,
       width: double.infinity,
       decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(12)),
-      child: Center(child: Icon(Icons.menu_book_rounded, size: 44, color: AppColors.primary.withValues(alpha: 0.5))),
+      child: imagePaths.isNotEmpty
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.network(
+                imagePaths.first,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Center(child: Icon(Icons.menu_book_rounded, size: 44, color: AppColors.primary.withValues(alpha: 0.5))),
+              ),
+            )
+          : Center(child: Icon(Icons.menu_book_rounded, size: 44, color: AppColors.primary.withValues(alpha: 0.5))),
     );
   }
 }

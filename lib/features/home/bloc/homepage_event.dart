@@ -17,3 +17,13 @@ class SelectCategory extends HomepageEvent {
   @override
   List<Object?> get props => [category];
 }
+
+class RequestLocationPermission extends HomepageEvent {}
+
+class UpdateLocationPermissionStatus extends HomepageEvent {
+  const UpdateLocationPermissionStatus(this.status);
+  final LocationPermissionStatus status;
+
+  @override
+  List<Object?> get props => [status];
+}

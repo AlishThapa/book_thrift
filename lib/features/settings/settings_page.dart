@@ -132,10 +132,10 @@ class SettingsPage extends StatelessWidget {
         title: const Text('Reset Data?'),
         content: const Text('This will clear all local data and reseed with initial data. This action cannot be undone.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => context.router.maybePop(), child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              context.router.maybePop();
               final repo = getIt<AppRepository>();
               await repo.clearAll();
               for (final listing in SeedData.listings()) {
@@ -166,10 +166,10 @@ class SettingsPage extends StatelessWidget {
         title: const Text('Delete Profile?'),
         content: const Text('Are you sure you want to delete your profile? This action is permanent.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => context.router.maybePop(), child: const Text('Cancel')),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              context.router.maybePop();
               final p = context.read<ProfileBloc>().state.profile;
               if (p == null) return;
               await getIt<AppRepository>().saveProfile(

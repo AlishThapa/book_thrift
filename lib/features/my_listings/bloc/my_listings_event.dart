@@ -8,9 +8,17 @@ abstract class MyListingsEvent extends Equatable {
 }
 
 class LoadMyListings extends MyListingsEvent {
-  const LoadMyListings();
+  final String status;
+  const LoadMyListings({this.status = 'active'});
+
+  @override
+  List<Object> get props => [status];
 }
 
 class RefreshMyListings extends MyListingsEvent {
-  const RefreshMyListings();
+  final String status;
+  const RefreshMyListings({this.status = 'active'});
+
+  @override
+  List<Object> get props => [status];
 }

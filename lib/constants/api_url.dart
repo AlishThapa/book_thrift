@@ -17,4 +17,5 @@ class ApiUrl {
   static const String decrementCart = "cart/decrement";
   static const String removeCart = "cart/remove";
   static const String cart = "cart";
+  static const String dashboard = "dashboard";
 }

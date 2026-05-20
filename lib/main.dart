@@ -1,3 +1,5 @@
+import 'package:book_thrift/core/services/location_service.dart';
+import 'package:book_thrift/features/home/repo/homepage_repo.dart';
 import 'package:book_thrift/features/auth/bloc/auth_bloc.dart';
 import 'package:book_thrift/features/auth/repository/repo.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +92,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => HomepageBloc(getIt<AppRepository>())),
+        BlocProvider(
+          create: (_) => HomepageBloc(
+            getIt<AppRepository>(),
+            getIt<LocationService>(),
+            getIt<HomepageRepo>(),
+          ),
+        ),
         BlocProvider(create: (_) => WishlistBloc(getIt<ListingRepo>())),
         BlocProvider(
           create: (_) => ProfileBloc(
@@ -108,7 +116,7 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(create: (_) => CartBloc(getIt<CartRepo>())),
         BlocProvider(create: (_) => AuthBloc(authRepository: getIt<AuthRepository>())),
-        BlocProvider(create: (_) => CreateListingBloc(getIt<ListingRepo>())..add(const SeedForm({}))),
+        BlocProvider(create: (_) => CreateListingBloc(getIt<ListingRepo>(), getIt<LocationService>())..add(const SeedForm({}))),
         BlocProvider(create: (_) => BinBloc(getIt<BinRepository>())),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(

@@ -1,13 +1,15 @@
+import 'package:book_thrift/core/services/location_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:book_thrift/features/listing/repo/listing_repo.dart';
+import 'package:logger/logger.dart';
 
 part 'create_listing_event.dart';
 part 'create_listing_state.dart';
 
 class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
-  CreateListingBloc(this.repo) : super(const CreateListingState()) {
+  CreateListingBloc(this.repo, this._locationService) : super(const CreateListingState()) {
     on<UpdateListingField>(_updateField);
     on<SeedForm>(_seedForm);
     on<PublishListing>(_publish);
@@ -19,6 +21,7 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
   }
 
   final ListingRepo repo;
+  final LocationService _locationService;
   final ImagePicker _picker = ImagePicker();
 
   void _updateField(UpdateListingField event, Emitter<CreateListingState> emit) {
@@ -113,7 +116,29 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
     }
 
     try {
-      emit(state.copyWith(isPickingImages: true)); // Reusing isPickingImages as a general loading state for now or we could add isSubmitting
+      emit(state.copyWith(isPickingImages: true)); // Reusing isPickingImages as a general loading state
+
+      final hasAsked = await _locationService.hasBeenAsked();
+      final isGranted = await _locationService.isPermissionGranted();
+
+      LocationPermissionStatus permissionStatus = LocationPermissionStatus.notAsked;
+      if (hasAsked) {
+        permissionStatus = isGranted ? LocationPermissionStatus.granted : LocationPermissionStatus.denied;
+      }
+      
+      Logger().i("Publishing: Location permission status - hasAsked: $hasAsked, isGranted: $isGranted, permissionStatus: $permissionStatus");
+
+      double? lat;
+      double? lng;
+
+      if (permissionStatus == LocationPermissionStatus.granted) {
+        await _locationService.updateLocation();
+        lat = _locationService.getCachedLat();
+        lng = _locationService.getCachedLng();
+        Logger().i("Publishing: Fetched coordinates - Lat: $lat, Lng: $lng");
+      } else {
+        Logger().w("Publishing: Location permission not granted or not asked, skipping coordinates");
+      }
 
       await repo.postBook(
         title: f['title'] ?? '',
@@ -124,6 +149,8 @@ class CreateListingBloc extends Bloc<CreateListingEvent, CreateListingState> {
         location: f['location'] ?? 'Unknown',
         category: f['category'] ?? 'Others',
         imagePaths: state.selectedImages,
+        latitude: lat,
+        longitude: lng,
       );
 
       emit(state.copyWith(

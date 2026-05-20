@@ -1,3 +1,4 @@
+import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:book_thrift/constants/app_colors.dart';
 
@@ -16,17 +17,28 @@ class CategoryChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: categories.map((category) {
-        final isSelected = selected == category;
-        return _CategoryChip(
-          label: category,
-          isSelected: isSelected,
-          onTap: () => onSelected(category),
-        );
-      }).toList(),
+    return SizedBox(
+      height: 52,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(
+          vertical: 4,
+          horizontal: AppSpacing.md,
+        ), // Added padding for shadow and side spacing
+        itemCount: categories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final category = categories[index];
+          final isSelected = selected == category;
+
+          return _CategoryChip(
+            label: category,
+            isSelected: isSelected,
+            onTap: () => onSelected(category),
+          );
+        },
+      ),
     );
   }
 }
@@ -63,21 +75,21 @@ class _CategoryChip extends StatelessWidget {
         ),
         boxShadow: isSelected
             ? [
-                BoxShadow(
-                  color: colorScheme.primary.withValues(alpha: 0.15),
-                  blurRadius: 8,
-                  offset: const Offset(2, 2),
-                ),
-              ]
+          BoxShadow(
+            color: colorScheme.primary.withValues(alpha: 0.15),
+            blurRadius: 8,
+            offset: const Offset(2, 2),
+          ),
+        ]
             : (isDark
-                ? []
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    )
-                  ]),
+            ? []
+            : [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          )
+        ]),
       ),
       child: Material(
         color: Colors.transparent,
@@ -100,9 +112,9 @@ class _CategoryChip extends StatelessWidget {
                 Text(
                   label,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),

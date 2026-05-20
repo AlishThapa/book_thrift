@@ -16,6 +16,8 @@ class ListingRepo {
     required String location,
     required String category,
     required List<String> imagePaths,
+    double? latitude,
+    double? longitude,
   }) async {
     final Map<String, dynamic> data = {
       'title': title,
@@ -26,6 +28,9 @@ class ListingRepo {
       'location': location,
       'category': category,
     };
+
+    if (latitude != null) data['latitude'] = latitude;
+    if (longitude != null) data['longitude'] = longitude;
 
     if (imagePaths.isNotEmpty) {
       final List<MultipartFile> files = [];
