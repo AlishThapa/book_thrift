@@ -16,24 +16,17 @@ class CategoryChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 52,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(vertical: 4), // Added padding for shadow
-        itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          final isSelected = selected == category;
-
-          return _CategoryChip(
-            label: category,
-            isSelected: isSelected,
-            onTap: () => onSelected(category),
-          );
-        },
-      ),
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: categories.map((category) {
+        final isSelected = selected == category;
+        return _CategoryChip(
+          label: category,
+          isSelected: isSelected,
+          onTap: () => onSelected(category),
+        );
+      }).toList(),
     );
   }
 }
