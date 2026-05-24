@@ -9,15 +9,6 @@ sealed class HomepageEvent extends Equatable {
 
 class LoadHomepage extends HomepageEvent {}
 
-class SelectCategory extends HomepageEvent {
-  const SelectCategory(this.category);
-
-  final String category;
-
-  @override
-  List<Object?> get props => [category];
-}
-
 class RequestLocationPermission extends HomepageEvent {}
 
 class UpdateLocationPermissionStatus extends HomepageEvent {

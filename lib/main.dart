@@ -32,6 +32,7 @@ import 'package:book_thrift/core/router/app_router.dart';
 import 'package:book_thrift/core/utils/app_theme.dart';
 
 import 'features/cart/repo/cart_repo.dart';
+import 'features/home/bloc/navigation_cubit.dart';
 import 'features/search/repo/search_repo.dart';
 
 Future<void> main() async {
@@ -94,7 +95,6 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => HomepageBloc(
-            getIt<AppRepository>(),
             getIt<LocationService>(),
             getIt<HomepageRepo>(),
           ),
@@ -116,6 +116,7 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(create: (_) => CartBloc(getIt<CartRepo>())),
         BlocProvider(create: (_) => AuthBloc(authRepository: getIt<AuthRepository>())),
+        BlocProvider(create: (_) => NavigationCubit(0)),
         BlocProvider(create: (_) => CreateListingBloc(getIt<ListingRepo>(), getIt<LocationService>())..add(const SeedForm({}))),
         BlocProvider(create: (_) => BinBloc(getIt<BinRepository>())),
       ],

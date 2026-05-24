@@ -4,7 +4,7 @@ import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/core/router/app_router.gr.dart';
 import 'package:book_thrift/features/cart/cart_page.dart';
 import 'package:book_thrift/features/home/bloc/homepage_bloc.dart';
-import 'package:book_thrift/features/home/widgets/category_chips.dart';
+import 'package:book_thrift/features/home/bloc/navigation_cubit.dart';
 import 'package:book_thrift/features/home/widgets/home_book_list.dart';
 import 'package:book_thrift/features/home/widgets/home_empty_state.dart';
 import 'package:book_thrift/features/home/widgets/home_section_title.dart';
@@ -34,13 +34,15 @@ class MainShellPage extends StatefulWidget {
 }
 
 class _MainShellPageState extends State<MainShellPage> {
-  late int _index;
-
   @override
   void initState() {
     super.initState();
-    _index = widget.initialIndex;
-    _loadTab(_index);
+    if (widget.initialIndex != 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<NavigationCubit>().setTab(widget.initialIndex);
+      });
+    }
+    _loadTab(widget.initialIndex);
   }
 
   void _loadTab(int i) {
@@ -69,7 +71,7 @@ class _MainShellPageState extends State<MainShellPage> {
       return;
     }
     _loadTab(i);
-    setState(() => _index = i);
+    context.read<NavigationCubit>().setTab(i);
   }
 
   @override
@@ -77,13 +79,17 @@ class _MainShellPageState extends State<MainShellPage> {
     final colorScheme = Theme.of(context).colorScheme;
     final pages = [Homepage(onNavigate: _onNavigate), const SearchPage(), const SizedBox.shrink(), CartPage(onNavigate: _onNavigate), const ProfilePage()];
 
-    return Scaffold(
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      backgroundColor: colorScheme.surfaceContainerLowest,
-      body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: _BottomNav(currentIndex: _index, onTap: _onNavigate),
-      resizeToAvoidBottomInset: true,
+    return BlocBuilder<NavigationCubit, int>(
+      builder: (context, index) {
+        return Scaffold(
+          extendBody: true,
+          extendBodyBehindAppBar: true,
+          backgroundColor: colorScheme.surfaceContainerLowest,
+          body: IndexedStack(index: index, children: pages),
+          bottomNavigationBar: _BottomNav(currentIndex: index, onTap: _onNavigate),
+          resizeToAvoidBottomInset: true,
+        );
+      },
     );
   }
 }
@@ -136,18 +142,6 @@ class _BottomNav extends StatelessWidget {
     );
   }
 }
-
-const List<String> _kCategories = [
-  'All',
-  'School',
-  '+2 College',
-  'Bachelor & Above',
-  'Novels & Fiction',
-  'Religion & Spirituality',
-  'Self-Help',
-  'Children\'s Books',
-  'Others',
-];
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key, required this.onNavigate});
@@ -228,40 +222,23 @@ class Homepage extends StatelessWidget {
                             child: SellBanner(onTap: () => onNavigate(2)),
                           ),
                           const SizedBox(height: AppSpacing.xl),
-                          const Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                            child: HomeSectionTitle(icon: Icons.tune_rounded, title: 'Categories'),
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          CategoryChips(
-                            categories: _kCategories,
-                            selected: state.selectedCategory,
-                            onSelected: (cat) => context.read<HomepageBloc>().add(SelectCategory(cat)),
-                          ),
-
                           if (state.loading)
                             const Padding(
                               padding: EdgeInsets.only(top: AppSpacing.xl),
                               child: SizedBox(height: 285, child: SkeletonList()),
                             )
-                          else if (state.listings.isEmpty)
+                          else if (state.nearYouListings.isEmpty &&
+                              state.picksForYouListings.isEmpty &&
+                              state.justDroppedListings.isEmpty &&
+                              state.trendingListings.isEmpty)
                             const SizedBox(height: 285, child: HomeEmptyState())
-                          else if (state.selectedCategory != 'All')
-                            _buildSection(context, 'Books in ${state.selectedCategory}', Icons.category_rounded, state.listings, 'category')
                           else ...[
-                            // only show if the state.nearYouListings is not null or not empty
                             if (state.nearYouListings.isNotEmpty)
                               _buildSection(context, 'New Listings Near You', Icons.location_on_rounded, state.nearYouListings, 'near_you'),
-
-                            // 2. Picks for you
                             if (state.picksForYouListings.isNotEmpty)
                               _buildSection(context, 'Picks for You', Icons.auto_awesome_rounded, state.picksForYouListings, 'picks'),
-
-                            // 4. Just dropped today
                             if (state.justDroppedListings.isNotEmpty)
                               _buildSection(context, 'Just Dropped Today', Icons.bolt_rounded, state.justDroppedListings, 'dropped'),
-
-                            // 5. Trending this week
                             if (state.trendingListings.isNotEmpty)
                               _buildSection(context, 'Trending This Week', Icons.trending_up_rounded, state.trendingListings, 'trending'),
                           ],
