@@ -10,11 +10,14 @@ import 'package:book_thrift/features/listing/repo/listing_repo.dart';
 import 'package:book_thrift/features/listing/widgets/book_detail_image_carousel.dart';
 import 'package:book_thrift/features/listing/widgets/book_specs_grid.dart';
 import 'package:book_thrift/features/listing/widgets/seller_info_card.dart';
+import 'package:book_thrift/features/listing/widgets/book_detail_sheet.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
 import 'package:book_thrift/shared/widgets/system/bottom_cta_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
+
+import '../chat/bloc/chat_bloc.dart';
 
 @RoutePage()
 class BookDetailPage extends StatefulWidget {
@@ -135,6 +138,12 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                       context,
                     ).showSnackBar(SnackBar(content: Text(state.errorMessage), backgroundColor: colorScheme.error, behavior: SnackBarBehavior.floating));
                   }
+                },
+              ),
+              BlocListener<ChatBloc, ChatState>(
+                listenWhen: (p, c) => p.lastCreatedConversationId != c.lastCreatedConversationId && c.lastCreatedConversationId != null,
+                listener: (context, state) {
+                  context.router.push(ChatDetailRoute(threadId: state.lastCreatedConversationId!, listing: widget.listing));
                 },
               ),
             ],
@@ -321,7 +330,17 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                                                 const SizedBox(height: AppSpacing.xl),
                                                 Text('Seller Information', style: textTheme.titleLarge),
                                                 const SizedBox(height: AppSpacing.sm),
-                                                SellerInfoCard(owner: listing.owner),
+                                                SellerInfoCard(
+                                                  owner: listing.owner,
+                                                  onTap: () {
+                                                    final ownerId = listing.owner?.id;
+                                                    if (ownerId != null) {
+                                                      context.read<ChatBloc>().add(CreateConversation(ownerId));
+                                                    } else {
+                                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Seller information not available')));
+                                                    }
+                                                  },
+                                                ),
 
                                                 if (listing.similarBooks != null && listing.similarBooks!.isNotEmpty) ...[
                                                   const SizedBox(height: AppSpacing.xl),
@@ -340,7 +359,7 @@ class _BookDetailPageState extends State<BookDetailPage> with SingleTickerProvid
                                                         listing: similarBook,
                                                         heroTag: heroTag,
                                                         onTap: () {
-                                                          context.router.push(BookDetailRoute(listing: similarBook, heroTag: heroTag));
+                                                          BookDetailSheet.show(context, listing: similarBook, heroTag: heroTag);
                                                         },
                                                       );
                                                     },

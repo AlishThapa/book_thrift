@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:book_thrift/core/hive/hive_type_ids.dart';
+import 'package:book_thrift/core/utils/json_helper.dart';
 
 class UserProfile {
   UserProfile({
@@ -36,18 +37,18 @@ class UserProfile {
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
-      id: json['id'],
-      uid: json['uid'],
-      fullName: json['full_name'] ?? '',
-      email: json['email'] ?? '',
-      phone: json['phone'] ?? '',
-      userType: json['user_type'] ?? '',
-      location: json['location'] ?? '',
-      institutionName: json['institution'] ?? '',
-      classOrCourse: json['class_name'] ?? '',
-      semesterOrYear: json['semester'] ?? '',
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
+      id: JsonHelper.toInt(json['id']),
+      uid: JsonHelper.toStringValue(json['uid']),
+      fullName: JsonHelper.toStringValue(json['full_name']) ?? '',
+      email: JsonHelper.toStringValue(json['email']) ?? '',
+      phone: JsonHelper.toStringValue(json['phone']) ?? '',
+      userType: JsonHelper.toStringValue(json['user_type']) ?? '',
+      location: JsonHelper.toStringValue(json['location']) ?? '',
+      institutionName: JsonHelper.toStringValue(json['institution']) ?? '',
+      classOrCourse: JsonHelper.toStringValue(json['class_name']) ?? '',
+      semesterOrYear: JsonHelper.toStringValue(json['semester']) ?? '',
+      createdAt: JsonHelper.toStringValue(json['created_at']),
+      updatedAt: JsonHelper.toStringValue(json['updated_at']),
     );
   }
 

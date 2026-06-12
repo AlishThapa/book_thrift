@@ -47,12 +47,25 @@ class ChatBubble extends StatelessWidget {
           children: [
             _buildContent(context, colorScheme, textTheme),
             const SizedBox(height: 4),
-            Text(
-              timeStr,
-              style: textTheme.bodySmall?.copyWith(
-                color: isMe ? colorScheme.onPrimary.withValues(alpha: 0.7) : colorScheme.onSurfaceVariant,
-                fontSize: 10,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  timeStr,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: isMe ? colorScheme.onPrimary.withValues(alpha: 0.7) : colorScheme.onSurfaceVariant,
+                    fontSize: 10,
+                  ),
+                ),
+                if (isMe) ...[
+                  const SizedBox(width: 4),
+                  Icon(
+                    message.readAt != null ? Icons.done_all_rounded : Icons.done_rounded,
+                    size: 12,
+                    color: colorScheme.onPrimary.withValues(alpha: 0.7),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
@@ -99,13 +112,21 @@ class ChatBubble extends StatelessWidget {
           height: 200,
           child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
         ),
-        errorWidget: (context, url, error) => const Icon(Icons.error_outline),
+        errorWidget: (context, url, error) => const SizedBox(
+          width: 200,
+          height: 200,
+          child: Center(child: Icon(Icons.menu_book_rounded, size: 48, color: Colors.grey)),
+        ),
       );
     } else {
       image = Image.file(
         File(path),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Icon(Icons.error_outline),
+        errorBuilder: (_, __, ___) => const SizedBox(
+          width: 200,
+          height: 200,
+          child: Center(child: Icon(Icons.menu_book_rounded, size: 48, color: Colors.grey)),
+        ),
       );
     }
 

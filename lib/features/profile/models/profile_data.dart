@@ -1,3 +1,5 @@
+import 'package:book_thrift/core/utils/json_helper.dart';
+
 class ProfileData {
   final int id;
   final String fullName;
@@ -27,17 +29,17 @@ class ProfileData {
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
     return ProfileData(
-      id: json['id'],
-      fullName: json['full_name'],
-      email: json['email'],
-      phone: json['phone'],
-      userType: json['user_type'],
-      location: json['location'],
-      institution: json['institution'],
-      className: json['class_name'],
-      semester: json['semester'],
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
+      id: JsonHelper.toInt(json['id']) ?? 0,
+      fullName: JsonHelper.toStringValue(json['full_name']) ?? '',
+      email: JsonHelper.toStringValue(json['email']) ?? '',
+      phone: JsonHelper.toStringValue(json['phone']) ?? '',
+      userType: JsonHelper.toStringValue(json['user_type']) ?? '',
+      location: JsonHelper.toStringValue(json['location']) ?? '',
+      institution: JsonHelper.toStringValue(json['institution']) ?? '',
+      className: JsonHelper.toStringValue(json['class_name']) ?? '',
+      semester: JsonHelper.toStringValue(json['semester']) ?? '',
+      createdAt: JsonHelper.toStringValue(json['created_at']) ?? '',
+      updatedAt: JsonHelper.toStringValue(json['updated_at']),
     );
   }
 

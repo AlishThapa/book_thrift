@@ -5,6 +5,7 @@ import 'package:book_thrift/core/router/app_router.gr.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
 import 'package:book_thrift/features/my_listings/bloc/my_listings_bloc.dart';
 import 'package:book_thrift/features/my_listings/repo/my_listings_repo.dart';
+import 'package:book_thrift/features/listing/widgets/book_detail_sheet.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -156,11 +157,12 @@ class _ListingsList extends StatelessWidget {
             child: BookCard(
               listing: item,
               heroTag: 'my_listings_book_image_${item.id}',
-              onTap: () => context.router.push(BookDetailRoute(
+              onTap: () => BookDetailSheet.show(
+                context,
                 listing: item,
                 isOwner: true,
                 heroTag: 'my_listings_book_image_${item.id}',
-              )).then((_) {
+              ).then((_) {
                 if (context.mounted) {
                   context.read<MyListingsBloc>().add(RefreshMyListings(status: type));
                 }

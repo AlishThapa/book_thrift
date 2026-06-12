@@ -1,4 +1,5 @@
 import 'package:book_thrift/core/services/location_service.dart';
+import 'package:book_thrift/core/services/websocket_service.dart';
 import 'package:book_thrift/features/home/repo/homepage_repo.dart';
 import 'package:book_thrift/features/auth/bloc/auth_bloc.dart';
 import 'package:book_thrift/features/auth/repository/repo.dart';
@@ -31,6 +32,8 @@ import 'package:book_thrift/features/cart/bloc/cart_bloc.dart';
 import 'package:book_thrift/core/router/app_router.dart';
 import 'package:book_thrift/core/utils/app_theme.dart';
 
+import 'core/storage/storage_service.dart';
+import 'features/chat/repo/chat_repo.dart';
 import 'features/cart/repo/cart_repo.dart';
 import 'features/home/bloc/navigation_cubit.dart';
 import 'features/search/repo/search_repo.dart';
@@ -42,7 +45,7 @@ Future<void> main() async {
   await _openBoxes();
   await setupDependencies();
   await _seedIfNeeded(getIt<AppRepository>());
-  runApp( MyApp());
+  runApp(MyApp());
 }
 
 void _registerAdapters() {
@@ -93,26 +96,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) => HomepageBloc(
-            getIt<LocationService>(),
-            getIt<HomepageRepo>(),
-          ),
-        ),
+        BlocProvider(create: (_) => HomepageBloc(getIt<LocationService>(), getIt<HomepageRepo>())),
         BlocProvider(create: (_) => WishlistBloc(getIt<ListingRepo>())),
         BlocProvider(
-          create: (_) => ProfileBloc(
-            localRepo: getIt<AppRepository>(),
-            profileRepo: getIt<ProfileRepo>(),
-          ),
+          create: (_) => ProfileBloc(localRepo: getIt<AppRepository>(), profileRepo: getIt<ProfileRepo>()),
         ),
         BlocProvider(create: (_) => SettingsBloc(getIt<AppRepository>())..add(LoadSettings())),
-        BlocProvider(create: (_) => ChatBloc(getIt<AppRepository>())),
         BlocProvider(
-          create: (_) => SearchBloc(
-            localRepo: getIt<AppRepository>(),
-            searchRepo: getIt<SearchRepo>(),
-          ),
+          create: (_) => ChatBloc(getIt<AppRepository>(), getIt<ChatRepo>(), getIt<StorageService>(), getIt<WebSocketService>())
+            ..add(LoadThreads())
+            ..add(ConnectWebSocket()),
+        ),
+        BlocProvider(
+          create: (_) => SearchBloc(localRepo: getIt<AppRepository>(), searchRepo: getIt<SearchRepo>()),
         ),
         BlocProvider(create: (_) => CartBloc(getIt<CartRepo>())),
         BlocProvider(create: (_) => AuthBloc(authRepository: getIt<AuthRepository>())),
@@ -120,18 +116,21 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => CreateListingBloc(getIt<ListingRepo>(), getIt<LocationService>())..add(const SeedForm({}))),
         BlocProvider(create: (_) => BinBloc(getIt<BinRepository>())),
       ],
-      child: BlocBuilder<SettingsBloc, SettingsState>(
-        builder: (context, settingsState) => MaterialApp.router(
-          routerConfig: getIt<AppRouter>().config(),
-          debugShowCheckedModeBanner: false,
-          title: 'KitabSathi',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: settingsState.themeMode,
-          builder: (context, child) => GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-            child: child!,
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state.status == AuthStatus.success || state.status == AuthStatus.registered) {
+            context.read<ChatBloc>().add(ConnectWebSocket());
+          }
+        },
+        child: BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, settingsState) => MaterialApp.router(
+            routerConfig: getIt<AppRouter>().config(),
+            debugShowCheckedModeBanner: false,
+            title: 'KitabSathi',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: settingsState.themeMode,
+            builder: (context, child) => GestureDetector(behavior: HitTestBehavior.translucent, onTap: () => FocusManager.instance.primaryFocus?.unfocus(), child: child!),
           ),
         ),
       ),

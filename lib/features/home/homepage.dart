@@ -11,6 +11,7 @@ import 'package:book_thrift/features/home/widgets/home_section_title.dart';
 import 'package:book_thrift/features/home/widgets/modern_header.dart';
 import 'package:book_thrift/features/home/widgets/sell_banner.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
+import 'package:book_thrift/features/listing/widgets/book_detail_sheet.dart';
 import 'package:book_thrift/features/profile/profile_page.dart';
 import 'package:book_thrift/features/search/bloc/search_bloc.dart';
 import 'package:book_thrift/features/search/searchpage.dart';
@@ -289,7 +290,7 @@ class Homepage extends StatelessWidget {
             heroPrefix: heroPrefix,
             onBookTap: (listing) {
               final heroTag = '${heroPrefix}_book_image_${listing.id}';
-              context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag));
+              BookDetailSheet.show(context, listing: listing, heroTag: heroTag);
             },
           ),
         ),

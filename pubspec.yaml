@@ -14,7 +14,6 @@ dependencies:
   flutter_bloc: ^9.1.1
   get_it: ^9.2.1
   hive: ^2.2.3
-  hive_flutter: ^1.1.0
   image_picker: ^1.2.2
   intl: ^0.20.2
   page_flip: ^0.2.5+1
@@ -28,6 +27,8 @@ dependencies:
   fluttertoast: ^9.0.0
   shared_preferences: ^2.5.5
   geolocator: ^14.0.2
+  hive_flutter: ^1.1.0
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:

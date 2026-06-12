@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/wishlist/bloc/wishlist_bloc.dart';
 import 'package:book_thrift/features/listing/models/book_listing.dart';
+import 'package:book_thrift/features/listing/widgets/book_detail_sheet.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
 import 'package:book_thrift/core/router/app_router.gr.dart';
 import 'package:flutter/material.dart';
@@ -173,8 +174,8 @@ class _SlidableWishlistItem extends StatelessWidget {
         child: BookCard(
           listing: listing,
           heroTag: heroTag,
-          onTap: () => context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag)).then((result) {
-            if (result == true && context.mounted) {
+          onTap: () => BookDetailSheet.show(context, listing: listing, heroTag: heroTag).then((_) {
+            if (context.mounted) {
               context.read<WishlistBloc>().add(LoadWishlist());
             }
           }),

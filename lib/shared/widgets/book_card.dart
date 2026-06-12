@@ -298,7 +298,7 @@ class _BookPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Icon(
-        Icons.auto_stories_rounded,
+        Icons.menu_book_rounded,
         size: 32,
         color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
       ),

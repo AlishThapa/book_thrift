@@ -55,7 +55,7 @@ class ListingRepo {
   }
 
   Future<Map<String, dynamic>> toggleWishlist(int bookId) async {
-    return await apiInstance.postData(url: ApiUrl.toggleWishlist, queryParameters: {'book_id': bookId});
+    return await apiInstance.postData(url: "${ApiUrl.toggleWishlist}$bookId");
   }
 
   Future<Map<String, dynamic>> deleteListing(int bookId) async {

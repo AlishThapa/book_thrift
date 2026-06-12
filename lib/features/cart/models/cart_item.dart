@@ -1,5 +1,6 @@
 import 'package:book_thrift/features/listing/models/book_listing.dart';
 import 'package:equatable/equatable.dart';
+import 'package:book_thrift/core/utils/json_helper.dart';
 
 class CartItem extends Equatable {
   const CartItem({
@@ -24,13 +25,13 @@ class CartItem extends Equatable {
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
-      id: json['id'],
-      userId: json['user_id'],
-      bookId: json['book_id'],
+      id: JsonHelper.toInt(json['id']),
+      userId: JsonHelper.toInt(json['user_id']),
+      bookId: JsonHelper.toInt(json['book_id']),
       book: BookListing.fromJson(json['book']),
-      quantity: json['cart_amount'] ?? 1,
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
+      quantity: JsonHelper.toInt(json['cart_amount']) ?? 1,
+      createdAt: JsonHelper.toStringValue(json['created_at']),
+      updatedAt: JsonHelper.toStringValue(json['updated_at']),
     );
   }
 

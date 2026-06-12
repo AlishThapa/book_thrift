@@ -80,6 +80,23 @@ class SellerInfoCard extends StatelessWidget {
           _InfoRow(icon: Icons.phone_outlined, text: phone.isEmpty ? 'Not provided' : phone),
           const SizedBox(height: AppSpacing.sm),
           _InfoRow(icon: Icons.email_outlined, text: email.isEmpty ? 'Not provided' : email),
+          if (onTap != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onTap,
+                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
+                label: const Text('Chat with Seller'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+                  foregroundColor: colorScheme.primary,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

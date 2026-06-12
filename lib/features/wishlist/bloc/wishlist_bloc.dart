@@ -15,7 +15,9 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
   final ListingRepo _listingRepo;
 
   Future<void> _load(LoadWishlist e, Emitter<WishlistState> emit) async {
-    emit(state.copyWith(status: WishlistStatus.loading));
+    if (state.items.isEmpty) {
+      emit(state.copyWith(status: WishlistStatus.loading));
+    }
     try {
       final items = await _listingRepo.getWishlist();
       emit(state.copyWith(
@@ -25,7 +27,7 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
       ));
     } catch (e) {
       emit(state.copyWith(
-        status: WishlistStatus.failure,
+        status: state.items.isNotEmpty ? WishlistStatus.success : WishlistStatus.failure,
         errorMessage: e.toString(),
       ));
     }
@@ -39,22 +41,20 @@ class WishlistBloc extends Bloc<WishlistEvent, WishlistState> {
       final response = await _listingRepo.toggleWishlist(bookId);
       final isWishlisted = response['data']['is_wishlisted'] as bool;
 
-      final updatedIds = Set<String>.from(state.ids);
-      List<BookListing> updatedItems = List<BookListing>.from(state.items);
-
       if (isWishlisted) {
-        updatedIds.add(e.listingId);
-        // If it was added and we don't have it in items, we might need to fetch it or just wait for next load.
-        // For simplicity, if we are in the wishlist page, removing is more common.
+        // If it was added back (Undo), reload the list to get the full item data
+        add(LoadWishlist());
       } else {
-        updatedIds.remove(e.listingId);
-        updatedItems.removeWhere((item) => item.id == e.listingId);
+        // If it was removed, update the UI immediately
+        final updatedIds = Set<String>.from(state.ids)..remove(e.listingId);
+        final updatedItems = List<BookListing>.from(state.items)
+          ..removeWhere((item) => item.id == e.listingId);
+        
+        emit(state.copyWith(
+          items: updatedItems,
+          ids: updatedIds,
+        ));
       }
-
-      emit(state.copyWith(
-        items: updatedItems,
-        ids: updatedIds,
-      ));
     } catch (e) {
       // Handle error
     }

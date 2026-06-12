@@ -49,7 +49,6 @@ class _ChatListPageState extends State<ChatListPage> {
           ),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.add_box_outlined, size: 24), onPressed: () => context.router.push(CreateListingRoute())),
           const SizedBox(width: AppSpacing.xs),
         ],
       ),
@@ -70,31 +69,72 @@ class _ChatListPageState extends State<ChatListPage> {
             Expanded(
               child: BlocBuilder<ChatBloc, ChatState>(
                 builder: (context, state) {
+                  if (state.status == ChatStatus.loading && state.threads.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (state.status == ChatStatus.failure && state.threads.isEmpty) {
+                    return _ErrorState(
+                      message: state.errorMessage ?? 'Failed to load chats',
+                      onRetry: () => chatBloc.add(LoadThreads()),
+                    );
+                  }
+
                   final threads = state.filteredThreads;
 
                   if (threads.isEmpty) {
                     return const _EmptyChatsState();
                   }
 
-                  return ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
-                    itemCount: threads.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, i) {
-                      final t = threads[i];
-                      return ChatThreadCard(
-                        thread: t,
-                        onTap: () => context.router.push(
-                          ChatDetailRoute(threadId: t.id, listing: BookListing.sample(t.bookId, t.bookTitle, 'Unknown', 'General', 0, 0)),
-                        ),
-                      );
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      chatBloc.add(LoadThreads());
+                      // Wait for next state where status is not loading
+                      await chatBloc.stream.firstWhere((s) => s.status != ChatStatus.loading);
                     },
+                    child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+                      itemCount: threads.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (context, i) {
+                        final t = threads[i];
+                        return ChatThreadCard(
+                          thread: t,
+                          onTap: () => context.router.push(
+                            ChatDetailRoute(threadId: t.id, listing: BookListing.sample(t.bookId, t.bookTitle, 'Unknown', 'General', 0, 0)),
+                          ),
+                        );
+                      },
+                    ),
                   );
                 },
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.message, required this.onRetry});
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline_rounded, size: 48, color: Colors.red),
+          const SizedBox(height: 16),
+          Text(message),
+          const SizedBox(height: 16),
+          ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+        ],
       ),
     );
   }

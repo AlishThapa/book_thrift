@@ -25,6 +25,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    context.read<ChatBloc>().add(LoadMessages(widget.threadId));
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
@@ -192,7 +198,16 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
-                    return ChatBubble(message: messages[index]);
+                    final msg = messages[index];
+                    // Mark as read when it appears in the list
+                    if (!msg.isMe) {
+                      final messageId = int.tryParse(msg.id);
+                      final convId = int.tryParse(widget.threadId);
+                      if (messageId != null && convId != null) {
+                        context.read<ChatBloc>().add(MarkMessageRead(messageId, convId));
+                      }
+                    }
+                    return ChatBubble(message: msg);
                   },
                 ),
               ),

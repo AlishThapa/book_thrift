@@ -38,7 +38,7 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
       return Container(
         color: colorScheme.primary.withValues(alpha: 0.05),
         child: Center(
-          child: Icon(Icons.auto_stories_rounded, size: 80, color: colorScheme.primary),
+          child: Icon(Icons.menu_book_rounded, size: 80, color: colorScheme.primary.withValues(alpha: 0.3)),
         ),
       );
     }
@@ -64,7 +64,7 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
                 ),
                 errorWidget: (context, url, error) => Container(
                   color: colorScheme.surfaceContainerHigh,
-                  child: Icon(Icons.error_outline_rounded, color: colorScheme.error),
+                  child: Center(child: Icon(Icons.menu_book_rounded, color: colorScheme.primary.withValues(alpha: 0.3), size: 48)),
                 ),
               );
             } else {
@@ -73,7 +73,7 @@ class _BookDetailImageCarouselState extends State<BookDetailImageCarousel> {
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: colorScheme.surfaceContainerHigh,
-                  child: Icon(Icons.error_outline_rounded, color: colorScheme.error),
+                  child: Center(child: Icon(Icons.menu_book_rounded, color: colorScheme.primary.withValues(alpha: 0.3), size: 48)),
                 ),
               );
             }

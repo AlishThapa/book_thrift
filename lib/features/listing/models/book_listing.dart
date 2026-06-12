@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:book_thrift/core/hive/hive_type_ids.dart';
 import 'package:book_thrift/features/auth/models/user_profile.dart';
+import 'package:book_thrift/core/utils/json_helper.dart';
 
 class BookListing {
   BookListing({required this.id, required this.sellerId, required this.title, required this.author, required this.category, required this.subject, required this.institution, required this.classOrCourse, required this.semester, required this.edition, required this.publisher, this.isbn, required this.condition, required this.description, required this.originalPrice, required this.sellingPrice, required this.negotiable, required this.quantity, required this.imagePaths, required this.location, required this.deliveryMethod, required this.isAvailable, required this.isReserved, required this.status, required this.createdAt, required this.updatedAt, this.owner, this.isWishlisted = false, this.similarBooks});
@@ -36,34 +37,34 @@ class BookListing {
   factory BookListing.fromJson(Map<String, dynamic> json) {
     final data = json['data'] != null ? json['data'] as Map<String, dynamic> : json;
     return BookListing(
-      id: (data['id'] ?? '').toString(),
-      sellerId: (data['owner_id'] ?? data['seller_id'] ?? '').toString(),
-      title: data['title'] ?? '',
-      author: data['author'] ?? 'Unknown',
-      category: data['category'] ?? 'Others',
-      subject: data['subject'] ?? 'General',
-      institution: data['institution'] ?? '',
-      classOrCourse: data['class_name'] ?? '',
-      semester: data['semester'] ?? '',
-      edition: data['edition'] ?? '',
-      publisher: data['publisher'] ?? '',
-      isbn: data['isbn'],
-      condition: data['condition'] ?? 'Good',
-      description: data['description'] ?? '',
-      originalPrice: (data['original_price'] ?? 0.0).toDouble(),
-      sellingPrice: (data['price'] ?? 0.0).toDouble(),
-      negotiable: data['negotiable'] ?? true,
-      quantity: data['quantity'] ?? 1,
+      id: JsonHelper.toStringValue(data['id'] ?? '') ?? '',
+      sellerId: JsonHelper.toStringValue(data['owner_id'] ?? data['seller_id'] ?? '') ?? '',
+      title: JsonHelper.toStringValue(data['title']) ?? '',
+      author: JsonHelper.toStringValue(data['author']) ?? 'Unknown',
+      category: JsonHelper.toStringValue(data['category']) ?? 'Others',
+      subject: JsonHelper.toStringValue(data['subject']) ?? 'General',
+      institution: JsonHelper.toStringValue(data['institution']) ?? '',
+      classOrCourse: JsonHelper.toStringValue(data['class_name']) ?? '',
+      semester: JsonHelper.toStringValue(data['semester']) ?? '',
+      edition: JsonHelper.toStringValue(data['edition']) ?? '',
+      publisher: JsonHelper.toStringValue(data['publisher']) ?? '',
+      isbn: JsonHelper.toStringValue(data['isbn']),
+      condition: JsonHelper.toStringValue(data['condition']) ?? 'Good',
+      description: JsonHelper.toStringValue(data['description']) ?? '',
+      originalPrice: JsonHelper.toDouble(data['original_price']) ?? 0.0,
+      sellingPrice: JsonHelper.toDouble(data['price'] ?? data['selling_price']) ?? 0.0,
+      negotiable: JsonHelper.toBool(data['negotiable']) ?? true,
+      quantity: JsonHelper.toInt(data['quantity']) ?? 1,
       imagePaths: (data['images'] as List?)?.map((e) => e.toString()).toList() ?? [],
-      location: data['location'] ?? 'Unknown',
+      location: JsonHelper.toStringValue(data['location']) ?? 'Unknown',
       deliveryMethod: (data['delivery_method'] as List?)?.map((e) => e.toString()).toList() ?? ['Meetup'],
-      isAvailable: data['is_available'] ?? true,
-      isReserved: data['is_reserved'] ?? false,
-      status: data['status'] ?? 'active',
-      createdAt: data['created_at'] != null ? DateTime.parse(data['created_at']) : DateTime.now(),
-      updatedAt: data['updated_at'] != null ? DateTime.parse(data['updated_at']) : DateTime.now(),
+      isAvailable: JsonHelper.toBool(data['is_available']) ?? true,
+      isReserved: JsonHelper.toBool(data['is_reserved']) ?? false,
+      status: JsonHelper.toStringValue(data['status']) ?? 'active',
+      createdAt: JsonHelper.toDate(data['created_at']) ?? DateTime.now(),
+      updatedAt: JsonHelper.toDate(data['updated_at']) ?? DateTime.now(),
       owner: data['owner'] != null ? UserProfile.fromJson(data['owner']) : null,
-      isWishlisted: data['is_wishlisted'] ?? false,
+      isWishlisted: JsonHelper.toBool(data['is_wishlisted']) ?? false,
       similarBooks: (data['similar_books'] as List?)?.map((e) => BookListing.fromJson(e)).toList(),
     );
   }

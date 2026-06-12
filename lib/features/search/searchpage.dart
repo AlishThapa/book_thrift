@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:book_thrift/constants/design_tokens.dart';
 import 'package:book_thrift/features/search/bloc/search_bloc.dart';
+import 'package:book_thrift/features/listing/widgets/book_detail_sheet.dart';
 import 'package:book_thrift/shared/widgets/book_card.dart';
 import 'package:book_thrift/shared/widgets/system/app_search_bar.dart';
 import 'package:book_thrift/shared/widgets/system/app_filter_chip.dart';
@@ -140,8 +141,8 @@ class _SearchViewState extends State<_SearchView> {
                                       child: BookCard(
                                         listing: listing,
                                         heroTag: heroTag,
-                                        onTap: () => context.router.push(BookDetailRoute(listing: listing, heroTag: heroTag)).then((result) {
-                                          if (result == true && context.mounted) {
+                                        onTap: () => BookDetailSheet.show(context, listing: listing, heroTag: heroTag).then((_) {
+                                          if (context.mounted) {
                                             context.read<SearchBloc>().add(RefreshSearch());
                                           }
                                         }),
